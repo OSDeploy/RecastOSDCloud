@@ -1,0 +1,21 @@
+﻿{
+  "Invoke-WinPEStartup:SkipOnScreenKeyboard": false,
+  "Invoke-WinPEStartup:ShowPnpDevices": false,
+  "Invoke-WinPEStartup:ShowPnpErrors": false,
+  "Invoke-WinPEStartup:SkipWiFi": false,
+  "Invoke-WinPEStartup:SkipIPConfig": false,
+  "Invoke-WinPEStartup:InstallModule": [],
+  "Invoke-WinPEStartup:SkipUpdateOSDCloud": false,
+  "Invoke-WinPEStartup:InvokeStartupCommand": [],
+  "Invoke-WinPEStartup:InvokeStartupCommandNoExit": false,
+  "Invoke-WinPEStartup:InvokeStartupCommandEA": "Continue",
+  "Invoke-WinPEStartup:InvokeMainCommand": [
+    "Show-OSDCloudDeviceInfo",
+    "Deploy-OSDCloud"
+  ],
+  "Invoke-WinPEStartup:InvokeMainCommandNoExit": true,
+  "Invoke-WinPEStartup:InvokeMainCommandEA": "Continue",
+  "Invoke-WinPEStartup:InvokeShutdownCommand": [],
+  "Invoke-WinPEStartup:InvokeShutdownCommandNoExit": false,
+  "Invoke-WinPEStartup:InvokeShutdownCommandEA": "Continue"
+}

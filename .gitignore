@@ -1,0 +1,36 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Bb]in/
+[Oo]bj/
+
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# OS
+.DS_Store
+
+# Logs
+*.log
+
+# Package distribution
+*.tgz
+*.tar.gz
+*.zip
+
+# Environment files
+.env
+.env.*
+
+# OSDCloud specific
+OSDCloud.log
+
+# Custom
+workflow-backup

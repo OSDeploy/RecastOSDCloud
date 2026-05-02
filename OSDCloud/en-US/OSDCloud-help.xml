@@ -1,0 +1,443 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<helpItems schema="maml" xmlns="http://msh">
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <command:details>
+      <command:name>Deploy-OSDCloud</command:name>
+      <command:verb>Deploy</command:verb>
+      <command:noun>OSDCloud</command:noun>
+      <maml:description>
+        <maml:para>Starts an OSDCloud operating system deployment.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Initializes and runs an OSDCloud deployment workflow. By default, launches the graphical UI (UX) so the operator can configure deployment settings before starting. Use -CLI to skip the UI and immediately begin the workflow in the current console session.</maml:para>
+      <maml:para>OSDCloud collects anonymous analytic data about the deployment environment and system configuration to help improve the product. No personally identifiable information (PII) is collected. By using OSDCloud you consent to this collection as described in the privacy policy: https://github.com/OSDeploy/OSDCloud/blob/main/PRIVACY.md</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Deploy-OSDCloud</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName)" position="1" aliases="Name">
+          <maml:name>WorkflowName</maml:name>
+          <maml:description>
+            <maml:para>The name of the OSDCloud workflow to run. Defaults to 'default'. Available workflows are located in the module's workflow folder.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>Default</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>CLI</maml:name>
+          <maml:description>
+            <maml:para>Skips the graphical UX and runs the deployment workflow immediately in the current console session.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="proga">
+          <maml:name>ProgressAction</maml:name>
+          <maml:description>
+            <maml:para>{{ Fill ProgressAction Description }}</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">ActionPreference</command:parameterValue>
+          <dev:type>
+            <maml:name>ActionPreference</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName)" position="1" aliases="Name">
+        <maml:name>WorkflowName</maml:name>
+        <maml:description>
+          <maml:para>The name of the OSDCloud workflow to run. Defaults to 'default'. Available workflows are located in the module's workflow folder.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>Default</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>CLI</maml:name>
+        <maml:description>
+          <maml:para>Skips the graphical UX and runs the deployment workflow immediately in the current console session.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="proga">
+        <maml:name>ProgressAction</maml:name>
+        <maml:description>
+          <maml:para>{{ Fill ProgressAction Description }}</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">ActionPreference</command:parameterValue>
+        <dev:type>
+          <maml:name>ActionPreference</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes />
+    <command:returnValues />
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+        <dev:code>Deploy-OSDCloud</dev:code>
+        <dev:remarks>
+          <maml:para>Launches the OSDCloud graphical UX for the default workflow. The deployment starts only after the operator clicks Start in the UI.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+        <dev:code>Deploy-OSDCloud -CLI</dev:code>
+        <dev:remarks>
+          <maml:para>Runs the default OSDCloud workflow immediately without the graphical UX.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+        <dev:code>Deploy-OSDCloud -WorkflowName 'latest'</dev:code>
+        <dev:remarks>
+          <maml:para>Launches the graphical UX for the 'latest' workflow.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <command:details>
+      <command:name>Get-OSDCloudModulePath</command:name>
+      <command:verb>Get</command:verb>
+      <command:noun>OSDCloudModulePath</command:noun>
+      <maml:description>
+        <maml:para>Returns the base directory path of the OSDCloud module.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Returns the file system path to the root folder where the OSDCloud module is installed. This is useful for locating module-relative resources such as catalogs, templates, and support files.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Get-OSDCloudModulePath</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="proga">
+          <maml:name>ProgressAction</maml:name>
+          <maml:description>
+            <maml:para>{{ Fill ProgressAction Description }}</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">ActionPreference</command:parameterValue>
+          <dev:type>
+            <maml:name>ActionPreference</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="proga">
+        <maml:name>ProgressAction</maml:name>
+        <maml:description>
+          <maml:para>{{ Fill ProgressAction Description }}</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">ActionPreference</command:parameterValue>
+        <dev:type>
+          <maml:name>ActionPreference</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes />
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.String. The absolute path to the OSDCloud module directory.</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para></maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+        <dev:code>Get-OSDCloudModulePath</dev:code>
+        <dev:remarks>
+          <maml:para>Returns the path to the OSDCloud module directory, e.g. 'C:\Program Files\WindowsPowerShell\Modules\OSDCloud\1.0.0'.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <command:details>
+      <command:name>Get-OSDCloudModuleVersion</command:name>
+      <command:verb>Get</command:verb>
+      <command:noun>OSDCloudModuleVersion</command:noun>
+      <maml:description>
+        <maml:para>Returns the version of the OSDCloud module.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Returns the currently loaded version of the OSDCloud module as a System.Version object. This is useful for version checks, logging, and compatibility validation in scripts.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Get-OSDCloudModuleVersion</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="proga">
+          <maml:name>ProgressAction</maml:name>
+          <maml:description>
+            <maml:para>{{ Fill ProgressAction Description }}</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">ActionPreference</command:parameterValue>
+          <dev:type>
+            <maml:name>ActionPreference</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="proga">
+        <maml:name>ProgressAction</maml:name>
+        <maml:description>
+          <maml:para>{{ Fill ProgressAction Description }}</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">ActionPreference</command:parameterValue>
+        <dev:type>
+          <maml:name>ActionPreference</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes />
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Version. The version of the OSDCloud module.</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para></maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+        <dev:code>Get-OSDCloudModuleVersion</dev:code>
+        <dev:remarks>
+          <maml:para>Returns the loaded OSDCloud module version, e.g. '1.0.0'.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <command:details>
+      <command:name>Show-OSDCloudDeviceInfo</command:name>
+      <command:verb>Show</command:verb>
+      <command:noun>OSDCloudDeviceInfo</command:noun>
+      <maml:description>
+        <maml:para>Displays comprehensive WinPE and device hardware information during OS deployment startup.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Gathers and displays detailed hardware and environment information in Windows PE including system specifications, device identifiers, processor details, memory configuration, disk drives, and network adapters. Initializes the OSDCloud device environment and exports hardware WMI information to log files in the temporary directory. Validates system memory requirements and provides warnings if minimum specifications are not met.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Show-OSDCloudDeviceInfo</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="proga">
+          <maml:name>ProgressAction</maml:name>
+          <maml:description>
+            <maml:para>{{ Fill ProgressAction Description }}</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">ActionPreference</command:parameterValue>
+          <dev:type>
+            <maml:name>ActionPreference</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="proga">
+        <maml:name>ProgressAction</maml:name>
+        <maml:description>
+          <maml:para>{{ Fill ProgressAction Description }}</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">ActionPreference</command:parameterValue>
+        <dev:type>
+          <maml:name>ActionPreference</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes />
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>None. This function displays system information to the console and exports hardware data to log files but does not return objects.</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para></maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>This function is designed for use in Windows PE startup environments and performs the following operations:</maml:para>
+        <maml:para>Information Displayed: - OSDCloud PowerShell Module version</maml:para>
+        <maml:para>- WinPE version, architecture, and computer name</maml:para>
+        <maml:para>- Device manufacturer and model</maml:para>
+        <maml:para>- BIOS information</maml:para>
+        <maml:para>- Processor name and logical core count</maml:para>
+        <maml:para>- Total physical memory in GB</maml:para>
+        <maml:para>- Disk drive models and device IDs</maml:para>
+        <maml:para>- Network adapter names and MAC addresses</maml:para>
+        <maml:para></maml:para>
+        <maml:para>Note: Serial number and UUID output are suppressed for privacy reasons.</maml:para>
+        <maml:para>System Requirements: - Minimum 6 GB of physical memory recommended</maml:para>
+        <maml:para>- Issues warning if memory is less than 6 GB</maml:para>
+        <maml:para></maml:para>
+        <maml:para>Log Files Created: - Stores device information in $env:TEMP\osdcloud-logs directory</maml:para>
+        <maml:para>- Win32_DiskDrive.txt: Complete disk drive information</maml:para>
+        <maml:para>- Win32_NetworkAdapter.txt: Complete network adapter information</maml:para>
+        <maml:para></maml:para>
+        <maml:para>Functions Called: - Get-OSDCloudModuleVersion: Retrieves current OSDCloud module version</maml:para>
+        <maml:para>- Initialize-OSDCloudDevice: Populates $global:OSDCloudDevice with hardware details</maml:para>
+        <maml:para></maml:para>
+        <maml:para>The function updates the window title to '[OSDCloud] - WinPE and Device Information' to indicate the current operation status.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+        <dev:code>Show-OSDCloudDeviceInfo
+Runs Show-OSDCloudDeviceInfo to display comprehensive WinPE and device information including hardware specifications and device identifiers.</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <command:details>
+      <command:name>Start-OSDCloudExplorer</command:name>
+      <command:verb>Start</command:verb>
+      <command:noun>OSDCloudExplorer</command:noun>
+      <maml:description>
+        <maml:para>Opens a graphical file browser for WinPE and WinRE environments.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Provides a Windows Forms file browser with TreeView, ListView, navigation (Up), and keyboard shortcuts. Designed for use in Windows PE and Windows RE where Windows Explorer is not available.</maml:para>
+      <maml:para>The WinPE image must include:   - WinPE-NetFX   - WinPE-PowerShell</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Start-OSDCloudExplorer</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>DirectLaunch</maml:name>
+          <maml:description>
+            <maml:para>Internal: run the WinForms UI inline (blocking) inside the spawned child process. Not intended for direct use - hidden from tab-completion.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="proga">
+          <maml:name>ProgressAction</maml:name>
+          <maml:description>
+            <maml:para>{{ Fill ProgressAction Description }}</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">ActionPreference</command:parameterValue>
+          <dev:type>
+            <maml:name>ActionPreference</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>DirectLaunch</maml:name>
+        <maml:description>
+          <maml:para>Internal: run the WinForms UI inline (blocking) inside the spawned child process. Not intended for direct use - hidden from tab-completion.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="proga">
+        <maml:name>ProgressAction</maml:name>
+        <maml:description>
+          <maml:para>{{ Fill ProgressAction Description }}</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">ActionPreference</command:parameterValue>
+        <dev:type>
+          <maml:name>ActionPreference</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes />
+    <command:returnValues />
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+        <dev:code>Start-OSDCloudExplorer</dev:code>
+        <dev:remarks>
+          <maml:para>Opens the file browser. Use the CopyPath button or Ctrl+C to copy a path to the clipboard.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+</helpItems>

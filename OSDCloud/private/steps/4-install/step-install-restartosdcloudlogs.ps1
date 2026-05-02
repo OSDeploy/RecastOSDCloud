@@ -1,0 +1,32 @@
+function step-install-restartosdcloudlogs {
+    [CmdletBinding()]
+    param ()
+    #=================================================
+    $Message = "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Start"
+    Write-Debug -Message $Message; Write-Verbose -Message $Message
+    $Step = $global:OSDCloudCurrentStep
+    #=================================================
+    #region Main
+    $LogsPath = "C:\Windows\Temp\osdcloud-logs"
+
+    $Params = @{
+        Path        = $LogsPath
+        ItemType    = 'Directory'
+        Force       = $true
+        ErrorAction = 'SilentlyContinue'
+    }
+
+    if (-not (Test-Path $Params.Path)) {
+        New-Item @Params | Out-Null
+    }
+
+    $null = robocopy "X:\Windows\Temp\osdcloud-logs" "$LogsPath" transcript.log /e /move /ndl /nfl /r:0 /w:0
+    $TranscriptFullName = Join-Path $LogsPath "transcript-$((Get-Date).ToString('yyyy-MM-dd-HHmmss')).log"
+
+    $null = Start-Transcript -Path $TranscriptFullName -ErrorAction SilentlyContinue
+    #endregion
+    #=================================================
+    $Message = "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] End"
+    Write-Verbose -Message $Message; Write-Debug -Message $Message
+    #=================================================
+}
