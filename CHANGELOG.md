@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## 26.5.19.1 - May 19, 2026
+
+### Added
+
+- OS catalog updated with Windows 11 25H2 build 26200.8457 (compiled 2026-05-07).
+
+### Changed
+
+- Module version bumped to `26.5.19.1`.
+- Dell driver pack catalog updated to version `2026.05.04` (dated 2026-05-15).
+- HP driver pack catalog updated (DateReleased `2026-05-19`).
+- Lenovo driver pack catalog refreshed from upstream `catalogv2.xml`.
+- GitHub Actions catalog-update workflows (`update-catalog-dell.yaml`, `update-catalog-hp.yaml`, `update-catalog-lenovo.yaml`) changed to on-demand (`workflow_dispatch`) only — weekly cron schedule removed.
+- `docs/workflows.md` simplified to only describe the `default` deployment channel.
+- `publish-module.yaml` corrected to check out the current repository without a hardcoded `path`, `repository`, or `ref`; publish step switched to `shell: pwsh`; permissions tightened to `contents: read`.
+
 ## 26.4.27.1 - April 27, 2026
 
 ### Added
