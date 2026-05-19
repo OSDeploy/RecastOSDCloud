@@ -1,37 +1,12 @@
 # Deployment Workflows
 
-A *workflow channel* defines which OS options are available and which
-deployment steps run when you call `Deploy-OSDCloud`. Channels live in the
-`workflow/` directory of the module.
-
-## Selecting a channel
-
-Pass the channel name to `Deploy-OSDCloud` with `-WorkflowName`:
+OSDCloud deploys Windows using the `default` workflow channel. Call `Deploy-OSDCloud` with no arguments to start a deployment:
 
 ```powershell
-# Default (recommended for most deployments)
 Deploy-OSDCloud
-
-# Specific channel
-Deploy-OSDCloud -WorkflowName latest
-Deploy-OSDCloud -WorkflowName classic
 ```
 
-The default channel name is `default`. Available channel names are determined
-by subdirectories under `<ModuleBase>\workflow\`.
-
-## Available channels
-
-| Channel | Description |
-|---|---|
-| `default` | Recommended for most deployments. Includes Windows 11 25H2, 24H2, and 23H2 OS options. Runs the full 39-step OSDCloud task. |
-| `latest` | Targets the most recent Windows 11 release only. Minimal workflow configuration — inherits step list from the default task. |
-| `classic` | Legacy-compatible deployment path with a simplified UX. |
-| `insiders` | Windows Insider Program builds. Not for production use. |
-| `legacy` | Retained for compatibility with older deployment scripts. Minimal active maintenance. |
-| `dev-alpha` | Active development channel. Experimental features, expect breaking changes. |
-| `dev-beta` | Pre-release testing channel. More stable than alpha; not production-ready. |
-| `dev-device` | Development workflow with a WPF application UI for testing device-specific logic. |
+The `default` channel includes Windows 11 25H2, 24H2, and 23H2 OS options and runs the full 39-step OSDCloud task.
 
 ## Channel directory layout
 
@@ -46,8 +21,7 @@ workflow/
     os-arm64.json             # OS and language options for ARM64
 ```
 
-Not all channels have all directories. Only `default` and `dev-device` have
-both `tasks/` and `ux/` directories.
+The `default` channel has both `tasks/` and `ux/` directories.
 
 ## OS configuration files
 
