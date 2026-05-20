@@ -1,5 +1,5 @@
 ---
-description: "Use when adding a new Windows OS build to catalogs/operatingsystem/, updating driver pack snapshots in catalogs/driverpack/, adding a new Surface model to microsoft.json, or adding a new Panasonic model to panasonic.json. Covers file naming, XML/JSON schemas, the build-number switch statement, microsoft.xml regeneration, and required workflow config changes."
+description: "Use when adding a new Windows OS build to catalogs/operatingsystem/, updating driver pack snapshots in catalogs/driverpack/, adding a new Surface model to microsoft.json, or adding a new Panasonic model to panasonic.json. Covers file naming, XML/JSON schemas, the build-number switch statement, and required workflow config changes."
 ---
 
 # Catalog Update Guidelines
@@ -99,8 +99,7 @@ Each `<File>` element contains:
 | `dell.xml` | OEM XML snapshot | Dell | Download + replace |
 | `hp.xml` | OEM XML snapshot | HP | Download + replace |
 | `lenovo.xml` | OEM XML snapshot | Lenovo | Download + replace |
-| `microsoft.json` | JSON array | Microsoft (Surface) | Manual edit |
-| `microsoft.xml` | PowerShell CliXML | Microsoft (Surface) | Regenerate from JSON |
+| `microsoft.json` | JSON array | Microsoft (Surface) | Manual edit / `Update-MicrosoftCatalog.ps1` |
 | `panasonic.json` | Nested JSON | Panasonic | Manual edit |
 | `default.json` | JSON array | ARM64 / multi-OEM | Manual edit |
 
@@ -132,10 +131,12 @@ At runtime, `Get-OSDCloudCatalogDell/Hp/Lenovo` downloads the OEM CAB/XML to `$e
 
 ---
 
-### microsoft.json (Surface driver packs — amd64)
+### microsoft.json (Surface driver packs — amd64 and arm64)
 
-Used for `Manufacturer == 'Microsoft'` on AMD64 devices.  
-Read via `Import-Clixml` from `microsoft.xml`; **edit the JSON source, then regenerate the CliXML**.
+Used for `Manufacturer == 'Microsoft'` on both AMD64 and ARM64 devices.
+Read directly by `Get-OSDCloudCatalogSurface`, which enriches entries with live MSI URLs from each entry's `UpdatePage` at runtime. **There is no `microsoft.xml` to regenerate.**
+
+`Update-MicrosoftCatalog.ps1` (run by the `update-catalog-microsoft.yaml` GitHub Actions workflow) scrapes all `UpdatePage` URLs and commits any changed MSI filenames, URLs, or release dates automatically each week.
 
 #### JSON object schema
 
@@ -157,18 +158,11 @@ Read via `Import-Clixml` from `microsoft.xml`; **edit the JSON source, then rege
 ```
 
 - `CatalogVersion` — use today's date in `YY.MM.DD` format for all entries being updated.
-- `Name` — format must be `"<Manufacturer> <Model> [<ReleaseDate>]"`.
+- `Name` — format must be `"Surface <Model> [<ReleaseDate>]"` (no "Microsoft" prefix).
 - `SystemId` — must match the WMI `Win32_ComputerSystemProduct.Name` for the device.
 - `OperatingSystem` — use `"Windows 11"` for current models; only legacy models use `"Windows 10"`.
-
-#### After editing microsoft.json — regenerate microsoft.xml
-
-```powershell
-$json = Get-Content 'catalogs\driverpack\microsoft.json' -Raw | ConvertFrom-Json
-$json | Export-Clixml 'catalogs\driverpack\microsoft.xml'
-```
-
-Both files must be committed together. **Do not edit `microsoft.xml` by hand.**
+- `OSArchitecture` — `"amd64"` for Intel/AMD Surface devices; `"arm64"` for Snapdragon/ARM Surface devices.
+- `UpdatePage` — set to the Microsoft download details page URL when available; the automated workflow uses this to refresh the driver pack.
 
 ---
 
@@ -223,6 +217,6 @@ Key differences:
 ## Common mistakes
 
 - **Omitting the build switch case** — a new OS XML will load without errors but produce zero OS options in the UX because every `<File>` hits the `default { continue }` branch.
-- **Not regenerating `microsoft.xml`** — `Get-DeployOSDCloudDriverPacks` uses `Import-Clixml` on `microsoft.xml` directly; editing only `microsoft.json` has no runtime effect.
+- **Stale `microsoft.json` driver URLs** — `Get-OSDCloudCatalogSurface` serves MSI URLs from `microsoft.json`; if `UpdatePage` links change and the automated workflow has not run, deployed drivers may point to outdated or removed files. Run `Update-MicrosoftCatalog.ps1` manually to refresh.
 - **Editing OEM XML snapshots manually** — Dell/HP/Lenovo XML is replaced wholesale from upstream; manual edits will be lost on the next snapshot refresh.
 - **Adding a Windows version string to workflow configs without the catalog XML** — the UX will offer the version but `Get-DeployOSDCloudOperatingSystems` will return no matching ESD entries, causing `Initialize-OSDCloudDeploy` to throw.
