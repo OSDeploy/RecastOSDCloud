@@ -49,14 +49,17 @@ function Get-DeployOSDCloudDriverPacks {
             'Dell' { Get-OSDCloudCatalogDell }
             'HP' { Get-OSDCloudCatalogHp }
             'Lenovo' { Get-OSDCloudCatalogLenovo }
-            'Microsoft' {
-                Import-Clixml -Path (Join-Path -Path (Get-OSDCloudModulePath) -ChildPath 'catalogs\driverpack\microsoft.xml')
-            }
+            'Microsoft' { Get-OSDCloudCatalogSurface }
             default { $DefaultCatalog }
         }
     }
     else {
-        $DriverPackValues = $DefaultCatalog
+        if ($Manufacturer -eq 'Microsoft') {
+            $DriverPackValues = Get-OSDCloudCatalogSurface
+        }
+        else {
+            $DriverPackValues = $DefaultCatalog
+        }
     }
 
     $DriverPackValues | Where-Object { $_.OSArchitecture -eq $ProcessorArchitecture }

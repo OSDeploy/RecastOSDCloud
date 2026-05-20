@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## 26.5.20.1 - May 20, 2026
+
+### Added
+
+- `Get-OSDCloudCatalogSurface`: when `$global:OSDCloudDevice.OSDProduct` is set, live `UpdatePage` network requests are limited to the single matching catalog entry; all other entries return base JSON values, eliminating the full catalog scan during deployment.
+
+### Changed
+
+- Module version bumped to `26.5.20.1`.
+- Microsoft Surface driver pack catalog updated with latest MSI versions for 18 models (all bumped to `26.04x` builds).
+
 ## 26.5.19.1 - May 19, 2026
 
 ### Added
