@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## 26.5.22.1 - May 22, 2026
+
+### Changed
+
+- Module version bumped to `26.5.22.1`.
+- `Start-OSDCloudExplorer`: full high-DPI display support.
+  - `SetProcessDPIAware()` P/Invoke called before any window is created so the OS reports true physical pixels.
+  - DPI scale factor derived from `Graphics.DpiX / 96` after `EnableVisualStyles`; form initial size, minimum size, toolbar padding, and address bar width all multiplied by the scale factor at runtime.
+  - Icon helper functions (`New-DriveIcon`, `New-FolderIcon`, `New-ComputerIcon`, `New-UpIcon`, `New-FileIcon`) now accept a `$Size` parameter; each applies `ScaleTransform` and `InterpolationMode::HighQualityBicubic` to render crisp bitmaps at any DPI.
+  - `ImageList.ImageSize` and per-icon `New-*` calls updated to pass the computed `$iconSize` (16 × dpiScale).
+  - `Form.AutoScaleMode` set to `None` to prevent WinForms from double-scaling after the manual DPI adjustment.
+
 ## 26.5.20.1 - May 20, 2026
 
 ### Added
