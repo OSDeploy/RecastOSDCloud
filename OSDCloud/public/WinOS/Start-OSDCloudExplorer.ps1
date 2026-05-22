@@ -58,6 +58,22 @@
         )
     }
 
+# ── DPI Awareness — must be set before any window is created ─────────────────
+try {
+    Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+public class OSDCloudDpiHelper {
+    [DllImport("user32.dll")]
+    public static extern bool SetProcessDPIAware();
+}
+'@ -ErrorAction SilentlyContinue
+}
+catch {
+    # user32.dll always present on Windows; silently continue if type already loaded
+}
+try { [OSDCloudDpiHelper]::SetProcessDPIAware() | Out-Null } catch {}
+
 # ── Native Explorer visual theme (smooth selection highlight, modern scrollbars) ──
 try {
     Add-Type -TypeDefinition @'
@@ -156,11 +172,14 @@ function Test-HasSubDirectories {
 function New-DriveIcon {
     <#
     .SYNOPSIS
-        Returns a 16x16 Bitmap representing a classic hard-drive icon.
+        Returns a Bitmap representing a classic hard-drive icon, scaled to $Size x $Size.
     #>
-    $bmp = [System.Drawing.Bitmap]::new(16, 16)
+    param ([int]$Size = 16)
+    $bmp = [System.Drawing.Bitmap]::new($Size, $Size)
     $g   = [System.Drawing.Graphics]::FromImage($bmp)
     $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
+    $g.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+    $g.ScaleTransform(($Size / 16.0), ($Size / 16.0))
     $g.Clear([System.Drawing.Color]::Transparent)
 
     $bodyBrush   = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(180, 180, 180))
@@ -182,11 +201,14 @@ function New-DriveIcon {
 function New-FolderIcon {
     <#
     .SYNOPSIS
-        Returns a 16x16 Bitmap representing a classic yellow folder icon.
+        Returns a Bitmap representing a classic yellow folder icon, scaled to $Size x $Size.
     #>
-    $bmp = [System.Drawing.Bitmap]::new(16, 16)
+    param ([int]$Size = 16)
+    $bmp = [System.Drawing.Bitmap]::new($Size, $Size)
     $g   = [System.Drawing.Graphics]::FromImage($bmp)
     $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
+    $g.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+    $g.ScaleTransform(($Size / 16.0), ($Size / 16.0))
     $g.Clear([System.Drawing.Color]::Transparent)
 
     $fillBrush   = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(255, 205, 50))
@@ -220,11 +242,14 @@ function New-FolderIcon {
 function New-ComputerIcon {
     <#
     .SYNOPSIS
-        Returns a 16x16 Bitmap representing a classic computer/monitor icon.
+        Returns a Bitmap representing a classic computer/monitor icon, scaled to $Size x $Size.
     #>
-    $bmp = [System.Drawing.Bitmap]::new(16, 16)
+    param ([int]$Size = 16)
+    $bmp = [System.Drawing.Bitmap]::new($Size, $Size)
     $g   = [System.Drawing.Graphics]::FromImage($bmp)
     $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
+    $g.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+    $g.ScaleTransform(($Size / 16.0), ($Size / 16.0))
     $g.Clear([System.Drawing.Color]::Transparent)
 
     $monitorBrush = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(180, 180, 180))
@@ -249,11 +274,14 @@ function New-ComputerIcon {
 function New-UpIcon {
     <#
     .SYNOPSIS
-        Returns a 16x16 Bitmap for the Up (parent folder) toolbar button.
+        Returns a Bitmap for the Up (parent folder) toolbar button, scaled to $Size x $Size.
     #>
-    $bmp = [System.Drawing.Bitmap]::new(16, 16)
+    param ([int]$Size = 16)
+    $bmp = [System.Drawing.Bitmap]::new($Size, $Size)
     $g   = [System.Drawing.Graphics]::FromImage($bmp)
     $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
+    $g.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+    $g.ScaleTransform(($Size / 16.0), ($Size / 16.0))
     $g.Clear([System.Drawing.Color]::Transparent)
 
     $folderBrush = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(255, 205, 50))
@@ -286,11 +314,14 @@ function New-UpIcon {
 function New-FileIcon {
     <#
     .SYNOPSIS
-        Returns a 16x16 Bitmap representing a generic file (Fluent-style flat icon).
+        Returns a Bitmap representing a generic file (Fluent-style flat icon), scaled to $Size x $Size.
     #>
-    $bmp = [System.Drawing.Bitmap]::new(16, 16)
+    param ([int]$Size = 16)
+    $bmp = [System.Drawing.Bitmap]::new($Size, $Size)
     $g   = [System.Drawing.Graphics]::FromImage($bmp)
     $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
+    $g.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+    $g.ScaleTransform(($Size / 16.0), ($Size / 16.0))
     $g.Clear([System.Drawing.Color]::Transparent)
 
     $fillBrush  = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::White)
@@ -588,6 +619,18 @@ function Add-TreeSubNodes {
 # It throws if WinForms was previously initialised in the same PS session,
 # and it has no meaningful effect on this application's text rendering.
 
+# ── DPI scale factor — measured after EnableVisualStyles so GDI+ is ready ────
+$dpiScale = 1.0
+try {
+    $hdc = [System.Drawing.Graphics]::FromHwnd([IntPtr]::Zero)
+    $dpiScale = [double]$hdc.DpiX / 96.0
+    $hdc.Dispose()
+}
+catch {
+    $dpiScale = 1.0
+}
+$iconSize = [int](16 * $dpiScale)
+
 # Win11-aligned color palette (matches Invoke-WinPEWifi)
 $script:ColorBackground = [System.Drawing.Color]::FromArgb(243, 243, 243)  # #F3F3F3
 $script:ColorSurface    = [System.Drawing.Color]::FromArgb(255, 255, 255)  # #FFFFFF
@@ -600,12 +643,13 @@ $script:FontHeader      = [System.Drawing.Font]::new('Segoe UI', 9, [System.Draw
 
 $form                  = [System.Windows.Forms.Form]::new()
 $form.Text             = 'OSDCloud Explorer'
-$form.Size             = [System.Drawing.Size]::new(960, 640)
-$form.MinimumSize      = [System.Drawing.Size]::new(640, 420)
+$form.Size             = [System.Drawing.Size]::new([int](960 * $dpiScale), [int](640 * $dpiScale))
+$form.MinimumSize      = [System.Drawing.Size]::new([int](640 * $dpiScale), [int](420 * $dpiScale))
 $form.StartPosition    = [System.Windows.Forms.FormStartPosition]::CenterScreen
 $form.BackColor        = $script:ColorBackground
 $form.Font             = $script:FontUI
 $form.KeyPreview       = $true
+$form.AutoScaleMode    = [System.Windows.Forms.AutoScaleMode]::None
 
 # ── Form Icon (embedded 32x32 PNG) ───────────────────────────────────────────
 $iconBase64 = 'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAARFSURBVFhH7Zffb1NlGMf5B4zxQpm4vuecntOedqc957SnGuOvyI3RKNFo/I3GmKiJN0aMeuOFRhO9wBg76K/VbqvDuca5bKQwmDIWwuiGAiJGjLAfwJCtAxkO0y26r3mf0znartlQM2928U17Tt++76fP8/0+bdcIavJ5UWtNMU9yxcXPXcM8yYyiZyFpn6+4+LkcIMUvBE9yxcXPXQVYBagEUJNgLAJWuxXMUa4ImBSDoDZUbPZPVAnAN9ZSUJ7ohuvZHigbr9AzPVCe7IZ0dwZMjIGJUQjeyk2vRpUAShxiKA1zcBbWKGCdBaxfShX8CfClRyHd2QbG/h3E4gBWGmb/DMyDs1BfH4D66gGor+Xo0fPWIejZCwhNAMa+y5Bu3QbmjFdsvFxVB8jNwuidBhOiYDVhsJu2kBw31oPJMWjREwhNAnWbfySvlGysJOz3cb8IUQiuRMXBywPouwzBl6rYgG8s3dWGwPE5GD2X7Ba4G0gcRjSbIT+0HcrTuyFv6ITob7Qh+Zr/BEBJQAw0wxz4A8b+AkSziZLBnDFqmTlYgHUGsE7bMvt/h/uVfjs9ZRDVAQaqAzhqwpDv70RwGPB3nQdT4hRR7wc/IHQeMPqmyS/KU7ugbjpA17xdnrePUPWWBgilETgKmLkZ+lRs3Ra7n8U5IN3eCr1rEqE8oG7KwXHdR1Ae3QFrDNC356nkjrVhKrvjhjBd690XYA0Dzvs6bF9UBSjOAfmxnXC92ActdhJawxC0xDA99zWdQuDQn3Q4v8erwwG12BBFVt7QhdprP7RNyIeZEEXtNZtpjvD3eN87SuurAxCEXWbxlhYEjwHBE0DwOBA8WexprgDXS33kdoH31ZuEvvMirfG3noWv+TR86TMLajwFf/sEzRDftjF7dqjVAFy2wfwdefi/GIe0PgPpjlZIt30G570dMAdnEDg8A/HmFruf7gQEvRHGnmkEvp+D3j0FY9cU9Cu1ewr6jl+hZ/Pwvn/MnhtVAYomDByeg9lfAHMn7FI6Y3Bc/zHUNwbJaFp8eCFaapIO4q0RA2l7RHPjzovHk7dk3VYwOV4yOasCUAz3lqWAl1xLwdjzG6wRUNbnv7Dq6v9G6BygPN5NxiMvEVwDWE095Iez0NtH6PuFCQtJuDoAb5IM5HphL0LjgL/tnJ1/RwTyA50IjgL6VxchhlrsFPDJuTYM0foURu8lAuTxpQotBcDLae4vVM4B/qnkOPwdk5RtDmNXIQL1zYOwxgHzm1l43/0O7pf3wfPOEfKNNQF6fXlzINhMpvF/maeSlw8iXnL5kSwC307D1zJm95TPfxaB67mvKfPBoeIkHAGM3ilKDeV/yUlYlKg3QdQbS+6ViPvB30TVIkh+j/+QKRrTuT4D+cEuOO9ph1D3iX1/kR8xVQH+dnD5wctZw13PvcGdL8YWX1NUdYAV0irAKsA8QEb+n/4d83P/ArisDNuwOb5QAAAAAElFTkSuQmCC'
@@ -614,14 +658,14 @@ $iconStream = [System.IO.MemoryStream]::new($iconBytes)
 $iconBitmap = [System.Drawing.Bitmap]::new($iconStream)
 $form.Icon  = [System.Drawing.Icon]::FromHandle($iconBitmap.GetHicon())
 
-# ── ImageList (16x16 icons for TreeView + ListView) ───────────────────────────
+# ── ImageList (DPI-scaled icons for TreeView + ListView) ─────────────────────
 $imageList             = [System.Windows.Forms.ImageList]::new()
-$imageList.ImageSize   = [System.Drawing.Size]::new(16, 16)
+$imageList.ImageSize   = [System.Drawing.Size]::new($iconSize, $iconSize)
 $imageList.ColorDepth  = [System.Windows.Forms.ColorDepth]::Depth32Bit
-$imageList.Images.Add($(New-DriveIcon))    | Out-Null   # index 0 = Drive
-$imageList.Images.Add($(New-FolderIcon))   | Out-Null   # index 1 = Folder
-$imageList.Images.Add($(New-FileIcon))     | Out-Null   # index 2 = File
-$imageList.Images.Add($(New-ComputerIcon)) | Out-Null   # index 3 = Computer
+$imageList.Images.Add($(New-DriveIcon    -Size $iconSize)) | Out-Null   # index 0 = Drive
+$imageList.Images.Add($(New-FolderIcon   -Size $iconSize)) | Out-Null   # index 1 = Folder
+$imageList.Images.Add($(New-FileIcon     -Size $iconSize)) | Out-Null   # index 2 = File
+$imageList.Images.Add($(New-ComputerIcon -Size $iconSize)) | Out-Null   # index 3 = Computer
 
 # ── Status Strip ──────────────────────────────────────────────────────────────
 $statusStrip              = [System.Windows.Forms.StatusStrip]::new()
@@ -650,10 +694,10 @@ $toolStrip             = [System.Windows.Forms.ToolStrip]::new()
 $toolStrip.GripStyle   = [System.Windows.Forms.ToolStripGripStyle]::Hidden
 $toolStrip.BackColor   = $script:ColorSurface
 $toolStrip.RenderMode  = [System.Windows.Forms.ToolStripRenderMode]::System
-$toolStrip.Padding     = [System.Windows.Forms.Padding]::new(4, 2, 4, 2)
+$toolStrip.Padding     = [System.Windows.Forms.Padding]::new([int](4 * $dpiScale), [int](2 * $dpiScale), [int](4 * $dpiScale), [int](2 * $dpiScale))
 
 $btnUp                 = [System.Windows.Forms.ToolStripButton]::new()
-$btnUp.Image           = New-UpIcon
+$btnUp.Image           = New-UpIcon -Size $iconSize
 $btnUp.DisplayStyle    = [System.Windows.Forms.ToolStripItemDisplayStyle]::Image
 $btnUp.Enabled         = $false
 $btnUp.ToolTipText     = 'Up One Level (Alt+Up, Backspace)'
@@ -666,7 +710,7 @@ $lblAddress.ForeColor  = $script:ColorText
 
 $txtAddress            = [System.Windows.Forms.ToolStripTextBox]::new()
 $txtAddress.AutoSize   = $false
-$txtAddress.Width      = 520
+$txtAddress.Width      = [int](520 * $dpiScale)
 $txtAddress.BackColor  = [System.Drawing.Color]::White
 $txtAddress.ForeColor  = $script:ColorText
 $txtAddress.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
@@ -716,8 +760,8 @@ $treeView.ShowLines          = $true
 $treeView.ShowPlusMinus      = $true
 $treeView.ShowRootLines      = $true
 $treeView.FullRowSelect      = $false
-$treeView.ItemHeight         = 18
-$treeView.Indent             = 19
+$treeView.ItemHeight         = [int](18 * $dpiScale)
+$treeView.Indent             = [int](19 * $dpiScale)
 $treeView.ImageList          = $imageList
 $treeView.ImageIndex         = $script:IconFolder
 $treeView.SelectedImageIndex = $script:IconFolder
@@ -744,10 +788,10 @@ $listView.SmallImageList = $imageList
 $listView.GetType().GetProperty('DoubleBuffered',
     [System.Reflection.BindingFlags]'Instance,NonPublic').SetValue($listView, $true, $null)
 
-$colName     = [System.Windows.Forms.ColumnHeader]::new(); $colName.Text     = 'Name';          $colName.Width     = 300
-$colSize     = [System.Windows.Forms.ColumnHeader]::new(); $colSize.Text     = 'Size';          $colSize.Width     = 80;  $colSize.TextAlign  = [System.Windows.Forms.HorizontalAlignment]::Right
-$colType     = [System.Windows.Forms.ColumnHeader]::new(); $colType.Text     = 'Type';          $colType.Width     = 100
-$colModified = [System.Windows.Forms.ColumnHeader]::new(); $colModified.Text = 'Modified'; $colModified.Width = 160
+$colName     = [System.Windows.Forms.ColumnHeader]::new(); $colName.Text     = 'Name';          $colName.Width     = [int](300 * $dpiScale)
+$colSize     = [System.Windows.Forms.ColumnHeader]::new(); $colSize.Text     = 'Size';          $colSize.Width     = [int](80 * $dpiScale);  $colSize.TextAlign  = [System.Windows.Forms.HorizontalAlignment]::Right
+$colType     = [System.Windows.Forms.ColumnHeader]::new(); $colType.Text     = 'Type';          $colType.Width     = [int](100 * $dpiScale)
+$colModified = [System.Windows.Forms.ColumnHeader]::new(); $colModified.Text = 'Modified'; $colModified.Width = [int](160 * $dpiScale)
 
 $listView.Columns.AddRange([System.Windows.Forms.ColumnHeader[]]@(
     $colName, $colSize, $colType, $colModified
@@ -771,7 +815,7 @@ $form.add_SizeChanged({
         $fixedWidth += $item.Width + $item.Margin.Horizontal
     }
     $available = $toolStrip.ClientSize.Width - $fixedWidth - $toolStrip.Padding.Horizontal - 16
-    if ($available -gt 200) {
+    if ($available -gt [int](200 * $dpiScale)) {
         $txtAddress.Width = $available
     }
 })
@@ -962,11 +1006,11 @@ $form.add_KeyDown({
 
 # ── Form Load: build the TreeView and navigate to initial location ─────────────
 $form.add_Load({
-    # Set split-pane sizing here — the form now has its real width (920px), so
+    # Set split-pane sizing here — the form now has its real width, so
     # the Panel1MinSize / Panel2MinSize / SplitterDistance constraints are satisfied.
-    $splitContainer.Panel1MinSize    = 150
-    $splitContainer.Panel2MinSize    = 200
-    $splitContainer.SplitterDistance = 260
+    $splitContainer.Panel1MinSize    = [int](150 * $dpiScale)
+    $splitContainer.Panel2MinSize    = [int](200 * $dpiScale)
+    $splitContainer.SplitterDistance = [int](260 * $dpiScale)
 
     $script:treeView.BeginUpdate()
 
