@@ -123,6 +123,10 @@
             "command": "step-Add-WindowsDriver-DriverPack"
         },
         {
+            "name": "Apply Drivers from a OSD folder match",
+            "command": "step-Add-WindowsDriver-OSDFolder"
+        },
+        {
             "name": "Download Drivers from Microsoft Update Catalog",
             "command": "step-Save-WindowsDriver-MSUpdate",
             "testinfullos": true
