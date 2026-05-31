@@ -24,6 +24,46 @@ function step-install-downloadwindowsimage {
         exit
     }
     #=================================================
+    # Use selected local image when the frontend provided one.
+    if ($global:OSDCloudDeploy.LocalImageFileInfo) {
+        $LocalImageFilePath = if ($global:OSDCloudDeploy.LocalImageFileInfo.FullName) { $global:OSDCloudDeploy.LocalImageFileInfo.FullName } else { [string]$global:OSDCloudDeploy.LocalImageFileInfo }
+        $LocalImageFileInfo = Get-Item -LiteralPath $LocalImageFilePath -ErrorAction SilentlyContinue
+
+        if ($LocalImageFileInfo.Extension -ieq '.iso') {
+            $DiskImage = Get-DiskImage -ImagePath $LocalImageFileInfo.FullName -ErrorAction SilentlyContinue
+            if ($DiskImage -and -not $DiskImage.Attached) {
+                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Mounting ISO: $($LocalImageFileInfo.FullName)"
+                $DiskImage = Mount-DiskImage -ImagePath $LocalImageFileInfo.FullName -PassThru -ErrorAction Stop
+            }
+
+            $Volume = $DiskImage | Get-Volume -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($Volume -and $Volume.DriveLetter) {
+                $ImagePath = @(
+                    "$($Volume.DriveLetter):\sources\install.wim"
+                    "$($Volume.DriveLetter):\sources\install.esd"
+                ) | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+
+                if ($ImagePath) {
+                    $LocalImageFileInfo = Get-Item -LiteralPath $ImagePath
+                }
+            }
+
+            if ($LocalImageFileInfo.Extension -ieq '.iso') {
+                Write-Warning "[$(Get-Date -format s)] Unable to find install.wim or install.esd in the selected ISO."
+                Write-Warning 'Press Ctrl+C to exit OSDCloud'
+                Start-Sleep -Seconds 86400
+                exit
+            }
+        }
+
+        if ($LocalImageFileInfo -and (Test-Path -LiteralPath $LocalImageFileInfo.FullName)) {
+            $global:OSDCloudWorkflowInvoke.FileInfoWindowsImage = $LocalImageFileInfo
+            $global:OSDCloudWorkflowInvoke.WindowsImagePath = $global:OSDCloudWorkflowInvoke.FileInfoWindowsImage.FullName
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] WindowsImagePath:  $($global:OSDCloudWorkflowInvoke.WindowsImagePath)"
+            return
+        }
+    }
+    #=================================================
     # Is it reachable online?
     $IsOnline = $false
     try {

@@ -66,98 +66,50 @@
     </Window.Resources>
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="72" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="56" />
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="210" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
-        <!-- ═══ TOP BAR ═══ -->
-        <Border Grid.Row="0" Background="#0067B8">
-            <Grid Margin="16,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+        <!-- ═══ LEFT NAVIGATION SIDEBAR ═══ -->
+        <Border Grid.Column="0" Background="White"
+                BorderBrush="#EDEBE9" BorderThickness="0,0,1,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-                <TextBlock Grid.Column="1" Text="OSDCloud" Foreground="White"
-                           FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" />
-
-                <Menu Grid.Column="3" Background="Transparent" VerticalAlignment="Center">
-                    <Menu.Resources>
-                        <Style TargetType="MenuItem">
-                            <Setter Property="Foreground" Value="#323130" />
-                            <Setter Property="Background" Value="White" />
-                            <Setter Property="FontSize" Value="14" />
-                            <Setter Property="Padding" Value="10,6" />
-                            <Style.Triggers>
-                                <Trigger Property="IsHighlighted" Value="True">
-                                    <Setter Property="Foreground" Value="#201F1E" />
-                                    <Setter Property="Background" Value="#F3F2F1" />
-                                </Trigger>
-                                <Trigger Property="IsEnabled" Value="False">
-                                    <Setter Property="Foreground" Value="#8A8886" />
-                                </Trigger>
-                                <Trigger Property="Role" Value="TopLevelHeader">
-                                    <Setter Property="Foreground" Value="White" />
-                                    <Setter Property="Background" Value="Transparent" />
-                                    <Setter Property="Padding" Value="12,8" />
-                                </Trigger>
-                                <Trigger Property="Role" Value="TopLevelItem">
-                                    <Setter Property="Foreground" Value="White" />
-                                    <Setter Property="Background" Value="Transparent" />
-                                    <Setter Property="Padding" Value="12,8" />
-                                </Trigger>
-                                <MultiTrigger>
-                                    <MultiTrigger.Conditions>
-                                        <Condition Property="Role" Value="TopLevelHeader" />
-                                        <Condition Property="IsHighlighted" Value="True" />
-                                    </MultiTrigger.Conditions>
-                                    <Setter Property="Foreground" Value="White" />
-                                    <Setter Property="Background" Value="#005A9E" />
-                                </MultiTrigger>
-                                <MultiTrigger>
-                                    <MultiTrigger.Conditions>
-                                        <Condition Property="Role" Value="TopLevelItem" />
-                                        <Condition Property="IsHighlighted" Value="True" />
-                                    </MultiTrigger.Conditions>
-                                    <Setter Property="Foreground" Value="White" />
-                                    <Setter Property="Background" Value="#005A9E" />
-                                </MultiTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Menu.Resources>
-                    <MenuItem x:Name="LogsMenuItem"    Header="Logs" />
-                    <MenuItem x:Name="WMIMenuItem"     Header="WMI" />
-                    <MenuItem Header="Shell">
-                        <MenuItem x:Name="RunCmdPrompt"  Header="CMD Prompt" />
-                        <MenuItem x:Name="RunPowerShell" Header="Windows PowerShell" />
-                        <MenuItem x:Name="RunPwsh"       Header="PowerShell 7" Visibility="Collapsed" />
-                    </MenuItem>
-                </Menu>
-            </Grid>
-        </Border>
-
-        <!-- ═══ MAIN AREA: left nav + content ═══ -->
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="210" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <!-- Left navigation sidebar -->
-            <Border Grid.Column="0" Background="White"
-                    BorderBrush="#EDEBE9" BorderThickness="0,0,1,0">
-                <ListBox x:Name="NavListBox" Background="Transparent" BorderThickness="0"
-                         SelectionMode="Single" Margin="0,8,0,0"
+                <ListBox x:Name="NavListBox" Grid.Row="0" Background="Transparent" BorderThickness="0"
+                         SelectionMode="Single" Margin="0"
                          ItemContainerStyle="{StaticResource NavItemStyle}">
+                    <ListBoxItem Tag="Deployment">
+                        <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
+                            <ui:SymbolIcon Symbol="CloudArrowDown24" FontSize="20"
+                                           VerticalAlignment="Center" Margin="0,0,12,0" />
+                            <TextBlock Text="OSDCloud" VerticalAlignment="Center" FontSize="14" />
+                        </StackPanel>
+                    </ListBoxItem>
                     <ListBoxItem Tag="Device">
                         <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
                             <ui:SymbolIcon Symbol="Desktop32" FontSize="20"
                                            VerticalAlignment="Center" Margin="0,0,12,0" />
-                            <TextBlock Text="Device" VerticalAlignment="Center" FontSize="14" />
+                            <TextBlock Text="Device and Drivers" VerticalAlignment="Center" FontSize="14" />
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem Tag="Disk">
+                        <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
+                            <ui:SymbolIcon Symbol="HardDrive20" FontSize="20"
+                                           VerticalAlignment="Center" Margin="0,0,12,0" />
+                            <TextBlock Text="Disk" VerticalAlignment="Center" FontSize="14" />
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem Tag="Steps">
+                        <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
+                            <ui:SymbolIcon Symbol="ClipboardTaskListLtr24" FontSize="20"
+                                           VerticalAlignment="Center" Margin="0,0,12,0" />
+                            <TextBlock Text="Steps" VerticalAlignment="Center" FontSize="14" />
                         </StackPanel>
                     </ListBoxItem>
                     <ListBoxItem Tag="Identity">
@@ -165,20 +117,6 @@
                             <ui:SymbolIcon Symbol="Fingerprint20" FontSize="20"
                                            VerticalAlignment="Center" Margin="0,0,12,0" />
                             <TextBlock Text="Identity" VerticalAlignment="Center" FontSize="14" />
-                        </StackPanel>
-                    </ListBoxItem>
-                    <ListBoxItem Tag="Deployment">
-                        <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
-                            <ui:SymbolIcon Symbol="CloudArrowDown24" FontSize="20"
-                                           VerticalAlignment="Center" Margin="0,0,12,0" />
-                            <TextBlock Text="Deployment" VerticalAlignment="Center" FontSize="14" />
-                        </StackPanel>
-                    </ListBoxItem>
-                    <ListBoxItem Tag="Steps">
-                        <StackPanel Orientation="Horizontal" Margin="32,0,0,0">
-                            <ui:SymbolIcon Symbol="CloudArrowDown24" FontSize="20"
-                                           VerticalAlignment="Center" Margin="0,0,12,0" />
-                            <TextBlock Text="Steps" VerticalAlignment="Center" FontSize="14" />
                         </StackPanel>
                     </ListBoxItem>
                     <ListBoxItem Tag="Privacy">
@@ -189,15 +127,65 @@
                         </StackPanel>
                     </ListBoxItem>
                 </ListBox>
-            </Border>
+
+                <Menu Grid.Row="2" Background="White" Margin="0,8,0,8">
+                    <Menu.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical" />
+                        </ItemsPanelTemplate>
+                    </Menu.ItemsPanel>
+                    <Menu.Resources>
+                        <Style TargetType="MenuItem">
+                            <Setter Property="Foreground" Value="#323130" />
+                            <Setter Property="Background" Value="White" />
+                            <Setter Property="FontSize" Value="14" />
+                            <Setter Property="Padding" Value="16,8" />
+                            <Style.Triggers>
+                                <Trigger Property="IsHighlighted" Value="True">
+                                    <Setter Property="Foreground" Value="#201F1E" />
+                                    <Setter Property="Background" Value="#F3F2F1" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Foreground" Value="#8A8886" />
+                                </Trigger>
+                                <Trigger Property="Role" Value="TopLevelHeader">
+                                    <Setter Property="Foreground" Value="#323130" />
+                                    <Setter Property="Background" Value="White" />
+                                    <Setter Property="Padding" Value="16,8" />
+                                </Trigger>
+                                <Trigger Property="Role" Value="TopLevelItem">
+                                    <Setter Property="Foreground" Value="#323130" />
+                                    <Setter Property="Background" Value="White" />
+                                    <Setter Property="Padding" Value="16,8" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Menu.Resources>
+                    <MenuItem x:Name="LogsMenuItem" Header="Logs" />
+                    <MenuItem x:Name="WMIMenuItem" Header="WMI" />
+                    <MenuItem Header="Shell">
+                        <MenuItem x:Name="RunCmdPrompt" Header="CMD Prompt" />
+                        <MenuItem x:Name="RunPowerShell" Header="Windows PowerShell" />
+                        <MenuItem x:Name="RunPwsh" Header="PowerShell 7" Visibility="Collapsed" />
+                    </MenuItem>
+                </Menu>
+            </Grid>
+        </Border>
+
+        <!-- ═══ CONTENT AND ACTION AREA ═══ -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="56" />
+            </Grid.RowDefinitions>
 
             <!-- Content area: panels toggled by nav selection -->
-            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Background="White">
+            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Background="White">
                 <Grid Margin="28,20,28,20">
 
                     <!-- ─── DEVICE PANEL ─── -->
-                    <StackPanel x:Name="DevicePanel" Visibility="Visible">
-                        <TextBlock Text="Device" FontSize="20" FontWeight="SemiBold"
+                    <StackPanel x:Name="DevicePanel" Visibility="Collapsed">
+                        <TextBlock Text="Click here to upgrade to a MacBook" FontSize="20" FontWeight="SemiBold"
                                    Foreground="#323130" Margin="0,0,0,16" />
 
                         <ui:Card Padding="16" Margin="0,0,0,12">
@@ -260,6 +248,17 @@
                             </StackPanel>
                         </ui:Card>
 
+                        <ui:Card Padding="16" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="DRIVER PACK" FontSize="11" FontWeight="SemiBold"
+                                           Foreground="#A19F9D" Margin="0,0,0,8" />
+                                <ComboBox x:Name="DriverPackCombo" Margin="0,0,0,8"
+                                          Style="{StaticResource DeploymentComboBoxStyle}" SelectedIndex="0" />
+                                <TextBlock x:Name="DriverPackUrlText" Foreground="#A19F9D"
+                                           FontSize="11" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </ui:Card>
+
                         <ui:Card Padding="16">
                             <StackPanel>
                                 <TextBlock Text="COMPLIANCE" FontSize="11" FontWeight="SemiBold"
@@ -286,50 +285,60 @@
                         </ui:Card>
                     </StackPanel>
 
+                    <!-- ─── DISK PANEL ─── -->
+                    <StackPanel x:Name="DiskPanel" Visibility="Collapsed" />
+
                     <!-- ─── IDENTITY PANEL ─── -->
                     <StackPanel x:Name="IdentityPanel" Visibility="Collapsed">
                         <TextBlock Text="Identity" FontSize="20" FontWeight="SemiBold"
                                    Foreground="#323130" Margin="0,0,0,16" />
 
-                        <ui:Card Padding="16">
-                            <StackPanel>
-                                <TextBlock Text="DEVICE IDENTITY" FontSize="11" FontWeight="SemiBold"
-                                           Foreground="#A19F9D" Margin="0,0,0,10" />
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="30" />
-                                        <RowDefinition Height="30" />
-                                        <RowDefinition Height="30" />
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="130" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Serial Number"
-                                               FontWeight="SemiBold" Foreground="#605E5C" VerticalAlignment="Center" />
-                                    <TextBlock Grid.Row="0" Grid.Column="1" x:Name="deviceSerialNumberText"
-                                               FontWeight="SemiBold" Foreground="#0067B8" Cursor="Hand"
-                                               ToolTip="Click to copy Serial Number" VerticalAlignment="Center" />
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="UUID"
-                                               FontWeight="SemiBold" Foreground="#605E5C" VerticalAlignment="Center" />
-                                    <TextBlock Grid.Row="1" Grid.Column="1" x:Name="deviceUUIDText"
-                                               FontWeight="SemiBold" Foreground="#0067B8" Cursor="Hand"
-                                               ToolTip="Click to copy UUID" VerticalAlignment="Center" />
-                                    <TextBlock Grid.Row="2" Grid.Column="0" x:Name="deviceHardwareHashLabelText"
-                                               Text="Hardware Hash" FontWeight="SemiBold" Foreground="#605E5C"
-                                               VerticalAlignment="Center" Visibility="Collapsed" />
-                                    <TextBlock Grid.Row="2" Grid.Column="1" x:Name="deviceHardwareHashText"
-                                               FontWeight="SemiBold" Foreground="#0067B8" Cursor="Hand"
-                                               ToolTip="Click to copy Hardware Hash" VerticalAlignment="Center"
-                                               Visibility="Collapsed" />
-                                </Grid>
-                            </StackPanel>
-                        </ui:Card>
+                        <TabControl Background="White" BorderBrush="#EDEBE9" BorderThickness="1" Padding="6">
+                            <TabItem Header="Device Identity">
+                                <ui:Card Padding="16" Margin="0,8,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="DEVICE IDENTITY" FontSize="11" FontWeight="SemiBold"
+                                                   Foreground="#A19F9D" Margin="0,0,0,10" />
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="30" />
+                                                <RowDefinition Height="30" />
+                                                <RowDefinition Height="30" />
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="130" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Serial Number"
+                                                       FontWeight="SemiBold" Foreground="#605E5C" VerticalAlignment="Center" />
+                                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="deviceSerialNumberText"
+                                                       FontWeight="SemiBold" Foreground="#0067B8" Cursor="Hand"
+                                                       ToolTip="Click to copy Serial Number" VerticalAlignment="Center" />
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="UUID"
+                                                       FontWeight="SemiBold" Foreground="#605E5C" VerticalAlignment="Center" />
+                                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="deviceUUIDText"
+                                                       FontWeight="SemiBold" Foreground="#0067B8" Cursor="Hand"
+                                                       ToolTip="Click to copy UUID" VerticalAlignment="Center" />
+                                            <TextBlock Grid.Row="2" Grid.Column="0" x:Name="deviceHardwareHashLabelText"
+                                                       Text="Hardware Hash" FontWeight="SemiBold" Foreground="#605E5C"
+                                                       VerticalAlignment="Center" Visibility="Collapsed" />
+                                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="deviceHardwareHashText"
+                                                       FontWeight="SemiBold" Foreground="#0067B8" Cursor="Hand"
+                                                       ToolTip="Click to copy Hardware Hash" VerticalAlignment="Center"
+                                                       Visibility="Collapsed" />
+                                        </Grid>
+                                    </StackPanel>
+                                </ui:Card>
+                            </TabItem>
+                            <TabItem Header="Provisioning">
+                                <Grid />
+                            </TabItem>
+                        </TabControl>
                     </StackPanel>
 
                     <!-- ─── DEPLOYMENT PANEL ─── -->
-                    <StackPanel x:Name="DeploymentPanel" Visibility="Collapsed">
-                        <TextBlock Text="Deployment" FontSize="20" FontWeight="SemiBold"
+                    <StackPanel x:Name="DeploymentPanel" Visibility="Visible">
+                        <TextBlock Text="Welcome to the goodie room" FontSize="20" FontWeight="SemiBold"
                                    Foreground="#323130" Margin="0,0,0,16" />
 
                         <ui:Card Padding="16" Margin="0,0,0,12">
@@ -340,9 +349,24 @@
                             </StackPanel>
                         </ui:Card>
 
-                        <ui:Card Padding="16" Margin="0,0,0,12">
+                        <ui:Card x:Name="LocalIsoCard" Padding="16" Margin="0,0,0,12" Visibility="Collapsed">
                             <StackPanel>
-                                <TextBlock Text="OPERATING SYSTEM" FontSize="11" FontWeight="SemiBold"
+                                <ToggleButton x:Name="UseLocalIsoToggle"
+                                              Content="Use local ISO"
+                                              Width="140"
+                                              Height="34"
+                                              HorizontalAlignment="Left"
+                                              FontWeight="SemiBold"
+                                              Margin="0,0,0,10" />
+                                <ComboBox x:Name="LocalIsoCombo"
+                                          Style="{StaticResource DeploymentComboBoxStyle}"
+                                          Visibility="Collapsed" />
+                            </StackPanel>
+                        </ui:Card>
+
+                        <ui:Card x:Name="CloudOperatingSystemCard" Padding="16" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="CLOUD OPERATING SYSTEM" FontSize="11" FontWeight="SemiBold"
                                            Foreground="#A19F9D" Margin="0,0,0,10" />
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -387,16 +411,6 @@
                             </StackPanel>
                         </ui:Card>
 
-                        <ui:Card Padding="16">
-                            <StackPanel>
-                                <TextBlock Text="DRIVER PACK" FontSize="11" FontWeight="SemiBold"
-                                           Foreground="#A19F9D" Margin="0,0,0,8" />
-                                <ComboBox x:Name="DriverPackCombo" Margin="0,0,0,8"
-                                          Style="{StaticResource DeploymentComboBoxStyle}" SelectedIndex="0" />
-                                <TextBlock x:Name="DriverPackUrlText" Foreground="#A19F9D"
-                                           FontSize="11" TextWrapping="Wrap" />
-                            </StackPanel>
-                        </ui:Card>
                     </StackPanel>
 
                     <!-- ─── STEPS PANEL ─── -->
@@ -466,26 +480,26 @@
 
                 </Grid>
             </ScrollViewer>
-        </Grid>
 
-        <!-- ═══ FOOTER ═══ -->
-        <Border Grid.Row="2" Background="#F8F9FA" BorderBrush="#EDEBE9" BorderThickness="0,1,0,0">
-            <Grid Margin="16,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <ui:Button x:Name="StartButton"
-                           Grid.Column="1"
-                           Content="Start Deployment"
-                           Width="160"
-                           Height="36"
-                           FontSize="14"
-                           FontWeight="SemiBold"
-                           IsDefault="True"
-                           Appearance="Primary"
-                           VerticalAlignment="Center" />
-            </Grid>
-        </Border>
+            <!-- ═══ FOOTER ═══ -->
+            <Border Grid.Row="1" Background="#F8F9FA" BorderBrush="#EDEBE9" BorderThickness="0,1,0,0">
+                <Grid Margin="16,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:Button x:Name="StartButton"
+                               Grid.Column="1"
+                               Content="Start Deployment"
+                               Width="160"
+                               Height="36"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               IsDefault="True"
+                               Appearance="Primary"
+                               VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </Window>

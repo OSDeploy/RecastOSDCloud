@@ -87,6 +87,7 @@ if ($logoImage) {
 # Navigation panel switching
 $NavListBox      = $window.FindName('NavListBox')
 $DevicePanel     = $window.FindName('DevicePanel')
+$DiskPanel       = $window.FindName('DiskPanel')
 $IdentityPanel   = $window.FindName('IdentityPanel')
 $DeploymentPanel = $window.FindName('DeploymentPanel')
 $StepsPanel      = $window.FindName('StepsPanel')
@@ -96,6 +97,7 @@ $NavListBox.SelectedIndex = 0
 $NavListBox.Add_SelectionChanged({
     $tag = if ($NavListBox.SelectedItem) { [string]$NavListBox.SelectedItem.Tag } else { 'Device' }
     $DevicePanel.Visibility     = if ($tag -eq 'Device')     { [System.Windows.Visibility]::Visible } else { [System.Windows.Visibility]::Collapsed }
+    $DiskPanel.Visibility       = if ($tag -eq 'Disk')       { [System.Windows.Visibility]::Visible } else { [System.Windows.Visibility]::Collapsed }
     $IdentityPanel.Visibility   = if ($tag -eq 'Identity')   { [System.Windows.Visibility]::Visible } else { [System.Windows.Visibility]::Collapsed }
     $DeploymentPanel.Visibility = if ($tag -eq 'Deployment') { [System.Windows.Visibility]::Visible } else { [System.Windows.Visibility]::Collapsed }
     $StepsPanel.Visibility      = if ($tag -eq 'Steps')      { [System.Windows.Visibility]::Visible } else { [System.Windows.Visibility]::Collapsed }
@@ -417,6 +419,31 @@ $TaskSequenceCombo.Add_SelectionChanged({
 })
 Update-TaskSequenceSteps
 #================================================
+# Local ISO Values
+function Get-LocalIsoFile {
+    $localIsoFiles = Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Root -match '^[A-Z]:\\$' } | ForEach-Object {
+        $osPath = Join-Path -Path $_.Root -ChildPath 'OSDCloud\OS'
+        if (Test-Path -LiteralPath $osPath) {
+            Get-ChildItem -LiteralPath $osPath -Filter '*.iso' -File -ErrorAction SilentlyContinue
+        }
+    }
+
+    return @($localIsoFiles | Sort-Object -Property FullName -Unique)
+}
+
+$LocalIsoCard             = $window.FindName("LocalIsoCard")
+$UseLocalIsoToggle       = $window.FindName("UseLocalIsoToggle")
+$LocalIsoCombo           = $window.FindName("LocalIsoCombo")
+$CloudOperatingSystemCard = $window.FindName("CloudOperatingSystemCard")
+$LocalIsoFiles           = @(Get-LocalIsoFile)
+
+if ($LocalIsoFiles.Count -gt 0) {
+    $LocalIsoCard.Visibility = [System.Windows.Visibility]::Visible
+    $LocalIsoCombo.ItemsSource = $LocalIsoFiles
+    $LocalIsoCombo.DisplayMemberPath = 'FullName'
+    $LocalIsoCombo.SelectedIndex = 0
+}
+#================================================
 # Operating System Values
 if ($global:OSDCloudDeploy.OperatingSystemValues) {
     $OperatingSystemValues = $global:OSDCloudDeploy.OperatingSystemValues
@@ -612,7 +639,26 @@ function Get-ComboValue {
 }
 
 function Set-StartButtonState {
-    $StartButton.IsEnabled = ($null -ne $global:OSDCloudDeploy.OperatingSystemObject)
+    $useLocalIso = $UseLocalIsoToggle -and $UseLocalIsoToggle.IsChecked -eq $true
+    if ($useLocalIso) {
+        $StartButton.IsEnabled = ($null -ne $LocalIsoCombo.SelectedItem)
+    } else {
+        $StartButton.IsEnabled = ($null -ne $global:OSDCloudDeploy.OperatingSystemObject)
+    }
+}
+
+function Update-OperatingSystemSourceVisibility {
+    $useLocalIso = $UseLocalIsoToggle -and $UseLocalIsoToggle.IsChecked -eq $true
+
+    if ($useLocalIso) {
+        $LocalIsoCombo.Visibility = [System.Windows.Visibility]::Visible
+        $CloudOperatingSystemCard.Visibility = [System.Windows.Visibility]::Collapsed
+    } else {
+        $LocalIsoCombo.Visibility = [System.Windows.Visibility]::Collapsed
+        $CloudOperatingSystemCard.Visibility = [System.Windows.Visibility]::Visible
+    }
+
+    Set-StartButtonState
 }
 
 function Update-SelectedDetails {
@@ -688,6 +734,9 @@ function Update-DriverPackResults {
 }
 
 $DriverPackCombo.Add_SelectionChanged({ Update-DriverPackResults })
+$UseLocalIsoToggle.Add_Checked({ Update-OperatingSystemSourceVisibility })
+$UseLocalIsoToggle.Add_Unchecked({ Update-OperatingSystemSourceVisibility })
+$LocalIsoCombo.Add_SelectionChanged({ Set-StartButtonState })
 $OperatingSystemCombo.Add_SelectionChanged({ Update-OsResults })
 $OSActivationCombo.Add_SelectionChanged({ Update-OsResults })
 $OSEditionCombo.Add_SelectionChanged({ Update-OsResults })
@@ -704,6 +753,7 @@ $StartButton.Add_Click({
 })
 
 Update-OsResults
+Update-OperatingSystemSourceVisibility
 
 # Initialize task sequence summary if present
 if ($SummaryTaskSequenceText) {
@@ -718,8 +768,28 @@ if ($script:SelectionConfirmed) {
     # Local Variables
     $OSDCloudWorkflowTaskName   = $TaskSequenceCombo.SelectedValue
     $OSDCloudWorkflowTaskObject = $global:OSDCloudDeploy.Flows | Where-Object { $_.Name -eq $OSDCloudWorkflowTaskName } | Select-Object -First 1
-    $OperatingSystemObject      = $global:OSDCloudDeploy.OperatingSystemObject
-    $OSEditionId                = $global:OSDCloudDeploy.OSEditionValues | Where-Object { $_.Edition -eq $OSEditionCombo.SelectedValue } | Select-Object -ExpandProperty EditionId
+    $useLocalIso                = $UseLocalIsoToggle -and $UseLocalIsoToggle.IsChecked -eq $true
+
+    if ($useLocalIso) {
+        $LocalImageFileInfo  = $LocalIsoCombo.SelectedItem
+        $LocalImageFilePath  = [string]$LocalImageFileInfo.FullName
+        $LocalImageName      = $null
+        $OSEditionId         = $null
+        $OperatingSystemObject = [PSCustomObject]@{
+            FileName         = $LocalImageFileInfo.Name
+            FilePath         = $LocalImageFilePath
+            OperatingSystem  = 'Local ISO'
+            OSName           = 'Local ISO'
+            OSActivation     = $null
+            OSBuild          = $null
+            OSBuildVersion   = $null
+            OSLanguageCode   = $null
+            OSVersion        = $null
+        }
+    } else {
+        $OperatingSystemObject = $global:OSDCloudDeploy.OperatingSystemObject
+        $OSEditionId           = $global:OSDCloudDeploy.OSEditionValues | Where-Object { $_.Edition -eq $OSEditionCombo.SelectedValue } | Select-Object -ExpandProperty EditionId
+    }
     #================================================
     # Global Variables
     $global:OSDCloudDeploy.WorkflowTaskName    = $OSDCloudWorkflowTaskName
@@ -730,7 +800,7 @@ if ($script:SelectionConfirmed) {
     $global:OSDCloudDeploy.OperatingSystem     = $OperatingSystemObject.OSName
     $global:OSDCloudDeploy.OSActivation        = $OperatingSystemObject.OSActivation
     $global:OSDCloudDeploy.OSBuild             = $OperatingSystemObject.OSBuild
-    $global:OSDCloudDeploy.OSEdition           = Get-ComboValue -ComboBox $OSEditionCombo
+    $global:OSDCloudDeploy.OSEdition           = if ($useLocalIso) { $null } else { Get-ComboValue -ComboBox $OSEditionCombo }
     $global:OSDCloudDeploy.OSEditionId         = $OSEditionId
     $global:OSDCloudDeploy.OSLanguageCode      = $OperatingSystemObject.OSLanguageCode
     $global:OSDCloudDeploy.OperatingSystem     = $OperatingSystemObject.OperatingSystem

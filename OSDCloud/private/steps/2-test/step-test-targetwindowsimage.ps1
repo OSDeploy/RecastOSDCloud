@@ -9,6 +9,16 @@ function step-test-targetwindowsimage {
     Write-Debug -Message $Message; Write-Verbose -Message $Message
     $Step = $global:OSDCloudCurrentStep
     #=================================================
+    # Is there a local image file already selected?
+    if ($global:OSDCloudDeploy.LocalImageFileInfo) {
+        $LocalImageFilePath = if ($global:OSDCloudDeploy.LocalImageFileInfo.FullName) { $global:OSDCloudDeploy.LocalImageFileInfo.FullName } else { [string]$global:OSDCloudDeploy.LocalImageFileInfo }
+        if (Test-Path -LiteralPath $LocalImageFilePath) {
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] $LocalImageFilePath"
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OperatingSystem is available offline. OK."
+            return
+        }
+    }
+    #=================================================
     # Is there an Operating System ImageFile URL?
     if (-not ($global:OSDCloudWorkflowInvoke.OperatingSystemObject.FilePath)) {
         Write-Warning "[$(Get-Date -format s)] OperatingSystemObject does not have a Url to validate."
