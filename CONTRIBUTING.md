@@ -7,7 +7,7 @@ workflows.
 
 Before you start
 ----------------
-- Review the [docs/getting-started.md](docs/getting-started.md) guide to understand the module structure.
+- Review the [docs index](docs/README.md) for an overview of the user-facing guides.
 - Check open issues to avoid duplicating work: https://github.com/OSDeploy/OSDCloud/issues
 - Read the module architecture section in [.github/copilot-instructions.md](.github/copilot-instructions.md) for a directory map.
 
@@ -85,7 +85,7 @@ Adding a deployment step
 3. Follow the JSON schema documented in
    `.github/instructions/workflow-tasks.instructions.md`.
 4. Add a row for the new step to the phase table in
-   `docs/workflows.md`.
+   [docs/05-customize-deployment.md](docs/05-customize-deployment.md).
 
 Catalog updates
 ---------------
