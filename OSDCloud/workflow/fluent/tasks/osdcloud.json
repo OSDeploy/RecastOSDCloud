@@ -123,6 +123,10 @@
             "command": "step-Add-WindowsDriver-DriverPack"
         },
         {
+            "name": "Apply Drivers from selected DriverFolder",
+            "command": "step-Add-WindowsDriver-DriverFolder"
+        },
+        {
             "name": "Apply Drivers from a OSD folder match",
             "command": "step-Add-WindowsDriver-OSDFolder"
         },

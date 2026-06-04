@@ -255,7 +255,16 @@
                                 <ComboBox x:Name="DriverPackCombo" Margin="0,0,0,8"
                                           Style="{StaticResource DeploymentComboBoxStyle}" SelectedIndex="0" />
                                 <TextBlock x:Name="DriverPackUrlText" Foreground="#A19F9D"
-                                           FontSize="11" TextWrapping="Wrap" />
+                                           FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12" />
+                                <StackPanel x:Name="DriverFolderPanel">
+                                    <TextBlock Text="DRIVER FOLDER" FontSize="11" FontWeight="SemiBold"
+                                               Foreground="#A19F9D" Margin="0,0,0,8" />
+                                    <ComboBox x:Name="DriverFolderCombo" Margin="0,0,0,8"
+                                              DisplayMemberPath="Name"
+                                              Style="{StaticResource DeploymentComboBoxStyle}" SelectedIndex="0" />
+                                    <TextBlock x:Name="DriverFolderPathText" Foreground="#A19F9D"
+                                               FontSize="11" TextWrapping="Wrap" />
+                                </StackPanel>
                             </StackPanel>
                         </ui:Card>
 
@@ -338,7 +347,7 @@
 
                     <!-- ─── DEPLOYMENT PANEL ─── -->
                     <StackPanel x:Name="DeploymentPanel" Visibility="Visible">
-                        <TextBlock Text="Welcome to the goodie room" FontSize="20" FontWeight="SemiBold"
+                        <TextBlock Text="Deployment Options" FontSize="20" FontWeight="SemiBold"
                                    Foreground="#323130" Margin="0,0,0,16" />
 
                         <ui:Card Padding="16" Margin="0,0,0,12">
@@ -346,21 +355,6 @@
                                 <TextBlock Text="TASK SEQUENCE" FontSize="11" FontWeight="SemiBold"
                                            Foreground="#A19F9D" Margin="0,0,0,8" />
                                 <ComboBox x:Name="TaskSequenceCombo" Style="{StaticResource DeploymentComboBoxStyle}" />
-                            </StackPanel>
-                        </ui:Card>
-
-                        <ui:Card x:Name="LocalIsoCard" Padding="16" Margin="0,0,0,12" Visibility="Collapsed">
-                            <StackPanel>
-                                <ToggleButton x:Name="UseLocalIsoToggle"
-                                              Content="Use local ISO"
-                                              Width="140"
-                                              Height="34"
-                                              HorizontalAlignment="Left"
-                                              FontWeight="SemiBold"
-                                              Margin="0,0,0,10" />
-                                <ComboBox x:Name="LocalIsoCombo"
-                                          Style="{StaticResource DeploymentComboBoxStyle}"
-                                          Visibility="Collapsed" />
                             </StackPanel>
                         </ui:Card>
 
@@ -408,6 +402,21 @@
                                            Foreground="#A19F9D" Margin="0,0,0,4" />
                                 <TextBlock x:Name="SelectedFileNameText" Foreground="#605E5C"
                                            FontSize="12" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </ui:Card>
+
+                        <ui:Card x:Name="LocalIsoCard" Padding="16" Margin="0,0,0,12" Visibility="Collapsed">
+                            <StackPanel>
+                                <ToggleButton x:Name="UseLocalIsoToggle"
+                                              Content="Use local ISO"
+                                              Width="140"
+                                              Height="34"
+                                              HorizontalAlignment="Left"
+                                              FontWeight="SemiBold"
+                                              Margin="0,0,0,10" />
+                                <ComboBox x:Name="LocalIsoCombo"
+                                          Style="{StaticResource DeploymentComboBoxStyle}"
+                                          Visibility="Collapsed" />
                             </StackPanel>
                         </ui:Card>
 

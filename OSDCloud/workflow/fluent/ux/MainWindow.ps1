@@ -431,6 +431,22 @@ function Get-LocalIsoFile {
     return @($localIsoFiles | Sort-Object -Property FullName -Unique)
 }
 
+function Get-DriverFolderItem {
+    $driverFolders = Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Root -match '^[A-Z]:\\$' } | ForEach-Object {
+        $driverFolderPath = Join-Path -Path $_.Root -ChildPath 'OSDCloud\DriverFolder'
+        if (Test-Path -LiteralPath $driverFolderPath) {
+            Get-ChildItem -LiteralPath $driverFolderPath -Directory -ErrorAction SilentlyContinue
+        }
+    }
+
+    return @($driverFolders | Sort-Object -Property FullName -Unique | ForEach-Object {
+        [PSCustomObject]@{
+            Name = $_.FullName
+            Path = $_.FullName
+        }
+    })
+}
+
 $LocalIsoCard             = $window.FindName("LocalIsoCard")
 $UseLocalIsoToggle       = $window.FindName("UseLocalIsoToggle")
 $LocalIsoCombo           = $window.FindName("LocalIsoCombo")
@@ -442,6 +458,33 @@ if ($LocalIsoFiles.Count -gt 0) {
     $LocalIsoCombo.ItemsSource = $LocalIsoFiles
     $LocalIsoCombo.DisplayMemberPath = 'FullName'
     $LocalIsoCombo.SelectedIndex = 0
+}
+
+$DriverFolderPanel    = $window.FindName("DriverFolderPanel")
+$DriverFolderCombo    = $window.FindName("DriverFolderCombo")
+$DriverFolderPathText = $window.FindName("DriverFolderPathText")
+$DriverFolderItems    = @(Get-DriverFolderItem)
+
+if ($DriverFolderItems.Count -gt 0) {
+    $DriverFolderCombo.ItemsSource = @([PSCustomObject]@{ Name = 'None'; Path = $null }) + $DriverFolderItems
+    $DriverFolderPanel.IsEnabled = $true
+
+    if ($global:OSDCloudDeploy.DriverFolderPath) {
+        $matchingDriverFolderItem = $DriverFolderCombo.ItemsSource | Where-Object { $_.Path -eq $global:OSDCloudDeploy.DriverFolderPath } | Select-Object -First 1
+        if ($matchingDriverFolderItem) {
+            $DriverFolderCombo.SelectedItem = $matchingDriverFolderItem
+        } else {
+            $DriverFolderCombo.SelectedIndex = 0
+        }
+    } else {
+        $DriverFolderCombo.SelectedIndex = 0
+    }
+} else {
+    $DriverFolderCombo.ItemsSource = @([PSCustomObject]@{ Name = 'No driver folders found'; Path = $null })
+    $DriverFolderCombo.SelectedIndex = 0
+    $DriverFolderPanel.IsEnabled = $false
+    $global:OSDCloudDeploy.DriverFolderName = $null
+    $global:OSDCloudDeploy.DriverFolderPath = $null
 }
 #================================================
 # Operating System Values
@@ -620,6 +663,7 @@ $SelectedIdText          = $window.FindName("SelectedIdText")
 $SelectedFileNameText    = $window.FindName("SelectedFileNameText")
 $DriverPackUrlText       = $window.FindName("DriverPackUrlText")
 $DriverPackUrlText.Text  = [string]$global:OSDCloudDeploy.DriverPackObject.Url
+$DriverFolderPathText.Text = [string]$global:OSDCloudDeploy.DriverFolderPath
 #================================================
 # Start Button
 $StartButton            = $window.FindName("StartButton")
@@ -733,7 +777,21 @@ function Update-DriverPackResults {
     $DriverPackUrlText.Text                      = [string]$global:OSDCloudDeploy.DriverPackObject.Url
 }
 
+function Update-DriverFolderResults {
+    $selectedDriverFolderItem = $DriverFolderCombo.SelectedItem
+    if ($selectedDriverFolderItem -and -not [string]::IsNullOrWhiteSpace([string]$selectedDriverFolderItem.Path)) {
+        $global:OSDCloudDeploy.DriverFolderName = [string]$selectedDriverFolderItem.Name
+        $global:OSDCloudDeploy.DriverFolderPath = [string]$selectedDriverFolderItem.Path
+    } else {
+        $global:OSDCloudDeploy.DriverFolderName = $null
+        $global:OSDCloudDeploy.DriverFolderPath = $null
+    }
+
+    $DriverFolderPathText.Text = [string]$global:OSDCloudDeploy.DriverFolderPath
+}
+
 $DriverPackCombo.Add_SelectionChanged({ Update-DriverPackResults })
+$DriverFolderCombo.Add_SelectionChanged({ Update-DriverFolderResults })
 $UseLocalIsoToggle.Add_Checked({ Update-OperatingSystemSourceVisibility })
 $UseLocalIsoToggle.Add_Unchecked({ Update-OperatingSystemSourceVisibility })
 $LocalIsoCombo.Add_SelectionChanged({ Set-StartButtonState })
@@ -754,6 +812,7 @@ $StartButton.Add_Click({
 
 Update-OsResults
 Update-OperatingSystemSourceVisibility
+Update-DriverFolderResults
 
 # Initialize task sequence summary if present
 if ($SummaryTaskSequenceText) {
@@ -809,6 +868,7 @@ if ($script:SelectionConfirmed) {
     $global:OSDCloudDeploy.LocalImageFileInfo  = $LocalImageFileInfo
     $global:OSDCloudDeploy.LocalImageFilePath  = $LocalImageFilePath
     $global:OSDCloudDeploy.LocalImageName      = $LocalImageName
+    Update-DriverFolderResults
 
     $LogsPath = "$env:TEMP\osdcloud-logs"
     if (-not (Test-Path -Path $LogsPath)) {
