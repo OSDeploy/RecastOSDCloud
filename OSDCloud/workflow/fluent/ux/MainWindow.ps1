@@ -89,7 +89,6 @@ $NavListBox      = $window.FindName('NavListBox')
 $DevicePanel     = $window.FindName('DevicePanel')
 $DriversPanel    = $window.FindName('DriversPanel')
 $DiskPanel       = $window.FindName('DiskPanel')
-$IdentityPanel   = $window.FindName('IdentityPanel')
 $DeploymentPanel = $window.FindName('DeploymentPanel')
 $StepsPanel      = $window.FindName('StepsPanel')
 $PrivacyPanel    = $window.FindName('PrivacyPanel')
@@ -100,7 +99,6 @@ $NavListBox.Add_SelectionChanged({
     $DevicePanel.Visibility     = if ($tag -eq 'Device')     { [System.Windows.Visibility]::Visible } else { [System.Windows.Visibility]::Collapsed }
     $DriversPanel.Visibility    = if ($tag -eq 'Drivers')    { [System.Windows.Visibility]::Visible } else { [System.Windows.Visibility]::Collapsed }
     $DiskPanel.Visibility       = if ($tag -eq 'Disk')       { [System.Windows.Visibility]::Visible } else { [System.Windows.Visibility]::Collapsed }
-    $IdentityPanel.Visibility   = if ($tag -eq 'Identity')   { [System.Windows.Visibility]::Visible } else { [System.Windows.Visibility]::Collapsed }
     $DeploymentPanel.Visibility = if ($tag -eq 'Deployment') { [System.Windows.Visibility]::Visible } else { [System.Windows.Visibility]::Collapsed }
     $StepsPanel.Visibility      = if ($tag -eq 'Steps')      { [System.Windows.Visibility]::Visible } else { [System.Windows.Visibility]::Collapsed }
     $PrivacyPanel.Visibility    = if ($tag -eq 'Privacy')    { [System.Windows.Visibility]::Visible } else { [System.Windows.Visibility]::Collapsed }
@@ -435,7 +433,7 @@ function Get-LocalIsoFile {
 
 function Get-DriverFolderItem {
     $driverFolders = Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Root -match '^[A-Z]:\\$' } | ForEach-Object {
-        $driverFolderPath = Join-Path -Path $_.Root -ChildPath 'OSDCloud\DriverFolders'
+        $driverFolderPath = Join-Path -Path $_.Root -ChildPath 'OSDCloud\Drivers'
         if (Test-Path -LiteralPath $driverFolderPath) {
             Get-ChildItem -LiteralPath $driverFolderPath -Directory -ErrorAction SilentlyContinue
         }
@@ -443,6 +441,7 @@ function Get-DriverFolderItem {
 
     return @($driverFolders | Sort-Object -Property FullName -Unique | ForEach-Object {
         $folderName = [string]$_.Name
+        $isAutoDefaultMatch = @('Auto', 'Default') -contains $folderName
         $isManufacturerMatch = (-not [string]::IsNullOrWhiteSpace($deviceOSDManufacturer)) -and ($folderName -ieq [string]$deviceOSDManufacturer)
         $isModelMatch = (-not [string]::IsNullOrWhiteSpace($deviceOSDModel)) -and ($folderName -like "*$deviceOSDModel*")
         $isProductMatch = (-not [string]::IsNullOrWhiteSpace($deviceOSDProduct)) -and ($folderName -like "*$deviceOSDProduct*")
@@ -450,7 +449,7 @@ function Get-DriverFolderItem {
         [PSCustomObject]@{
             Name       = $_.FullName
             Path       = $_.FullName
-            IsSelected = ($isManufacturerMatch -or $isModelMatch -or $isProductMatch)
+            IsSelected = ($isAutoDefaultMatch -or $isManufacturerMatch -or $isModelMatch -or $isProductMatch)
         }
     })
 }
@@ -469,8 +468,11 @@ if ($LocalIsoFiles.Count -gt 0) {
 }
 
 $DriverFolderPanel    = $window.FindName("DriverFolderPanel")
+$DriverFolderExpander = $window.FindName("DriverFolderExpander")
+$DriverFolderGridBorder = $window.FindName("DriverFolderGridBorder")
 $DriverFolderGrid     = $window.FindName("DriverFolderGrid")
 $DriverFolderPathText = $window.FindName("DriverFolderPathText")
+$DriverFolderEmptyHelpText = $window.FindName("DriverFolderEmptyHelpText")
 $DriverFolderItems    = @(Get-DriverFolderItem)
 
 if ($DriverFolderItems.Count -gt 0) {
@@ -490,11 +492,29 @@ if ($DriverFolderItems.Count -gt 0) {
     $DriverFolderGrid.ItemsSource = $DriverFolderItems
     $DriverFolderPanel.IsEnabled = $true
     $DriverFolderGrid.IsEnabled = $true
+    if ($DriverFolderGridBorder) {
+        $DriverFolderGridBorder.Visibility = [System.Windows.Visibility]::Visible
+    }
+    if ($DriverFolderExpander) {
+        $DriverFolderExpander.IsExpanded = $true
+    }
+    if ($DriverFolderEmptyHelpText) {
+        $DriverFolderEmptyHelpText.Visibility = [System.Windows.Visibility]::Collapsed
+    }
 } else {
     $DriverFolderGrid.ItemsSource = @()
-    # Keep panel enabled so hover help remains visible; disable selection only.
+    # Keep panel enabled so the collapsed card can still be expanded for guidance text.
     $DriverFolderPanel.IsEnabled = $true
     $DriverFolderGrid.IsEnabled = $false
+    if ($DriverFolderGridBorder) {
+        $DriverFolderGridBorder.Visibility = [System.Windows.Visibility]::Collapsed
+    }
+    if ($DriverFolderExpander) {
+        $DriverFolderExpander.IsExpanded = $false
+    }
+    if ($DriverFolderEmptyHelpText) {
+        $DriverFolderEmptyHelpText.Visibility = [System.Windows.Visibility]::Visible
+    }
     $global:OSDCloudDeploy.DriverFolderName = $null
     $global:OSDCloudDeploy.DriverFolderPath = $null
     $global:OSDCloudDeploy.DriverFolderNames = @()
@@ -670,6 +690,70 @@ if (-not [string]::IsNullOrWhiteSpace([string]$deviceHardwareHash)) {
         Set-ClipboardText -Text ([string]$deviceHardwareHash)
     })
 }
+
+$DeviceTooGrid = $window.FindName('DeviceTooGrid')
+
+function Convert-DeviceTooValueToString {
+    param($Value)
+
+    if ($null -eq $Value) {
+        return ''
+    }
+
+    if ($Value -is [string]) {
+        return $Value
+    }
+
+    if ($Value -is [System.Collections.IDictionary]) {
+        return (($Value.GetEnumerator() | ForEach-Object { "{0}={1}" -f $_.Key, $_.Value }) -join '; ')
+    }
+
+    if ($Value -is [System.Collections.IEnumerable] -and -not ($Value -is [string])) {
+        return (($Value | ForEach-Object { [string]$_ }) -join ', ')
+    }
+
+    return [string]$Value
+}
+
+function Get-DeviceTooItems {
+    $deviceObject = $global:OSDCloudDevice
+    if (-not $deviceObject) {
+        return @()
+    }
+
+    if ($deviceObject -is [System.Collections.IDictionary]) {
+        return @(
+            $deviceObject.GetEnumerator() |
+                Sort-Object -Property Key |
+                ForEach-Object {
+                    [PSCustomObject]@{
+                        Key   = [string]$_.Key
+                        Value = Convert-DeviceTooValueToString -Value $_.Value
+                    }
+                }
+        )
+    }
+
+    return @(
+        $deviceObject.PSObject.Properties |
+            Where-Object {
+                $_.MemberType -in @('NoteProperty', 'Property') -and
+                $_.IsGettable -and
+                $_.Name -notlike 'PS*'
+            } |
+            Sort-Object -Property Name |
+            ForEach-Object {
+                [PSCustomObject]@{
+                    Key   = [string]$_.Name
+                    Value = Convert-DeviceTooValueToString -Value $_.Value
+                }
+            }
+    )
+}
+
+if ($DeviceTooGrid) {
+    $DeviceTooGrid.ItemsSource = Get-DeviceTooItems
+}
 #================================================
 # Summary / Selected detail text blocks
 $SelectedOSLanguageText  = $window.FindName("SelectedOSLanguageText")
@@ -835,9 +919,9 @@ $DriverFolderGrid.Add_CurrentCellChanged({ Request-DriverFolderResultsRefresh })
 $DriverFolderGrid.Add_CellEditEnding({ Request-DriverFolderResultsRefresh })
 $DriverFolderGrid.Add_PreviewMouseLeftButtonUp({ Request-DriverFolderResultsRefresh })
 $DriverFolderGrid.Add_PreviewKeyUp({
-        param($eventSource, $eventArgs)
+        param($eventSource, $keyEvent)
 
-        if ($eventArgs.Key -eq [System.Windows.Input.Key]::Space -or $eventArgs.Key -eq [System.Windows.Input.Key]::Enter) {
+        if ($keyEvent.Key -eq [System.Windows.Input.Key]::Space -or $keyEvent.Key -eq [System.Windows.Input.Key]::Enter) {
             Request-DriverFolderResultsRefresh
         }
     })

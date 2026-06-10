@@ -88,7 +88,7 @@
                         <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
                             <ui:SymbolIcon Symbol="CloudArrowDown24" FontSize="20"
                                            VerticalAlignment="Center" Margin="0,0,12,0" />
-                            <TextBlock Text="OSDCloud" VerticalAlignment="Center" FontSize="14" />
+                            <TextBlock Text="Deployment" VerticalAlignment="Center" FontSize="14" />
                         </StackPanel>
                     </ListBoxItem>
                     <ListBoxItem Tag="Device">
@@ -96,13 +96,6 @@
                             <ui:SymbolIcon Symbol="Desktop32" FontSize="20"
                                            VerticalAlignment="Center" Margin="0,0,12,0" />
                             <TextBlock Text="Device" VerticalAlignment="Center" FontSize="14" />
-                        </StackPanel>
-                    </ListBoxItem>
-                    <ListBoxItem Tag="Identity">
-                        <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
-                            <ui:SymbolIcon Symbol="Fingerprint20" FontSize="20"
-                                           VerticalAlignment="Center" Margin="0,0,12,0" />
-                            <TextBlock Text="Identity" VerticalAlignment="Center" FontSize="14" />
                         </StackPanel>
                     </ListBoxItem>
                     <ListBoxItem Tag="Drivers">
@@ -193,12 +186,18 @@
                     <!-- ─── DEVICE PANEL ─── -->
                     <StackPanel x:Name="DevicePanel" Visibility="Collapsed">
 
-                        <ui:Card Padding="16" Margin="0,0,0,12">
-                            <StackPanel>
-                                <TextBlock Text="HARDWARE" FontSize="11" FontWeight="SemiBold"
-                                           Foreground="#A19F9D" Margin="0,0,0,10" />
-                                <Grid>
+                        <ui:Card Padding="0" Margin="0,12,0,0">
+                            <Expander IsExpanded="True" Margin="16,12,16,12">
+                                <Expander.Header>
+                                    <TextBlock Text="HARDWARE" FontSize="11" FontWeight="SemiBold"
+                                               Foreground="#A19F9D" />
+                                </Expander.Header>
+                                <Grid Margin="0,10,0,0">
                                     <Grid.RowDefinitions>
+                                        <RowDefinition Height="28" />
+                                        <RowDefinition Height="28" />
+                                        <RowDefinition Height="28" />
+                                        <RowDefinition Height="28" />
                                         <RowDefinition Height="28" />
                                         <RowDefinition Height="28" />
                                         <RowDefinition Height="28" />
@@ -224,43 +223,112 @@
                                                FontWeight="SemiBold" Foreground="#605E5C" VerticalAlignment="Center" />
                                     <TextBlock Grid.Row="3" Grid.Column="1" x:Name="deviceComputerSystemSKUText"
                                                Foreground="#323130" FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="BIOS Version"
+                                               FontWeight="SemiBold" Foreground="#605E5C" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Row="4" Grid.Column="1" x:Name="deviceBiosVersionText"
+                                               Foreground="#323130" FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="BIOS Date"
+                                               FontWeight="SemiBold" Foreground="#605E5C" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Row="5" Grid.Column="1" x:Name="deviceBiosReleaseDateText"
+                                               Foreground="#323130" FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="6" Grid.Column="0" Text="TPM 2.0"
+                                               FontWeight="SemiBold" Foreground="#605E5C" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Row="6" Grid.Column="1" x:Name="deviceIsTpmSpecText"
+                                               Foreground="#323130" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Row="7" Grid.Column="0" Text="Autopilot"
+                                               FontWeight="SemiBold" Foreground="#605E5C" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Row="7" Grid.Column="1" x:Name="deviceIsAutopilotSpecText"
+                                               Foreground="#323130" FontWeight="SemiBold" VerticalAlignment="Center" />
                                 </Grid>
-                            </StackPanel>
+                            </Expander>
                         </ui:Card>
 
-                        <ui:Card Padding="16" Margin="0,0,0,12">
-                            <StackPanel>
-                                <TextBlock Text="FIRMWARE" FontSize="11" FontWeight="SemiBold"
-                                           Foreground="#A19F9D" Margin="0,0,0,10" />
-                                <Grid>
+                        <ui:Card Padding="0" Margin="0,12,0,0">
+                            <Expander IsExpanded="False" Margin="16,12,16,12">
+                                <Expander.Header>
+                                    <TextBlock Text="IDENTITY" FontSize="11" FontWeight="SemiBold"
+                                               Foreground="#A19F9D" />
+                                </Expander.Header>
+                                <Grid Margin="0,10,0,0">
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="28" />
-                                        <RowDefinition Height="28" />
+                                        <RowDefinition Height="30" />
+                                        <RowDefinition Height="30" />
+                                        <RowDefinition Height="30" />
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="120" />
+                                        <ColumnDefinition Width="130" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="BIOS Version"
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Serial Number"
                                                FontWeight="SemiBold" Foreground="#605E5C" VerticalAlignment="Center" />
-                                    <TextBlock Grid.Row="0" Grid.Column="1" x:Name="deviceBiosVersionText"
-                                               Foreground="#323130" FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap" />
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="BIOS Date"
+                                    <TextBlock Grid.Row="0" Grid.Column="1" x:Name="deviceSerialNumberText"
+                                               FontWeight="SemiBold" Foreground="#0067B8" Cursor="Hand"
+                                               ToolTip="Click to copy Serial Number" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="UUID"
                                                FontWeight="SemiBold" Foreground="#605E5C" VerticalAlignment="Center" />
-                                    <TextBlock Grid.Row="1" Grid.Column="1" x:Name="deviceBiosReleaseDateText"
-                                               Foreground="#323130" FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" x:Name="deviceUUIDText"
+                                               FontWeight="SemiBold" Foreground="#0067B8" Cursor="Hand"
+                                               ToolTip="Click to copy UUID" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" x:Name="deviceHardwareHashLabelText"
+                                               Text="Hardware Hash" FontWeight="SemiBold" Foreground="#605E5C"
+                                               VerticalAlignment="Center" Visibility="Collapsed" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" x:Name="deviceHardwareHashText"
+                                               FontWeight="SemiBold" Foreground="#0067B8" Cursor="Hand"
+                                               ToolTip="Click to copy Hardware Hash" VerticalAlignment="Center"
+                                               Visibility="Collapsed" />
                                 </Grid>
-                            </StackPanel>
+                            </Expander>
+                        </ui:Card>
+
+                        <ui:Card Padding="0" Margin="0,12,0,0">
+                            <Expander IsExpanded="False" Margin="16,12,16,12">
+                                <Expander.Header>
+                                    <TextBlock Text="GLOBAL VARIABLE: OSDCloudDevice" FontSize="11" FontWeight="SemiBold"
+                                               Foreground="#A19F9D" />
+                                </Expander.Header>
+                                <Border BorderBrush="#EDEBE9" BorderThickness="1" CornerRadius="4" Margin="0,10,0,0">
+                                    <DataGrid x:Name="DeviceTooGrid"
+                                              AutoGenerateColumns="False"
+                                              CanUserAddRows="False"
+                                              CanUserDeleteRows="False"
+                                              CanUserReorderColumns="False"
+                                              CanUserResizeRows="False"
+                                              IsReadOnly="True"
+                                              GridLinesVisibility="Horizontal"
+                                              HeadersVisibility="None"
+                                              AlternatingRowBackground="#F8F9FA"
+                                              RowBackground="White"
+                                              RowHeight="30"
+                                              BorderThickness="0"
+                                              HorizontalScrollBarVisibility="Auto"
+                                              VerticalScrollBarVisibility="Auto"
+                                              MinHeight="420">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Key"
+                                                                Binding="{Binding Key}"
+                                                                Width="240"
+                                                                IsReadOnly="True" />
+                                            <DataGridTextColumn Header="Value"
+                                                                Binding="{Binding Value}"
+                                                                Width="*"
+                                                                IsReadOnly="True" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Border>
+                            </Expander>
                         </ui:Card>
 
                     </StackPanel>
+
+                    <!-- ─── DEVICETOO PANEL ─── -->
+                    <StackPanel x:Name="DeviceTooPanel" Visibility="Collapsed" />
 
                     <!-- ─── DRIVERS PANEL ─── -->
                     <StackPanel x:Name="DriversPanel" Visibility="Collapsed">
 
                         <ui:Card Padding="16" Margin="0,0,0,12">
                             <StackPanel>
-                                <TextBlock Text="OSDCloud\DriverPacks" FontSize="11" FontWeight="SemiBold"
+                                <TextBlock Text="DRIVER PACKS" FontSize="11" FontWeight="SemiBold"
                                            Foreground="#A19F9D" Margin="0,0,0,8" />
                                 <ComboBox x:Name="DriverPackCombo" Margin="0,0,0,8"
                                           Style="{StaticResource DeploymentComboBoxStyle}" SelectedIndex="0"
@@ -272,76 +340,89 @@
                             </StackPanel>
                         </ui:Card>
 
-                        <ui:Card x:Name="DriverFolderPanel" Padding="16" Margin="0,0,0,12">
-                            <StackPanel>
-                                <StackPanel.ToolTip>
+                        <ui:Card x:Name="DriverFolderPanel" Padding="0" Margin="0,0,0,12">
+                            <Expander x:Name="DriverFolderExpander" IsExpanded="True" Margin="16,12,16,12">
+                                <Expander.Header>
+                                    <TextBlock Text="DRIVER FOLDERS (OSDCloud\Drivers)" FontSize="11" FontWeight="SemiBold"
+                                               Foreground="#A19F9D" />
+                                </Expander.Header>
+                                <StackPanel Margin="0,10,0,0">
+                                    <StackPanel.ToolTip>
                                         <ToolTip>
                                             <StackPanel MaxWidth="420">
-                                                <TextBlock Text="Driver Folder Help" FontWeight="SemiBold" Margin="0,0,0,6" />
+                                                <TextBlock Text="DRIVER FOLDERS (OSDCloud\Drivers)" FontWeight="SemiBold" Margin="0,0,0,6" />
                                                 <TextBlock TextWrapping="Wrap" Margin="0,0,0,4"
-                                                           Text="Use Driver Folder to apply your own offline drivers during deployment." />
+                                                           Text="Use Drivers to apply your own offline drivers during deployment." />
                                                 <TextBlock TextWrapping="Wrap" Margin="0,0,0,2"
-                                                           Text="1. Create OSDCloud\DriverFolder on a local drive (for example D:\OSDCloud\DriverFolder)." />
+                                                           Text="1. Create OSDCloud\Drivers on a USB drive (for example E:\OSDCloud\Drivers)." />
                                                 <TextBlock TextWrapping="Wrap" Margin="0,0,0,2"
                                                            Text="2. Copy extracted driver folders that contain INF files into that path." />
                                                 <TextBlock TextWrapping="Wrap" Margin="0,0,0,2"
-                                                                           Text="3. Select one or more folders here before starting deployment." />
+                                                           Text="3. Name folders by Manufacturer, Model, Product, or Auto for dynamic selection." />
                                                 <TextBlock TextWrapping="Wrap"
-                                                                           Text="When selected, OSDCloud injects drivers from these folders into the offline Windows image." />
+                                                           Text="OSDCloud automatically selects matching folders by Manufacturer, Model, Product, and Auto, then injects drivers into the offline Windows image." />
                                             </StackPanel>
                                         </ToolTip>
                                     </StackPanel.ToolTip>
-                                <TextBlock Text="OSDCloud\DriverFolders" FontSize="11" FontWeight="SemiBold"
-                                           Foreground="#A19F9D" Margin="0,0,0,8" />
-                                                <TextBlock Text="Select one or more driver folders to apply to this deployment" Foreground="#605E5C" FontSize="12" Margin="0,0,0,8" />
-                                                <Border BorderBrush="#EDEBE9" BorderThickness="1" CornerRadius="4" Margin="0,0,0,8">
-                                                    <DataGrid x:Name="DriverFolderGrid"
-                                                              AutoGenerateColumns="False"
-                                                              CanUserAddRows="False"
-                                                              CanUserDeleteRows="False"
-                                                              CanUserReorderColumns="False"
-                                                              CanUserResizeRows="False"
-                                                              CanUserResizeColumns="False"
-                                                              HeadersVisibility="None"
-                                                              GridLinesVisibility="Horizontal"
-                                                              RowHeaderWidth="0"
-                                                              MinHeight="180"
-                                                              MaxHeight="220"
-                                                              RowHeight="36"
-                                                              SelectionMode="Single"
-                                                              SelectionUnit="FullRow"
-                                                              BorderThickness="0"
-                                                              Background="White"
-                                                              AlternatingRowBackground="#F8F9FA">
-                                                        <DataGrid.Columns>
-                                                            <DataGridTemplateColumn Width="*">
-                                                                <DataGridTemplateColumn.CellTemplate>
-                                                                    <DataTemplate>
-                                                                        <Grid Margin="8,0">
-                                                                            <Grid.ColumnDefinitions>
-                                                                                <ColumnDefinition Width="28" />
-                                                                                <ColumnDefinition Width="*" />
-                                                                            </Grid.ColumnDefinitions>
-                                                                            <CheckBox Grid.Column="0"
-                                                                                      IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                                                      VerticalAlignment="Center"
-                                                                                      HorizontalAlignment="Center" />
-                                                                            <TextBlock Grid.Column="1"
-                                                                                       Text="{Binding Name}"
-                                                                                       VerticalAlignment="Center"
-                                                                                       Foreground="#323130"
-                                                                                       FontSize="14"
-                                                                                       TextTrimming="CharacterEllipsis" />
-                                                                        </Grid>
-                                                                    </DataTemplate>
-                                                                </DataGridTemplateColumn.CellTemplate>
-                                                            </DataGridTemplateColumn>
-                                                        </DataGrid.Columns>
-                                                    </DataGrid>
-                                                </Border>
-                                <TextBlock x:Name="DriverFolderPathText" Foreground="#A19F9D"
-                                           FontSize="11" TextWrapping="Wrap" />
-                            </StackPanel>
+
+                                    <Border x:Name="DriverFolderGridBorder" BorderBrush="#EDEBE9" BorderThickness="1" CornerRadius="4" Margin="0,0,0,8">
+                                        <DataGrid x:Name="DriverFolderGrid"
+                                                  AutoGenerateColumns="False"
+                                                  CanUserAddRows="False"
+                                                  CanUserDeleteRows="False"
+                                                  CanUserReorderColumns="False"
+                                                  CanUserResizeRows="False"
+                                                  CanUserResizeColumns="False"
+                                                  HeadersVisibility="None"
+                                                  GridLinesVisibility="Horizontal"
+                                                  RowHeaderWidth="0"
+                                                  MinHeight="180"
+                                                  MaxHeight="220"
+                                                  RowHeight="36"
+                                                  SelectionMode="Single"
+                                                  SelectionUnit="FullRow"
+                                                  BorderThickness="0"
+                                                  Background="White"
+                                                  AlternatingRowBackground="#F8F9FA">
+                                            <DataGrid.Columns>
+                                                <DataGridTemplateColumn Width="*">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <Grid Margin="8,0">
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="28" />
+                                                                    <ColumnDefinition Width="*" />
+                                                                </Grid.ColumnDefinitions>
+                                                                <CheckBox Grid.Column="0"
+                                                                          IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                          VerticalAlignment="Center"
+                                                                          HorizontalAlignment="Center" />
+                                                                <TextBlock Grid.Column="1"
+                                                                           Text="{Binding Name}"
+                                                                           VerticalAlignment="Center"
+                                                                           Foreground="#323130"
+                                                                           FontSize="14"
+                                                                           TextTrimming="CharacterEllipsis" />
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </Border>
+
+                                    <TextBlock x:Name="DriverFolderPathText" Foreground="#A19F9D"
+                                               FontSize="11" TextWrapping="Wrap" />
+
+                                    <TextBlock x:Name="DriverFolderEmptyHelpText"
+                                               Visibility="Collapsed"
+                                               Margin="0,10,0,0"
+                                               Foreground="#605E5C"
+                                               FontSize="12"
+                                               TextWrapping="Wrap"
+                                               Text="No driver folders were found. Create OSDCloud\Drivers on a USB drive (for example E:\OSDCloud\Drivers), copy extracted driver folders with INF files into it, and name folders by Manufacturer, Model, Product, or Auto for dynamic matching." />
+                                </StackPanel>
+                            </Expander>
                         </ui:Card>
                     </StackPanel>
 
@@ -353,68 +434,7 @@
                         <TextBlock Text="Identity" FontSize="20" FontWeight="SemiBold"
                                    Foreground="#323130" Margin="0,0,0,16" />
 
-                        <ui:Card Padding="16">
-                            <StackPanel>
-                                <TextBlock Text="COMPLIANCE" FontSize="11" FontWeight="SemiBold"
-                                           Foreground="#A19F9D" Margin="0,0,0,10" />
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="28" />
-                                        <RowDefinition Height="28" />
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="120" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="TPM 2.0"
-                                               FontWeight="SemiBold" Foreground="#605E5C" VerticalAlignment="Center" />
-                                    <TextBlock Grid.Row="0" Grid.Column="1" x:Name="deviceIsTpmSpecText"
-                                               Foreground="#323130" FontWeight="SemiBold" VerticalAlignment="Center" />
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Autopilot"
-                                               FontWeight="SemiBold" Foreground="#605E5C" VerticalAlignment="Center" />
-                                    <TextBlock Grid.Row="1" Grid.Column="1" x:Name="deviceIsAutopilotSpecText"
-                                               Foreground="#323130" FontWeight="SemiBold" VerticalAlignment="Center" />
-                                </Grid>
-                            </StackPanel>
-                        </ui:Card>
-
                         <TabControl Background="White" BorderBrush="#EDEBE9" BorderThickness="1" Padding="6">
-                            <TabItem Header="Device Identity">
-                                <ui:Card Padding="16" Margin="0,8,0,0">
-                                    <StackPanel>
-                                        <TextBlock Text="DEVICE IDENTITY" FontSize="11" FontWeight="SemiBold"
-                                                   Foreground="#A19F9D" Margin="0,0,0,10" />
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="30" />
-                                                <RowDefinition Height="30" />
-                                                <RowDefinition Height="30" />
-                                            </Grid.RowDefinitions>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="130" />
-                                                <ColumnDefinition Width="*" />
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Serial Number"
-                                                       FontWeight="SemiBold" Foreground="#605E5C" VerticalAlignment="Center" />
-                                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="deviceSerialNumberText"
-                                                       FontWeight="SemiBold" Foreground="#0067B8" Cursor="Hand"
-                                                       ToolTip="Click to copy Serial Number" VerticalAlignment="Center" />
-                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="UUID"
-                                                       FontWeight="SemiBold" Foreground="#605E5C" VerticalAlignment="Center" />
-                                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="deviceUUIDText"
-                                                       FontWeight="SemiBold" Foreground="#0067B8" Cursor="Hand"
-                                                       ToolTip="Click to copy UUID" VerticalAlignment="Center" />
-                                            <TextBlock Grid.Row="2" Grid.Column="0" x:Name="deviceHardwareHashLabelText"
-                                                       Text="Hardware Hash" FontWeight="SemiBold" Foreground="#605E5C"
-                                                       VerticalAlignment="Center" Visibility="Collapsed" />
-                                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="deviceHardwareHashText"
-                                                       FontWeight="SemiBold" Foreground="#0067B8" Cursor="Hand"
-                                                       ToolTip="Click to copy Hardware Hash" VerticalAlignment="Center"
-                                                       Visibility="Collapsed" />
-                                        </Grid>
-                                    </StackPanel>
-                                </ui:Card>
-                            </TabItem>
                             <TabItem Header="Provisioning">
                                 <Grid />
                             </TabItem>
