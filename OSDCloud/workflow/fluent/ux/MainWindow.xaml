@@ -95,7 +95,21 @@
                         <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
                             <ui:SymbolIcon Symbol="Desktop32" FontSize="20"
                                            VerticalAlignment="Center" Margin="0,0,12,0" />
-                            <TextBlock Text="Device and Drivers" VerticalAlignment="Center" FontSize="14" />
+                            <TextBlock Text="Device" VerticalAlignment="Center" FontSize="14" />
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem Tag="Identity">
+                        <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
+                            <ui:SymbolIcon Symbol="Fingerprint20" FontSize="20"
+                                           VerticalAlignment="Center" Margin="0,0,12,0" />
+                            <TextBlock Text="Identity" VerticalAlignment="Center" FontSize="14" />
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem Tag="Drivers">
+                        <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
+                            <ui:SymbolIcon Symbol="WrenchScrewdriver20" FontSize="20"
+                                           VerticalAlignment="Center" Margin="0,0,12,0" />
+                            <TextBlock Text="Drivers" VerticalAlignment="Center" FontSize="14" />
                         </StackPanel>
                     </ListBoxItem>
                     <ListBoxItem Tag="Disk">
@@ -110,13 +124,6 @@
                             <ui:SymbolIcon Symbol="ClipboardTaskListLtr24" FontSize="20"
                                            VerticalAlignment="Center" Margin="0,0,12,0" />
                             <TextBlock Text="Steps" VerticalAlignment="Center" FontSize="14" />
-                        </StackPanel>
-                    </ListBoxItem>
-                    <ListBoxItem Tag="Identity">
-                        <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
-                            <ui:SymbolIcon Symbol="Fingerprint20" FontSize="20"
-                                           VerticalAlignment="Center" Margin="0,0,12,0" />
-                            <TextBlock Text="Identity" VerticalAlignment="Center" FontSize="14" />
                         </StackPanel>
                     </ListBoxItem>
                     <ListBoxItem Tag="Privacy">
@@ -185,8 +192,6 @@
 
                     <!-- ─── DEVICE PANEL ─── -->
                     <StackPanel x:Name="DevicePanel" Visibility="Collapsed">
-                        <TextBlock Text="Click here to upgrade to a MacBook" FontSize="20" FontWeight="SemiBold"
-                                   Foreground="#323130" Margin="0,0,0,16" />
 
                         <ui:Card Padding="16" Margin="0,0,0,12">
                             <StackPanel>
@@ -248,25 +253,83 @@
                             </StackPanel>
                         </ui:Card>
 
+                    </StackPanel>
+
+                    <!-- ─── DRIVERS PANEL ─── -->
+                    <StackPanel x:Name="DriversPanel" Visibility="Collapsed">
+
                         <ui:Card Padding="16" Margin="0,0,0,12">
                             <StackPanel>
-                                <TextBlock Text="DRIVER PACK" FontSize="11" FontWeight="SemiBold"
+                                <TextBlock Text="OSDCloud\DriverPacks" FontSize="11" FontWeight="SemiBold"
                                            Foreground="#A19F9D" Margin="0,0,0,8" />
                                 <ComboBox x:Name="DriverPackCombo" Margin="0,0,0,8"
-                                          Style="{StaticResource DeploymentComboBoxStyle}" SelectedIndex="0" />
+                                          Style="{StaticResource DeploymentComboBoxStyle}" SelectedIndex="0"
+                                          MaxDropDownHeight="320"
+                                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                          ScrollViewer.CanContentScroll="True" />
                                 <TextBlock x:Name="DriverPackUrlText" Foreground="#A19F9D"
-                                           FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12" />
-                                <StackPanel x:Name="DriverFolderPanel">
-                                    <TextBlock Text="DRIVER FOLDER" FontSize="11" FontWeight="SemiBold"
-                                               Foreground="#A19F9D" Margin="0,0,0,8" />
-                                    <ComboBox x:Name="DriverFolderCombo" Margin="0,0,0,8"
-                                              DisplayMemberPath="Name"
-                                              Style="{StaticResource DeploymentComboBoxStyle}" SelectedIndex="0" />
-                                    <TextBlock x:Name="DriverFolderPathText" Foreground="#A19F9D"
-                                               FontSize="11" TextWrapping="Wrap" />
-                                </StackPanel>
+                                           FontSize="11" TextWrapping="Wrap" />
                             </StackPanel>
                         </ui:Card>
+
+                        <ui:Card x:Name="DriverFolderPanel" Padding="16" Margin="0,0,0,12">
+                            <StackPanel>
+                                <StackPanel.ToolTip>
+                                        <ToolTip>
+                                            <StackPanel MaxWidth="420">
+                                                <TextBlock Text="Driver Folder Help" FontWeight="SemiBold" Margin="0,0,0,6" />
+                                                <TextBlock TextWrapping="Wrap" Margin="0,0,0,4"
+                                                           Text="Use Driver Folder to apply your own offline drivers during deployment." />
+                                                <TextBlock TextWrapping="Wrap" Margin="0,0,0,2"
+                                                           Text="1. Create OSDCloud\DriverFolder on a local drive (for example D:\OSDCloud\DriverFolder)." />
+                                                <TextBlock TextWrapping="Wrap" Margin="0,0,0,2"
+                                                           Text="2. Copy extracted driver folders that contain INF files into that path." />
+                                                <TextBlock TextWrapping="Wrap" Margin="0,0,0,2"
+                                                                           Text="3. Select one or more folders here before starting deployment." />
+                                                <TextBlock TextWrapping="Wrap"
+                                                                           Text="When selected, OSDCloud injects drivers from these folders into the offline Windows image." />
+                                            </StackPanel>
+                                        </ToolTip>
+                                    </StackPanel.ToolTip>
+                                <TextBlock Text="OSDCloud\DriverFolders" FontSize="11" FontWeight="SemiBold"
+                                           Foreground="#A19F9D" Margin="0,0,0,8" />
+                                                <TextBlock Text="Select one or more folders" Foreground="#605E5C" FontSize="12" Margin="0,0,0,8" />
+                                                <Border BorderBrush="#EDEBE9" BorderThickness="1" CornerRadius="4" Margin="0,0,0,8">
+                                                    <DataGrid x:Name="DriverFolderGrid"
+                                                              AutoGenerateColumns="False"
+                                                              CanUserAddRows="False"
+                                                              CanUserDeleteRows="False"
+                                                              CanUserReorderColumns="False"
+                                                              CanUserResizeRows="False"
+                                                              HeadersVisibility="Column"
+                                                              GridLinesVisibility="Horizontal"
+                                                              RowHeaderWidth="0"
+                                                              MinHeight="180"
+                                                              MaxHeight="220"
+                                                              SelectionMode="Single"
+                                                              SelectionUnit="FullRow"
+                                                              BorderThickness="0"
+                                                              Background="White"
+                                                              AlternatingRowBackground="#F8F9FA">
+                                                        <DataGrid.Columns>
+                                                            <DataGridCheckBoxColumn Header="Use" Binding="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="56" />
+                                                            <DataGridTextColumn Header="Folder" Binding="{Binding Name}" Width="*" IsReadOnly="True" />
+                                                        </DataGrid.Columns>
+                                                    </DataGrid>
+                                                </Border>
+                                <TextBlock x:Name="DriverFolderPathText" Foreground="#A19F9D"
+                                           FontSize="11" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </ui:Card>
+                    </StackPanel>
+
+                    <!-- ─── DISK PANEL ─── -->
+                    <StackPanel x:Name="DiskPanel" Visibility="Collapsed" />
+
+                    <!-- ─── IDENTITY PANEL ─── -->
+                    <StackPanel x:Name="IdentityPanel" Visibility="Collapsed">
+                        <TextBlock Text="Identity" FontSize="20" FontWeight="SemiBold"
+                                   Foreground="#323130" Margin="0,0,0,16" />
 
                         <ui:Card Padding="16">
                             <StackPanel>
@@ -292,15 +355,6 @@
                                 </Grid>
                             </StackPanel>
                         </ui:Card>
-                    </StackPanel>
-
-                    <!-- ─── DISK PANEL ─── -->
-                    <StackPanel x:Name="DiskPanel" Visibility="Collapsed" />
-
-                    <!-- ─── IDENTITY PANEL ─── -->
-                    <StackPanel x:Name="IdentityPanel" Visibility="Collapsed">
-                        <TextBlock Text="Identity" FontSize="20" FontWeight="SemiBold"
-                                   Foreground="#323130" Margin="0,0,0,16" />
 
                         <TabControl Background="White" BorderBrush="#EDEBE9" BorderThickness="1" Padding="6">
                             <TabItem Header="Device Identity">
@@ -347,8 +401,6 @@
 
                     <!-- ─── DEPLOYMENT PANEL ─── -->
                     <StackPanel x:Name="DeploymentPanel" Visibility="Visible">
-                        <TextBlock Text="Deployment Options" FontSize="20" FontWeight="SemiBold"
-                                   Foreground="#323130" Margin="0,0,0,16" />
 
                         <ui:Card Padding="16" Margin="0,0,0,12">
                             <StackPanel>

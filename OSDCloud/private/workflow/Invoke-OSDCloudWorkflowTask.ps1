@@ -28,6 +28,10 @@ function Invoke-OSDCloudWorkflowTask {
         OSDProduct                = $OSDCloudDevice.OSDProduct
         DriverPackName            = $global:OSDCloudDeploy.DriverPackName
         DriverPackObject          = $global:OSDCloudDeploy.DriverPackObject
+        DriverFolderName          = $global:OSDCloudDeploy.DriverFolderName
+        DriverFolderNames         = $global:OSDCloudDeploy.DriverFolderNames
+        DriverFolderPath          = $global:OSDCloudDeploy.DriverFolderPath
+        DriverFolderPaths         = $global:OSDCloudDeploy.DriverFolderPaths
         IsOnBattery               = $global:IsOnBattery
         IsVM                      = $global:IsVM
         IsWinPE                   = $global:IsWinPE
@@ -137,7 +141,7 @@ function Invoke-OSDCloudWorkflowTask {
     #=================================================
     if ($null -ne $global:OSDCloudDeploy.WorkflowTaskObject) {
         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)]"
-        
+
         foreach ($step in $global:OSDCloudDeploy.WorkflowTaskObject.steps) {
             # Set the current step in the global variable
             $global:OSDCloudCurrentStep = $step
@@ -199,7 +203,7 @@ function Invoke-OSDCloudWorkflowTask {
                 $parameters = $null
                 $parameters = [ordered]@{}
                 ($step.parameters).psobject.properties | ForEach-Object { $parameters[$_.Name] = $_.Value }
-    
+
                 if ($parameters.Count -eq 0) {
                     $parameters = $null
                 }
