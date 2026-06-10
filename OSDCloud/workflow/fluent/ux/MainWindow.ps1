@@ -442,10 +442,15 @@ function Get-DriverFolderItem {
     }
 
     return @($driverFolders | Sort-Object -Property FullName -Unique | ForEach-Object {
+        $folderName = [string]$_.Name
+        $isManufacturerMatch = (-not [string]::IsNullOrWhiteSpace($deviceOSDManufacturer)) -and ($folderName -ieq [string]$deviceOSDManufacturer)
+        $isModelMatch = (-not [string]::IsNullOrWhiteSpace($deviceOSDModel)) -and ($folderName -like "*$deviceOSDModel*")
+        $isProductMatch = (-not [string]::IsNullOrWhiteSpace($deviceOSDProduct)) -and ($folderName -like "*$deviceOSDProduct*")
+
         [PSCustomObject]@{
             Name       = $_.FullName
             Path       = $_.FullName
-            IsSelected = $false
+            IsSelected = ($isManufacturerMatch -or $isModelMatch -or $isProductMatch)
         }
     })
 }
@@ -812,9 +817,30 @@ function Update-DriverFolderResults {
     }
 }
 
+function Request-DriverFolderResultsRefresh {
+    if ($window -and $window.Dispatcher) {
+        $window.Dispatcher.InvokeAsync({
+                $DriverFolderGrid.CommitEdit([System.Windows.Controls.DataGridEditingUnit]::Cell, $true) | Out-Null
+                $DriverFolderGrid.CommitEdit([System.Windows.Controls.DataGridEditingUnit]::Row, $true) | Out-Null
+                Update-DriverFolderResults
+            },
+            [System.Windows.Threading.DispatcherPriority]::Background) | Out-Null
+    } else {
+        Update-DriverFolderResults
+    }
+}
+
 $DriverPackCombo.Add_SelectionChanged({ Update-DriverPackResults })
-$DriverFolderGrid.Add_CurrentCellChanged({ Update-DriverFolderResults })
-$DriverFolderGrid.Add_CellEditEnding({ Update-DriverFolderResults })
+$DriverFolderGrid.Add_CurrentCellChanged({ Request-DriverFolderResultsRefresh })
+$DriverFolderGrid.Add_CellEditEnding({ Request-DriverFolderResultsRefresh })
+$DriverFolderGrid.Add_PreviewMouseLeftButtonUp({ Request-DriverFolderResultsRefresh })
+$DriverFolderGrid.Add_PreviewKeyUp({
+        param($eventSource, $eventArgs)
+
+        if ($eventArgs.Key -eq [System.Windows.Input.Key]::Space -or $eventArgs.Key -eq [System.Windows.Input.Key]::Enter) {
+            Request-DriverFolderResultsRefresh
+        }
+    })
 $UseLocalIsoToggle.Add_Checked({ Update-OperatingSystemSourceVisibility })
 $UseLocalIsoToggle.Add_Unchecked({ Update-OperatingSystemSourceVisibility })
 $LocalIsoCombo.Add_SelectionChanged({ Set-StartButtonState })

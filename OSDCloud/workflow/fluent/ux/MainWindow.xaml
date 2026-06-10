@@ -293,7 +293,7 @@
                                     </StackPanel.ToolTip>
                                 <TextBlock Text="OSDCloud\DriverFolders" FontSize="11" FontWeight="SemiBold"
                                            Foreground="#A19F9D" Margin="0,0,0,8" />
-                                                <TextBlock Text="Select one or more folders" Foreground="#605E5C" FontSize="12" Margin="0,0,0,8" />
+                                                <TextBlock Text="Select one or more driver folders to apply to this deployment" Foreground="#605E5C" FontSize="12" Margin="0,0,0,8" />
                                                 <Border BorderBrush="#EDEBE9" BorderThickness="1" CornerRadius="4" Margin="0,0,0,8">
                                                     <DataGrid x:Name="DriverFolderGrid"
                                                               AutoGenerateColumns="False"
@@ -301,19 +301,41 @@
                                                               CanUserDeleteRows="False"
                                                               CanUserReorderColumns="False"
                                                               CanUserResizeRows="False"
-                                                              HeadersVisibility="Column"
+                                                              CanUserResizeColumns="False"
+                                                              HeadersVisibility="None"
                                                               GridLinesVisibility="Horizontal"
                                                               RowHeaderWidth="0"
                                                               MinHeight="180"
                                                               MaxHeight="220"
+                                                              RowHeight="36"
                                                               SelectionMode="Single"
                                                               SelectionUnit="FullRow"
                                                               BorderThickness="0"
                                                               Background="White"
                                                               AlternatingRowBackground="#F8F9FA">
                                                         <DataGrid.Columns>
-                                                            <DataGridCheckBoxColumn Header="Use" Binding="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="56" />
-                                                            <DataGridTextColumn Header="Folder" Binding="{Binding Name}" Width="*" IsReadOnly="True" />
+                                                            <DataGridTemplateColumn Width="*">
+                                                                <DataGridTemplateColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <Grid Margin="8,0">
+                                                                            <Grid.ColumnDefinitions>
+                                                                                <ColumnDefinition Width="28" />
+                                                                                <ColumnDefinition Width="*" />
+                                                                            </Grid.ColumnDefinitions>
+                                                                            <CheckBox Grid.Column="0"
+                                                                                      IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                                      VerticalAlignment="Center"
+                                                                                      HorizontalAlignment="Center" />
+                                                                            <TextBlock Grid.Column="1"
+                                                                                       Text="{Binding Name}"
+                                                                                       VerticalAlignment="Center"
+                                                                                       Foreground="#323130"
+                                                                                       FontSize="14"
+                                                                                       TextTrimming="CharacterEllipsis" />
+                                                                        </Grid>
+                                                                    </DataTemplate>
+                                                                </DataGridTemplateColumn.CellTemplate>
+                                                            </DataGridTemplateColumn>
                                                         </DataGrid.Columns>
                                                     </DataGrid>
                                                 </Border>
