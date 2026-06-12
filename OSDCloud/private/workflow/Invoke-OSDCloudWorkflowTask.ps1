@@ -32,6 +32,7 @@ function Invoke-OSDCloudWorkflowTask {
         DriverFolderNames         = $global:OSDCloudDeploy.DriverFolderNames
         DriverFolderPath          = $global:OSDCloudDeploy.DriverFolderPath
         DriverFolderPaths         = $global:OSDCloudDeploy.DriverFolderPaths
+        DriverFolderSelections    = $global:OSDCloudDeploy.DriverFolderSelections
         IsOnBattery               = $global:IsOnBattery
         IsVM                      = $global:IsVM
         IsWinPE                   = $global:IsWinPE

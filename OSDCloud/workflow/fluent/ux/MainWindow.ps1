@@ -431,27 +431,69 @@ function Get-LocalIsoFile {
     return @($localIsoFiles | Sort-Object -Property FullName -Unique)
 }
 
-function Get-DriverFolderItem {
-    $driverFolders = Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Root -match '^[A-Z]:\\$' } | ForEach-Object {
-        $driverFolderPath = Join-Path -Path $_.Root -ChildPath 'OSDCloud\Drivers'
-        if (Test-Path -LiteralPath $driverFolderPath) {
-            Get-ChildItem -LiteralPath $driverFolderPath -Directory -ErrorAction SilentlyContinue
+function Get-DriverFolderRelativePath {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Path
+    )
+
+    $relativePathMatch = [System.Text.RegularExpressions.Regex]::Match($Path, '(?i)(OSDCloud\\Drivers(?:\\.*)?)$')
+    if ($relativePathMatch.Success) {
+        return $relativePathMatch.Groups[1].Value
+    }
+
+    return $null
+}
+
+function Get-DriveVolumeMetadata {
+    param(
+        [Parameter(Mandatory)]
+        [string]$DriveRoot
+    )
+
+    $volume = $null
+    if ($DriveRoot -match '^[A-Z]:\\$') {
+        try {
+            $volume = Get-Volume -DriveLetter $DriveRoot.Substring(0, 1) -ErrorAction Stop
+        } catch {
+            $volume = $null
         }
     }
 
-    return @($driverFolders | Sort-Object -Property FullName -Unique | ForEach-Object {
-        $folderName = [string]$_.Name
-        $isAutoDefaultMatch = @('Auto', 'Default') -contains $folderName
-        $isManufacturerMatch = (-not [string]::IsNullOrWhiteSpace($deviceOSDManufacturer)) -and ($folderName -ieq [string]$deviceOSDManufacturer)
-        $isModelMatch = (-not [string]::IsNullOrWhiteSpace($deviceOSDModel)) -and ($folderName -like "*$deviceOSDModel*")
-        $isProductMatch = (-not [string]::IsNullOrWhiteSpace($deviceOSDProduct)) -and ($folderName -like "*$deviceOSDProduct*")
+    return [PSCustomObject]@{
+        DriveRoot      = $DriveRoot
+        VolumeLabel    = if ($volume) { [string]$volume.FileSystemLabel } else { $null }
+        VolumeUniqueId = if ($volume) { [string]$volume.UniqueId } else { $null }
+    }
+}
 
-        [PSCustomObject]@{
-            Name       = $_.FullName
-            Path       = $_.FullName
-            IsSelected = ($isAutoDefaultMatch -or $isManufacturerMatch -or $isModelMatch -or $isProductMatch)
+function Get-DriverFolderItem {
+    $driverFolders = Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Root -match '^[A-Z]:\\$' } | ForEach-Object {
+        $driveRoot = [string]$_.Root
+        $driverFolderPath = Join-Path -Path $driveRoot -ChildPath 'OSDCloud\Drivers'
+        if (Test-Path -LiteralPath $driverFolderPath) {
+            $volumeMetadata = Get-DriveVolumeMetadata -DriveRoot $driveRoot
+            Get-ChildItem -LiteralPath $driverFolderPath -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+                $folderName = [string]$_.Name
+                $isAutoDefaultMatch = @('Auto', 'Default') -contains $folderName
+                $isManufacturerMatch = (-not [string]::IsNullOrWhiteSpace($deviceOSDManufacturer)) -and ($folderName -ieq [string]$deviceOSDManufacturer)
+                $isModelMatch = (-not [string]::IsNullOrWhiteSpace($deviceOSDModel)) -and ($folderName -like "*$deviceOSDModel*")
+                $isProductMatch = (-not [string]::IsNullOrWhiteSpace($deviceOSDProduct)) -and ($folderName -like "*$deviceOSDProduct*")
+
+                [PSCustomObject]@{
+                    Name           = $_.FullName
+                    Path           = $_.FullName
+                    RelativePath   = Get-DriverFolderRelativePath -Path $_.FullName
+                    DriveRoot      = [string]$volumeMetadata.DriveRoot
+                    VolumeLabel    = [string]$volumeMetadata.VolumeLabel
+                    VolumeUniqueId = [string]$volumeMetadata.VolumeUniqueId
+                    IsSelected     = ($isAutoDefaultMatch -or $isManufacturerMatch -or $isModelMatch -or $isProductMatch)
+                }
+            }
         }
-    })
+    }
+
+    return @($driverFolders | Sort-Object -Property Path -Unique)
 }
 
 $LocalIsoCard             = $window.FindName("LocalIsoCard")
@@ -477,6 +519,10 @@ $DriverFolderItems    = @(Get-DriverFolderItem)
 
 if ($DriverFolderItems.Count -gt 0) {
     $selectedDriverFolderPaths = @()
+    $selectedDriverFolderSelections = @()
+    if ($global:OSDCloudDeploy.DriverFolderSelections) {
+        $selectedDriverFolderSelections = @($global:OSDCloudDeploy.DriverFolderSelections)
+    }
     if ($global:OSDCloudDeploy.DriverFolderPaths) {
         $selectedDriverFolderPaths = @($global:OSDCloudDeploy.DriverFolderPaths)
     } elseif ($global:OSDCloudDeploy.DriverFolderPath) {
@@ -484,7 +530,13 @@ if ($DriverFolderItems.Count -gt 0) {
     }
 
     foreach ($driverFolderItem in $DriverFolderItems) {
-        if ($selectedDriverFolderPaths -contains [string]$driverFolderItem.Path) {
+        $selectionMatch = $selectedDriverFolderSelections | Where-Object {
+            ((-not [string]::IsNullOrWhiteSpace([string]$_.Path)) -and ([string]$_.Path -eq [string]$driverFolderItem.Path)) -or
+            ((-not [string]::IsNullOrWhiteSpace([string]$_.RelativePath)) -and ([string]$_.RelativePath -eq [string]$driverFolderItem.RelativePath) -and ([string]$_.VolumeLabel -eq [string]$driverFolderItem.VolumeLabel)) -or
+            ((-not [string]::IsNullOrWhiteSpace([string]$_.RelativePath)) -and ([string]$_.RelativePath -eq [string]$driverFolderItem.RelativePath) -and ([string]$_.VolumeUniqueId -eq [string]$driverFolderItem.VolumeUniqueId))
+        } | Select-Object -First 1
+
+        if ($selectionMatch -or ($selectedDriverFolderPaths -contains [string]$driverFolderItem.Path)) {
             $driverFolderItem.IsSelected = $true
         }
     }
@@ -519,6 +571,7 @@ if ($DriverFolderItems.Count -gt 0) {
     $global:OSDCloudDeploy.DriverFolderPath = $null
     $global:OSDCloudDeploy.DriverFolderNames = @()
     $global:OSDCloudDeploy.DriverFolderPaths = @()
+    $global:OSDCloudDeploy.DriverFolderSelections = @()
 }
 #================================================
 # Operating System Values
@@ -761,7 +814,11 @@ $SelectedIdText          = $window.FindName("SelectedIdText")
 $SelectedFileNameText    = $window.FindName("SelectedFileNameText")
 $DriverPackUrlText       = $window.FindName("DriverPackUrlText")
 $DriverPackUrlText.Text  = [string]$global:OSDCloudDeploy.DriverPackObject.Url
-$DriverFolderPathText.Text = [string]$global:OSDCloudDeploy.DriverFolderPath
+if ($global:OSDCloudDeploy.DriverFolderPaths.Count -gt 0) {
+    $DriverFolderPathText.Text = ($global:OSDCloudDeploy.DriverFolderPaths -join '; ')
+} else {
+    $DriverFolderPathText.Text = [string]$global:OSDCloudDeploy.DriverFolderPath
+}
 #================================================
 # Start Button
 $StartButton            = $window.FindName("StartButton")
@@ -883,6 +940,16 @@ function Update-DriverFolderResults {
     if ($selectedDriverFolderItems.Count -gt 0) {
         $global:OSDCloudDeploy.DriverFolderNames = @($selectedDriverFolderItems | ForEach-Object { [string]$_.Name })
         $global:OSDCloudDeploy.DriverFolderPaths = @($selectedDriverFolderItems | ForEach-Object { [string]$_.Path })
+        $global:OSDCloudDeploy.DriverFolderSelections = @($selectedDriverFolderItems | ForEach-Object {
+                [PSCustomObject]@{
+                    Path           = [string]$_.Path
+                    RelativePath   = [string]$_.RelativePath
+                    DriveRoot      = [string]$_.DriveRoot
+                    VolumeLabel    = [string]$_.VolumeLabel
+                    VolumeUniqueId = [string]$_.VolumeUniqueId
+                    Name           = [string]$_.Name
+                }
+            })
 
         # Backward compatibility for existing single-folder consumers.
         $global:OSDCloudDeploy.DriverFolderName = $global:OSDCloudDeploy.DriverFolderNames | Select-Object -First 1
@@ -892,6 +959,7 @@ function Update-DriverFolderResults {
         $global:OSDCloudDeploy.DriverFolderPath = $null
         $global:OSDCloudDeploy.DriverFolderNames = @()
         $global:OSDCloudDeploy.DriverFolderPaths = @()
+        $global:OSDCloudDeploy.DriverFolderSelections = @()
     }
 
     if ($global:OSDCloudDeploy.DriverFolderPaths.Count -gt 0) {
