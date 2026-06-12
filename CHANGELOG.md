@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 26.6.12.1 - June 12, 2026
+
 ### Added
 
 - OS catalog updated with Windows 11 25H2 build `26200.8653`.
@@ -12,6 +14,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Module version bumped to `26.6.12.1`.
 - Driver folder path resolution and matching logic improved, including support for `.zip` and `.ps1` driver package inputs.
 - Fluent workflow `MainWindow` layouts refined with local ISO support and improved navigation/content presentation.
 
