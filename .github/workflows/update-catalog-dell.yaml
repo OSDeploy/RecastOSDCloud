@@ -30,10 +30,10 @@ jobs:
           & expand.exe $cabPath $xmlPath
           Write-Host "Extracted: $((Get-Item $xmlPath).Length) bytes"
 
-          Copy-Item $xmlPath 'catalogs\driverpack\dell.xml' -Force
-          Write-Host "Replaced catalogs\driverpack\dell.xml"
+          Copy-Item $xmlPath 'OSDCloud\catalogs\driverpack\dell.xml' -Force
+          Write-Host "Replaced OSDCloud\catalogs\driverpack\dell.xml"
 
-          [xml]$xml = Get-Content 'catalogs\driverpack\dell.xml' -Raw
+          [xml]$xml = Get-Content 'OSDCloud\catalogs\driverpack\dell.xml' -Raw
           $version = $xml.DocumentElement.GetAttribute('version')
           Write-Host "Dell catalog version: $version"
 
@@ -43,12 +43,12 @@ jobs:
           git config user.name  'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
 
-          git add catalogs/driverpack/dell.xml
+          git add OSDCloud/catalogs/driverpack/dell.xml
 
           if (git diff --cached --quiet) {
               Write-Host "No changes to commit."
           } else {
-              [xml]$xml = Get-Content 'catalogs\driverpack\dell.xml' -Raw
+              [xml]$xml = Get-Content 'OSDCloud\catalogs\driverpack\dell.xml' -Raw
               $version = $xml.DocumentElement.GetAttribute('version')
               git commit -m "chore(catalog): update Dell driver pack catalog ($version)"
               git push
