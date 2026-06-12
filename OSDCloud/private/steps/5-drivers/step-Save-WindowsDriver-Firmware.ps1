@@ -6,6 +6,10 @@ function step-Save-WindowsDriver-Firmware {
     Write-Debug -Message $Message; Write-Verbose -Message $Message
     $Step = $global:OSDCloudCurrentStep
     #=================================================
+    if ($global:OSDCloudDeploy.SkipFirmwareUpdate -eq $true) {
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Firmware update steps were disabled by -SkipFirmwareUpdate. Skip."
+        return
+    }
     if ($PSVersionTable.PSVersion.Major -ne 5) {
         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] PowerShell 5.1 is required to run this step. Skip."
         return
