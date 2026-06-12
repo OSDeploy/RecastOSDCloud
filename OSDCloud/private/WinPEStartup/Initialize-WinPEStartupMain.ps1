@@ -56,6 +56,15 @@ function Initialize-WinPEStartupMain {
         Invoke-WpeUtil -Command 'UpdateBootInfo'
         Start-Sleep -Seconds 2 # Wait for wpeutil UpdateBootInfo to complete before proceeding
 
+        # Reassign USB drive letters to the next available letter starting at H.
+        Write-Verbose 'Running Set-WinPEStartupUSBDriveLetter'
+        Set-WinPEStartupUSBDriveLetter
+        Start-Sleep -Seconds 2 # Wait for Set-WinPEStartupUSBDriveLetter to complete before proceeding
+
+        Write-Verbose 'Running wpeutil UpdateBootInfo'
+        Invoke-WpeUtil -Command 'UpdateBootInfo'
+        Start-Sleep -Seconds 2 # Wait for Set-WinPEStartupUSBDriveLetter to complete before proceeding
+
         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Initialize network"
         ipconfig /release | Out-Null
         ipconfig /renew  | Out-Null
