@@ -24,7 +24,8 @@
     # --- Exports ---
     FunctionsToExport = @(
         'Deploy-OSDCloud',
-        'Deploy-OSDCloudUI',
+        'Deploy-OSDCloudCLI',
+        'Deploy-OSDCloudvNext',
         'Get-OSDCloudModulePath',
         'Get-OSDCloudModuleVersion',
         'Show-OSDCloudDeviceInfo',

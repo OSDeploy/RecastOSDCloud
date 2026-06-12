@@ -1,6 +1,6 @@
 # OSDCloud – GitHub Copilot Instructions
 
-OSDCloud is a PowerShell 5.1 module for deploying Windows from cloud-hosted OS and driver content.  
+OSDCloud is a PowerShell 5.1 module for deploying Windows from cloud-hosted OS and driver content.
 It runs in both WinPE environments.
 
 ## Key references
@@ -32,7 +32,7 @@ catalogs/        # Driver pack XMLs and OS version JSON/XML catalogs
 workflow/        # Deployment profiles (classic, default, latest, insiders, …)
   <name>/
     tasks/       # JSON task definitions executed by Invoke-OSDCloudWorkflowTask
-    ux/          # UI configuration JSON
+    ui/          # UI configuration JSON
     os-amd64.json / os-arm64.json
 types/           # Pre-compiled DLLs (HtmlAgilityPack – loaded by OSDCloud.psm1)
 core/            # Out-of-band provisioning package assets
@@ -65,8 +65,8 @@ Functions are procedural and single-call, not pipeline-aware. Skip the blocks un
 
 ### Global state
 
-`Initialize-*` functions populate `$global:OSDCloud*` variables; `Invoke-*` and `Get-*` functions read them.  
-Key globals: `$global:OSDCloudDevice`, `$global:OSDCloudDeploy`, `$global:OSDCloudWorkflowTasks`, `$global:OSDCloudWorkflowInvoke`, `$global:Architecture`, `$global:IsWinPE`, `$global:IsVM`, `$global:IsOnBattery`.  
+`Initialize-*` functions populate `$global:OSDCloud*` variables; `Invoke-*` and `Get-*` functions read them.
+Key globals: `$global:OSDCloudDevice`, `$global:OSDCloudDeploy`, `$global:OSDCloudWorkflowTasks`, `$global:OSDCloudWorkflowInvoke`, `$global:Architecture`, `$global:IsWinPE`, `$global:IsVM`, `$global:IsOnBattery`.
 Document any new global variables added.
 
 ### Naming
@@ -85,20 +85,20 @@ Document any new global variables added.
 
 ## Workflows
 
-Deployment channels live in `workflow/<name>/`. Each channel provides JSON task definitions and OS/architecture configs.  
-To add a deployment step, add a JSON entry in `workflow/<channel>/tasks/` and implement the step in `private/steps/`.  
+Deployment channels live in `workflow/<name>/`. Each channel provides JSON task definitions and OS/architecture configs.
+To add a deployment step, add a JSON entry in `workflow/<channel>/tasks/` and implement the step in `private/steps/`.
 Do not hard-code deployment logic in orchestration functions.
 
 ## Catalogs
 
-Driver packs: `catalogs/driverpack/` (XML/JSON, mirrored from OEM sources listed in `module.json`).  
-OS metadata: `catalogs/operatingsystem/` (named `<build>-<windows-version>.xml`).  
+Driver packs: `catalogs/driverpack/` (XML/JSON, mirrored from OEM sources listed in `module.json`).
+OS metadata: `catalogs/operatingsystem/` (named `<build>-<windows-version>.xml`).
 Update catalog files when new OS builds or driver pack versions are released; do not edit them manually for content that should be fetched upstream.
 
 ## Testing
 
-No tests exist yet. When adding tests, follow [powershell-pester-5.instructions.md](instructions/powershell-pester-5.instructions.md).  
-Place test files adjacent to the function being tested as `<FunctionName>.Tests.ps1`.  
+No tests exist yet. When adding tests, follow [powershell-pester-5.instructions.md](instructions/powershell-pester-5.instructions.md).
+Place test files adjacent to the function being tested as `<FunctionName>.Tests.ps1`.
 Mock all external dependencies (WMI, network calls, disk operations).
 
 ## Build and publish
@@ -109,7 +109,7 @@ Mock all external dependencies (WMI, network calls, disk operations).
 Publish-Module -Name OSDCloud -NuGetApiKey $env:PSGALLERY_KEY
 ```
 
-Publishing is triggered manually via `.github/workflows/publish-module.yaml`.  
+Publishing is triggered manually via `.github/workflows/publish-module.yaml`.
 Version follows `YY.M.D.revision` format – update `ModuleVersion` in `OSDCloud.psd1` before publishing.
 
 ## Common pitfalls
