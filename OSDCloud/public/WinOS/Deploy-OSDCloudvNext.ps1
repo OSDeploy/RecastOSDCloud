@@ -1,4 +1,4 @@
-function Deploy-OSDCloudUI {
+function Deploy-OSDCloudvNext {
     <#
     .SYNOPSIS
         Starts an OSDCloud operating system deployment using a Fluent Design graphical interface.
@@ -28,25 +28,31 @@ function Deploy-OSDCloudUI {
         current console session.
 
     .EXAMPLE
-        Deploy-OSDCloudUI
+        Deploy-OSDCloudvNext
 
         Launches the OSDCloud Fluent Design UX for the default 'fluent' workflow.
         The deployment starts only after the operator clicks Start in the UI.
 
     .EXAMPLE
-        Deploy-OSDCloudUI -CLI
+        Deploy-OSDCloudvNext -CLI
 
         Runs the 'fluent' OSDCloud workflow immediately without the graphical UX.
 
     .EXAMPLE
-        Deploy-OSDCloudUI -WorkflowName 'latest'
+        Deploy-OSDCloudvNext -WorkflowName 'latest'
 
         Launches the graphical UX for the 'latest' workflow.
+
+    .OUTPUTS
+        System.Void
 
     .NOTES
         The Fluent Design UX requires the Wpf.Ui.dll (lepoco/wpfui 2.x) which is bundled in
         the module's types/wpfui/net481/ directory. On PowerShell Core the DLL is not loaded
         and the UI will fall back to standard WPF control styling.
+
+    .LINK
+        https://github.com/OSDeploy/OSDCloud/blob/main/PRIVACY.md
     #>
     [CmdletBinding()]
     param (
@@ -55,7 +61,7 @@ function Deploy-OSDCloudUI {
             ValueFromPipelineByPropertyName = $true)]
         [Alias('Name')]
         [System.String]
-        $WorkflowName = 'fluent',
+        $WorkflowName = 'vNext',
 
         [System.Management.Automation.SwitchParameter]
         $CLI
@@ -83,7 +89,7 @@ function Deploy-OSDCloudUI {
         # Prevents the workflow from starting unless the Start button is clicked in the GUI
         $global:OSDCloudDeploy.TimeStart = $null
 
-        Invoke-OSDCloudWorkflowUx -WorkflowName $WorkflowName
+        Invoke-OSDCloudWorkflowUI -WorkflowName $WorkflowName
 
         if ($null -ne $global:OSDCloudDeploy.TimeStart) {
             Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Invoke-OSDCloudWorkflowTask $WorkflowName"
