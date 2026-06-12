@@ -79,7 +79,7 @@ Then:
 
 ### Automated update via GitHub Actions
 
-The `update-catalog-microsoft.yaml` workflow runs `scripts/Update-MicrosoftCatalog.ps1` weekly and on demand. It scrapes every `UpdatePage` URL in `microsoft.json`, selects the best available MSI, and commits any changes automatically. Run `workflow_dispatch` to trigger an immediate update.
+The `update-catalog-microsoft.yaml` workflow runs `.github/scripts/Update-MicrosoftCatalog.ps1` every 4 hours and on demand. It scrapes every `UpdatePage` URL in `microsoft.json`, selects the best available MSI, and commits any changes automatically. Run `workflow_dispatch` to trigger an immediate update.
 
 ---
 

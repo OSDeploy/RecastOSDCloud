@@ -2,6 +2,8 @@ name: Update Microsoft Surface Driver Pack Catalog
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 */4 * * *'
 
 permissions:
   contents: write
@@ -20,7 +22,7 @@ jobs:
         id: update
         shell: pwsh
         run: |
-          .\scripts\Update-MicrosoftCatalog.ps1 -JsonPath 'OSDCloud\catalogs\driverpack\microsoft.json'
+          .\.github\scripts\Update-MicrosoftCatalog.ps1 -JsonPath 'OSDCloud\catalogs\driverpack\microsoft.json'
 
       - name: Commit if changed
         if: steps.update.outputs.changed == 'true'

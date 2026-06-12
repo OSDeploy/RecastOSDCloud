@@ -2,6 +2,8 @@ name: Update Lenovo Driver Pack Catalog
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 */4 * * *'
 
 permissions:
   contents: write
