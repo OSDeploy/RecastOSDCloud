@@ -123,6 +123,10 @@
             "command": "step-Add-WindowsDriver-DriverPack"
         },
         {
+            "name": "Apply Drivers from a OSD folder match",
+            "command": "step-Add-WindowsDriver-OSDFolder"
+        },
+        {
             "name": "Download Drivers from Microsoft Update Catalog",
             "command": "step-Save-WindowsDriver-MSUpdate",
             "testinfullos": true
@@ -154,7 +158,7 @@
             "command": "step-powershell-updatemodule"
         },
         {
-            "name": "Save PowerShell Module OSD",
+            "name": "Save-Module OSD",
             "command": "step-powershell-savemodule",
             "parameters": {
                 "name": "OSD"
@@ -162,7 +166,7 @@
             "skip": true
         },
         {
-            "name": "Save PowerShell Module WindowsAutopilotIntune",
+            "name": "Save-Module WindowsAutopilotIntune",
             "command": "step-powershell-savemodule",
             "parameters": {
                 "name": "WindowsAutopilotIntune"
@@ -170,7 +174,7 @@
             "skip": true
         },
         {
-            "name": "Save PowerShell Module Microsoft.Graph.Groups",
+            "name": "Save-Module Microsoft.Graph.Groups",
             "command": "step-powershell-savemodule",
             "parameters": {
                 "name": "Microsoft.Graph.Groups"
@@ -178,7 +182,7 @@
             "skip": true
         },
         {
-            "name": "Save PowerShell Module Microsoft.Graph.Authentication",
+            "name": "Save-Module Microsoft.Graph.Authentication",
             "command": "step-powershell-savemodule",
             "parameters": {
                 "name": "Microsoft.Graph.Authentication"
@@ -186,10 +190,10 @@
             "skip": true
         },
         {
-            "name": "Save PowerShell Module Microsoft.Graph.Identity.DirectoryManagement",
+            "name": "Save-Module Microsoft.Graph.Identity.DirectoryManagement",
             "command": "step-powershell-savemodule",
             "parameters": {
-                "name": "Microsoft.Graph.Identity.DirectoryManagement"
+                "name": "Microsoft.Graph.Authentication"
             },
             "skip": true
         },

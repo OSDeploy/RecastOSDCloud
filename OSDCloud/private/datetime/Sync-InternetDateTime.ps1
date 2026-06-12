@@ -73,18 +73,35 @@ function Sync-WinpeInternetDateTime {
         try {
             Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Retrieving time from Google"
             $googleResponse = Invoke-WebRequest -Uri "http://www.google.com" -UseBasicParsing -Method Head -ErrorAction Stop
-            $googleDateHeader = $googleResponse.Headers["Date"]
+            $googleDateHeaderRaw = $googleResponse.Headers["Date"]
+            if ($googleDateHeaderRaw -is [System.Array]) {
+                $googleDateHeader = $googleDateHeaderRaw | Select-Object -First 1
+            }
+            else {
+                $googleDateHeader = $googleDateHeaderRaw
+            }
             
-            if ($googleDateHeader) {
+            if ([string]::IsNullOrWhiteSpace($googleDateHeader)) {
+                $result.ErrorMessage = "No Date header received from Google"
+                Write-Warning "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] $($result.ErrorMessage)"
+                if ($PassThru) { return $result }
+                return
+            }
+
+            $internetDateTime = [System.DateTimeOffset]::MinValue
+            $dateParseStyles = [System.Globalization.DateTimeStyles]::AllowWhiteSpaces -bor [System.Globalization.DateTimeStyles]::AssumeUniversal -bor [System.Globalization.DateTimeStyles]::AdjustToUniversal
+            $parsedDate = [System.DateTimeOffset]::TryParse($googleDateHeader, [System.Globalization.CultureInfo]::InvariantCulture, $dateParseStyles, [ref]$internetDateTime)
+
+            if ($parsedDate) {
                 $result.LocalDateTime = Get-Date
-                $result.InternetDateTime = Get-Date $googleDateHeader
+                $result.InternetDateTime = $internetDateTime.LocalDateTime
                 $result.Success = $true
                 
                 Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Local time: $($result.LocalDateTime)"
                 Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Internet time: $($result.InternetDateTime)"
             }
             else {
-                $result.ErrorMessage = "No Date header received from Google"
+                $result.ErrorMessage = "Unable to parse Date header from Google response: $googleDateHeader"
                 Write-Warning "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] $($result.ErrorMessage)"
                 if ($PassThru) { return $result }
                 return

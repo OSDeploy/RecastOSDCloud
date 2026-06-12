@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Added
+
+- OS catalog updated with Windows 11 25H2 build `26200.8653`.
+- WinPE support added to reassign USB drive letters starting at `H:` to avoid drive-letter conflicts during deployment.
+- Driver Folder selection and management support added to `MainWindow`, including dynamic panel visibility and selection handling.
+
+### Changed
+
+- Driver folder path resolution and matching logic improved, including support for `.zip` and `.ps1` driver package inputs.
+- Fluent workflow `MainWindow` layouts refined with local ISO support and improved navigation/content presentation.
+
+## 26.6.3.1 - June 3, 2026
+
+### Added
+
+- Added comprehensive guides for deploying Windows 11 with OSDCloud.
+
+### Changed
+
+- Module version bumped to `26.6.3.1`.
+- `MainWindow` layout and branding updated for improved navigation and content display.
+
+## 26.5.24.1 - May 25, 2026
+
+### Changed
+
+- Module version bumped to `26.5.24.1`.
+- Microsoft Surface driver pack catalog updated (`2026-05-25`).
+
 ## 26.5.22.1 - May 22, 2026
 
 ### Changed

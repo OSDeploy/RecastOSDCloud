@@ -96,6 +96,9 @@ function Initialize-WinPEStartupEnvironment {
 
         Set-ItemProperty -Path $psRegKeyPath -Name 'ExecutionPolicy' -Value 'Bypass' -Type String -Force
         Write-Verbose 'Set registry ExecutionPolicy = Bypass'
+
+        # Reassign USB drive letters to the next available letter starting at H.
+        Set-WinPEStartupUSBDriveLetter
     }
 
     end {

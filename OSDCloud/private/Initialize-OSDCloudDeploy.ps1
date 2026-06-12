@@ -134,6 +134,11 @@ function Initialize-OSDCloudDeploy {
     $global:OSDCloudDeploy = $null
     $global:OSDCloudDeploy = [ordered]@{
         DeploymentDiskObject      = $DeploymentDiskObject
+        DriverFolderName          = $null
+        DriverFolderNames         = @()
+        DriverFolderPath          = $null
+        DriverFolderPaths         = @()
+        DriverFolderSelections    = @()
         DriverPackName            = $DriverPackName
         DriverPackObject          = $DriverPackObject
         DriverPackValues          = [array]$DriverPackValues

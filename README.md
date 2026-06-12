@@ -63,14 +63,21 @@ Deploy-OSDCloud
 
 ## Documentation
 
-### Guides
+### How-to guides
 
-| Guide | Description |
+Task-oriented guides for IT admins. Start at the [docs index](docs/README.md), or jump straight to a topic:
+
+| Guide | When to read |
 |---|---|
-| [docs/getting-started.md](docs/getting-started.md) | Installation, quick start, and cmdlet overview. |
-| [docs/winpe-startup.md](docs/winpe-startup.md) | WinPE startup sequence, script hooks, and USB profiles. |
-| [docs/psoptions.md](docs/psoptions.md) | Two-layer PSDefaultParameterValues system and full key reference. |
-| [docs/workflows.md](docs/workflows.md) | Deployment channels and the 39-step default task. |
+| [docs/01-overview.md](docs/01-overview.md) | Decide whether OSDCloud is the right tool. |
+| [docs/02-build-boot-image.md](docs/02-build-boot-image.md) | Produce a custom WinPE WIM/ISO. |
+| [docs/03-boot-device.md](docs/03-boot-device.md) | Boot a target device into WinPE (USB / ISO / PXE). |
+| [docs/04-deploy-windows.md](docs/04-deploy-windows.md) | End-to-end Windows 11 deployment. |
+| [docs/05-customize-deployment.md](docs/05-customize-deployment.md) | Workflow channels, OS / edition / language, skip steps. |
+| [docs/06-unattended-usb-profile.md](docs/06-unattended-usb-profile.md) | Zero-touch deployment with a USB JSON profile. |
+| [docs/07-arm64-devices.md](docs/07-arm64-devices.md) | Deploy to Snapdragon / Surface Pro 11 / Copilot+ PCs. |
+| [docs/08-autopilot-oobe.md](docs/08-autopilot-oobe.md) | Hand off to OOBE and Autopilot. |
+| [docs/09-troubleshooting.md](docs/09-troubleshooting.md) | Diagnose a failed deployment. |
 
 ### Function reference
 

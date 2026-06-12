@@ -33,6 +33,18 @@ try {
     throw $Err
 }
 
+try {
+    if (!([System.Management.Automation.PSTypeName]'Wpf.Ui.Controls.Button').Type) {
+        if ($PSVersionTable.PSEdition -eq 'Desktop') {
+            Add-Type -Path "$PSScriptRoot\types\wpfui\net481\Wpf.Ui.dll"
+        } else {
+            Add-Type -Path "$PSScriptRoot\types\wpfui\net6.0-windows\Wpf.Ui.dll"
+        }
+    }
+} catch {
+    Write-Warning "[$($MyInvocation.MyCommand.Name)] Could not load Wpf.Ui.dll: $_"
+}
+
 $FoundErrors = @(
     if ($env:SystemDrive -eq 'X:') {
         foreach ($Import in @($Classes + $Private + $PublicWinOS + $PublicWinPE)) {
