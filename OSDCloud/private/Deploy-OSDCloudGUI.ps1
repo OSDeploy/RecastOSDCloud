@@ -15,8 +15,8 @@ function Deploy-OSDCloudGUI {
     # Prevents the workflow from starting unless the Start button is clicked in the GUI
     $global:OSDCloudDeploy.TimeStart = $null
     #=================================================
-    # OSDCloudWorkflowUx
-    Invoke-OSDCloudWorkflowUx -WorkflowName $WorkflowName
+    # OSDCloudWorkflowUI
+    Invoke-OSDCloudWorkflowUI -WorkflowName $WorkflowName
     #=================================================
     # Ensure workflow frontend is triggered before invoking workflow
     if ($null -ne $global:OSDCloudDeploy.TimeStart) {

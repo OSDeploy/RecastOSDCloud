@@ -38,6 +38,16 @@ function Deploy-OSDCloud {
         Deploy-OSDCloud -WorkflowName 'latest'
 
         Launches the graphical UX for the 'latest' workflow.
+
+    .OUTPUTS
+        System.Void
+
+    .NOTES
+        This command writes deployment status to the host and starts workflow tasks.
+        In GUI mode, workflow execution starts only after the operator clicks Start.
+
+    .LINK
+        https://github.com/OSDeploy/OSDCloud/blob/main/PRIVACY.md
     #>
     [CmdletBinding()]
     param (
@@ -71,7 +81,7 @@ function Deploy-OSDCloud {
         # Prevents the workflow from starting unless the Start button is clicked in the GUI
         $global:OSDCloudDeploy.TimeStart = $null
 
-        Invoke-OSDCloudWorkflowUx -WorkflowName $WorkflowName
+        Invoke-OSDCloudWorkflowUI -WorkflowName $WorkflowName
 
         if ($null -ne $global:OSDCloudDeploy.TimeStart) {
             Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Invoke-OSDCloudWorkflowTask $WorkflowName"

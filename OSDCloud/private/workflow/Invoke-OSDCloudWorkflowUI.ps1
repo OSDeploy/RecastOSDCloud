@@ -1,4 +1,4 @@
-function Invoke-OSDCloudWorkflowUx {
+function Invoke-OSDCloudWorkflowUI {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $false,
@@ -30,24 +30,34 @@ function Invoke-OSDCloudWorkflowUx {
         throw
     }
     #=================================================
-    $workflowDefaultUxPath = Join-Path $WorkflowsRootPath (Join-Path 'default' 'ux')
-    $workflowUxPath = Join-Path $WorkflowsRootPath (Join-Path $WorkflowName 'ux')
+    $defaultWorkflowUiFolder = 'ui'
+    $workflowUiFolder = 'ui'
 
-    $currentUxPath = $null
-    if (Test-Path "$workflowDefaultUxPath\MainWindow.ps1") {
-        $currentUxPath = Join-Path -Path $workflowDefaultUxPath -ChildPath "MainWindow.ps1"
+    if (-not (Test-Path -Path (Join-Path $WorkflowsRootPath (Join-Path 'default' 'ui')) -PathType Container)) {
+        $defaultWorkflowUiFolder = 'ux'
     }
-    if (Test-Path "$workflowUxPath\MainWindow.ps1") {
-        $currentUxPath = Join-Path -Path $workflowUxPath -ChildPath "MainWindow.ps1"
+    if (-not (Test-Path -Path (Join-Path $WorkflowsRootPath (Join-Path $WorkflowName 'ui')) -PathType Container)) {
+        $workflowUiFolder = 'ux'
     }
 
-    if (-not $currentUxPath) {
-        Write-Warning "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Unable to locate a valid Workflow Ux MainWindow.ps1"
-        Write-Warning "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Checked $workflowUxPath and $workflowDefaultUxPath"
+    $workflowDefaultUiPath = Join-Path $WorkflowsRootPath (Join-Path 'default' $defaultWorkflowUiFolder)
+    $workflowUiPath = Join-Path $WorkflowsRootPath (Join-Path $WorkflowName $workflowUiFolder)
+
+    $currentUiPath = $null
+    if (Test-Path "$workflowDefaultUiPath\MainWindow.ps1") {
+        $currentUiPath = Join-Path -Path $workflowDefaultUiPath -ChildPath "MainWindow.ps1"
+    }
+    if (Test-Path "$workflowUiPath\MainWindow.ps1") {
+        $currentUiPath = Join-Path -Path $workflowUiPath -ChildPath "MainWindow.ps1"
+    }
+
+    if (-not $currentUiPath) {
+        Write-Warning "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Unable to locate a valid Workflow UI MainWindow.ps1"
+        Write-Warning "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Checked $workflowUiPath and $workflowDefaultUiPath (preferred ui, fallback ux when ui folder is missing)"
         throw
     }
 
-    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] $($currentUxPath.Replace((Split-Path $ModuleBase -Parent) + '\', ''))"
-    . $currentUxPath
+    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] $($currentUiPath.Replace((Split-Path $ModuleBase -Parent) + '\', ''))"
+    . $currentUiPath
     #=================================================
 }
