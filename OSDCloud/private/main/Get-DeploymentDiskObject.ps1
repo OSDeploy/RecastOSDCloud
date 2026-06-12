@@ -73,7 +73,7 @@ function Get-DeploymentDiskObject {
     Returns all non-USB, non-HDD disks (typically SSDs and NVMe drives).
 
     .NOTES
-    Requires the Storage module with Get-Disk and Get-PhysicalDisk cmdlets.
+    Requires .NET System.Management access to the MSFT_Disk class and the Storage module Get-PhysicalDisk cmdlet.
     Automatically excludes: File Backed Virtual, MAX, Microsoft Reserved, USB, and Virtual bus types.
     The function throws an error if no disks match the specified criteria.
     A warning is issued when multiple disks match the criteria.
@@ -104,24 +104,92 @@ function Get-DeploymentDiskObject {
         [string[]]$PartitionStyleNot
     )
     #=================================================
-    # Test for Get-Disk and throw if not available
-    if (-not (Get-Command -Name 'Get-Disk' -ErrorAction SilentlyContinue)) {
-        Throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Get-DeploymentDiskObject requires 'Get-Disk' which is not available on this system"
-    }
-    #=================================================
     # Test Get-PhysicalDisk and throw if not available
     if (-not (Get-Command -Name 'Get-PhysicalDisk' -ErrorAction SilentlyContinue)) {
         Throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Get-DeploymentDiskObject requires 'Get-PhysicalDisk' which is not available on this system"
     }
     #=================================================
     # Get Variables
-    $GetDisk = Get-Disk | Sort-Object DiskNumber | Select-Object -Property *
+    $busTypeMap = @{
+        1  = 'SCSI'
+        2  = 'ATAPI'
+        3  = 'ATA'
+        4  = '1394'
+        5  = 'SSA'
+        6  = 'Fibre Channel'
+        7  = 'USB'
+        8  = 'RAID'
+        9  = 'iSCSI'
+        10 = 'SAS'
+        11 = 'SATA'
+        12 = 'SD'
+        13 = 'MMC'
+        14 = 'Virtual'
+        15 = 'File Backed Virtual'
+        16 = 'Storage Spaces'
+        17 = 'NVMe'
+        18 = 'Microsoft Reserved'
+        19 = 'MAX'
+    }
+    $partitionStyleMap = @{
+        0 = 'RAW'
+        1 = 'MBR'
+        2 = 'GPT'
+    }
+
+    try {
+        $searcher = [System.Management.ManagementObjectSearcher]::new(
+            'root\Microsoft\Windows\Storage',
+            'SELECT Number,IsOffline,OperationalStatus,BootFromDisk,IsBoot,IsReadOnly,IsSystem,BusType,PartitionStyle FROM MSFT_Disk'
+        )
+        $diskObjects = $searcher.Get()
+    } catch {
+        Throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Failed to enumerate disks using MSFT_Disk via .NET: $($_.Exception.Message)"
+    }
+
+    $GetDisk = foreach ($diskObject in $diskObjects) {
+        $busTypeCode = [int]$diskObject.BusType
+        $partitionStyleCode = [int]$diskObject.PartitionStyle
+
+        $operationalStatusCodes = @()
+        if ($null -ne $diskObject.OperationalStatus) {
+            if ($diskObject.OperationalStatus -is [System.Array]) {
+                $operationalStatusCodes = @($diskObject.OperationalStatus | ForEach-Object { [int]$_ })
+            } else {
+                $operationalStatusCodes = @([int]$diskObject.OperationalStatus)
+            }
+        }
+
+        $operationalStatus = if ($operationalStatusCodes -contains 31) {
+            'No Media'
+        } elseif ($operationalStatusCodes.Count -gt 0) {
+            [string]$operationalStatusCodes[0]
+        } else {
+            'Unknown'
+        }
+
+        [PSCustomObject]@{
+            Number           = [uint32]$diskObject.Number
+            DiskNumber       = [uint32]$diskObject.Number
+            IsOffline        = [bool]$diskObject.IsOffline
+            OperationalStatus = $operationalStatus
+            BootFromDisk     = [bool]$diskObject.BootFromDisk
+            IsBoot           = [bool]$diskObject.IsBoot
+            IsReadOnly       = [bool]$diskObject.IsReadOnly
+            IsSystem         = [bool]$diskObject.IsSystem
+            BusType          = if ($busTypeMap.ContainsKey($busTypeCode)) { $busTypeMap[$busTypeCode] } else { 'Unknown' }
+            PartitionStyle   = if ($partitionStyleMap.ContainsKey($partitionStyleCode)) { $partitionStyleMap[$partitionStyleCode] } else { 'RAW' }
+            MediaType        = 'Unspecified'
+        }
+    }
+
+    $GetDisk = $GetDisk | Sort-Object DiskNumber
     $GetPhysicalDisk = Get-PhysicalDisk | Sort-Object DeviceId
     #=================================================
     # Add Property MediaType
     foreach ($Disk in $GetDisk) {
         foreach ($PhysicalDisk in $GetPhysicalDisk | Where-Object {$_.DeviceId -eq $Disk.Number}) {
-            $Disk | Add-Member -NotePropertyName 'MediaType' -NotePropertyValue $PhysicalDisk.MediaType
+            $Disk.MediaType = [string]$PhysicalDisk.MediaType
         }
     }
     #=================================================
