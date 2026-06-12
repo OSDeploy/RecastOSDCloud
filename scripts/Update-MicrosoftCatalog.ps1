@@ -158,13 +158,15 @@ $ordered = $entries | ForEach-Object {
 
 $newJson = $ordered | ConvertTo-Json -Depth 10
 
-if ($changed -or $newJson -ne $jsonContent) {
+$didChange = ($changed -or $newJson -ne $jsonContent)
+
+if ($didChange) {
     Set-Content -Path $JsonPath -Value $newJson -Encoding utf8NoBOM
     Write-Host "Saved updated JSON -> $JsonPath"
 }
 
 # Emit output for GitHub Actions
-$changedStr = $changed.ToString().ToLower()
+$changedStr = $didChange.ToString().ToLower()
 if ($env:GITHUB_OUTPUT) {
     "changed=$changedStr" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 }
