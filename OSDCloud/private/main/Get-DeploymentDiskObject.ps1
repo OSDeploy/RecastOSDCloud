@@ -92,7 +92,7 @@ function Get-DeploymentDiskObject {
         [string[]]$BusType,
         [ValidateSet('1394','ATA','ATAPI','Fibre Channel','File Backed Virtual','iSCSI','MMC','MAX','Microsoft Reserved','NVMe','RAID','SAS','SATA','SCSI','SD','SSA','Storage Spaces','USB','Virtual')]
         [string[]]$BusTypeNot,
-        
+
         [ValidateSet('SSD','HDD','SCM','Unspecified')]
         [string[]]$MediaType,
         [ValidateSet('SSD','HDD','SCM','Unspecified')]
