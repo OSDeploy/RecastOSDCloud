@@ -26,6 +26,7 @@
         'Deploy-OSDCloud',
         'Deploy-OSDCloudCLI',
         'Deploy-OSDCloudvNext',
+        'Get-OSDCloudCache',
         'Get-OSDCloudModulePath',
         'Get-OSDCloudModuleVersion',
         'Show-OSDCloudDeviceInfo',
