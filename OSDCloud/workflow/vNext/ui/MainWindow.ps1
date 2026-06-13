@@ -744,9 +744,9 @@ if (-not [string]::IsNullOrWhiteSpace([string]$deviceHardwareHash)) {
     })
 }
 
-$DeviceTooGrid = $window.FindName('DeviceTooGrid')
+$OSDCloudDeviceGrid = $window.FindName('OSDCloudDeviceGrid')
 
-function Convert-DeviceTooValueToString {
+function Convert-OSDCloudDeviceValueToString {
     param($Value)
 
     if ($null -eq $Value) {
@@ -768,7 +768,7 @@ function Convert-DeviceTooValueToString {
     return [string]$Value
 }
 
-function Get-DeviceTooItems {
+function Get-OSDCloudDeviceItems {
     $deviceObject = $global:OSDCloudDevice
     if (-not $deviceObject) {
         return @()
@@ -781,7 +781,7 @@ function Get-DeviceTooItems {
                 ForEach-Object {
                     [PSCustomObject]@{
                         Key   = [string]$_.Key
-                        Value = Convert-DeviceTooValueToString -Value $_.Value
+                        Value = Convert-OSDCloudDeviceValueToString -Value $_.Value
                     }
                 }
         )
@@ -798,14 +798,14 @@ function Get-DeviceTooItems {
             ForEach-Object {
                 [PSCustomObject]@{
                     Key   = [string]$_.Name
-                    Value = Convert-DeviceTooValueToString -Value $_.Value
+                    Value = Convert-OSDCloudDeviceValueToString -Value $_.Value
                 }
             }
     )
 }
 
-if ($DeviceTooGrid) {
-    $DeviceTooGrid.ItemsSource = Get-DeviceTooItems
+if ($OSDCloudDeviceGrid) {
+    $OSDCloudDeviceGrid.ItemsSource = Get-OSDCloudDeviceItems
 }
 #================================================
 # Summary / Selected detail text blocks
