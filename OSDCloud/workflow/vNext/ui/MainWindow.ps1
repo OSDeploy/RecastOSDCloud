@@ -421,14 +421,211 @@ Update-TaskSequenceSteps
 #================================================
 # Local ISO Values
 function Get-LocalIsoFile {
-    $localIsoFiles = Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Root -match '^[A-Z]:\\$' } | ForEach-Object {
-        $osPath = Join-Path -Path $_.Root -ChildPath 'OSDCloud\OS'
-        if (Test-Path -LiteralPath $osPath) {
-            Get-ChildItem -LiteralPath $osPath -Filter '*.iso' -File -ErrorAction SilentlyContinue
+    $localIsoFiles = @(
+        Get-OSDCloudCache -Type ISO -ErrorAction SilentlyContinue |
+            Where-Object { $_.Type -eq 'ISO' -and -not [string]::IsNullOrWhiteSpace([string]$_.FullName) }
+    )
+
+    return @($localIsoFiles | Sort-Object -Property FullName -Unique)
+}
+
+function Get-DriverPackCacheFile {
+    param(
+        [Parameter()]
+        $DriverPackObject,
+
+        [Parameter()]
+        [System.Object[]]$CacheItems
+    )
+
+    if (-not $DriverPackObject -or -not $CacheItems) {
+        return $null
+    }
+
+    $candidateFileNames = @()
+
+    $fileName = [string]$DriverPackObject.FileName
+    if (-not [string]::IsNullOrWhiteSpace($fileName)) {
+        $candidateFileNames += [System.IO.Path]::GetFileName($fileName)
+    }
+
+    $url = [string]$DriverPackObject.Url
+    if (-not [string]::IsNullOrWhiteSpace($url)) {
+        try {
+            $candidateFileNames += [System.IO.Path]::GetFileName(([System.Uri]$url).AbsolutePath)
+        } catch {
+            $candidateFileNames += [System.IO.Path]::GetFileName($url)
         }
     }
 
-    return @($localIsoFiles | Sort-Object -Property FullName -Unique)
+    $candidateFileNames = @(
+        $candidateFileNames |
+            Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) } |
+            Sort-Object -Unique
+    )
+
+    if (-not $candidateFileNames) {
+        return $null
+    }
+
+    $exactFileName = [string]$DriverPackObject.FileName
+    if (-not [string]::IsNullOrWhiteSpace($exactFileName)) {
+        $matchedExact = $CacheItems | Where-Object {
+            [System.IO.Path]::GetFileName([string]$_.FullName) -ieq [System.IO.Path]::GetFileName($exactFileName)
+        } | Select-Object -First 1
+
+        if ($matchedExact) {
+            return $matchedExact
+        }
+    }
+
+    return $CacheItems | Where-Object {
+        $cacheFileName = [System.IO.Path]::GetFileName([string]$_.FullName)
+        $candidateFileNames -icontains $cacheFileName
+    } | Select-Object -First 1
+}
+
+function Get-DriverPackCacheItems {
+    return @(
+        Get-OSDCloudCache -Type DriverPacks -ErrorAction SilentlyContinue |
+            Where-Object { $_.Type -eq 'DriverPacks' -and -not [string]::IsNullOrWhiteSpace([string]$_.FullName) }
+    )
+}
+
+function Test-IsUsbDriveRoot {
+    param(
+        [Parameter(Mandatory)]
+        [string]$DriveRoot
+    )
+
+    if ($DriveRoot -notmatch '^[A-Z]:\\$') {
+        return $false
+    }
+
+    $driveLetter = $DriveRoot.Substring(0, 1)
+
+    try {
+        $partition = Get-Partition -DriveLetter $driveLetter -ErrorAction Stop | Select-Object -First 1
+        if ($partition) {
+            $disk = Get-Disk -Number $partition.DiskNumber -ErrorAction SilentlyContinue
+            if ($disk -and [string]$disk.BusType -ieq 'USB') {
+                return $true
+            }
+        }
+    } catch {
+    }
+
+    try {
+        $volume = Get-Volume -DriveLetter $driveLetter -ErrorAction Stop
+        if ($volume -and ([string]$volume.DriveType -ieq 'Removable')) {
+            return $true
+        }
+    } catch {
+    }
+
+    return $false
+}
+
+function Get-DriverPackUsbCacheTarget {
+    param(
+        [Parameter()]
+        [Int64]$MinimumFreeBytes = 10GB
+    )
+
+    $cacheRoots = @(
+        Get-OSDCloudCache -ErrorAction SilentlyContinue |
+            Where-Object { $_.Type -eq 'Cache' -and -not [string]::IsNullOrWhiteSpace([string]$_.DriveRoot) }
+    )
+
+    if (-not $cacheRoots) {
+        return $null
+    }
+
+    $eligibleTargets = foreach ($cacheRoot in $cacheRoots) {
+        $driveRoot = [string]$cacheRoot.DriveRoot
+        if (-not (Test-IsUsbDriveRoot -DriveRoot $driveRoot)) {
+            continue
+        }
+
+        $driveLetter = $driveRoot.TrimEnd('\\').TrimEnd(':')
+        $drive = Get-PSDrive -Name $driveLetter -PSProvider FileSystem -ErrorAction SilentlyContinue
+        if (-not $drive) {
+            continue
+        }
+
+        $freeBytes = [Int64]$drive.Free
+        if ($freeBytes -gt $MinimumFreeBytes) {
+            [PSCustomObject]@{
+                DriveRoot   = $driveRoot
+                CachePath   = [string]$cacheRoot.FullName
+                FreeBytes   = $freeBytes
+                VolumeLabel = [string]$cacheRoot.VolumeLabel
+            }
+        }
+    }
+
+    return $eligibleTargets | Sort-Object -Property FreeBytes -Descending | Select-Object -First 1
+}
+
+function Convert-ToSafePathSegment {
+    param(
+        [Parameter()]
+        [string]$Value,
+
+        [Parameter()]
+        [string]$DefaultValue = 'Unknown'
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        return $DefaultValue
+    }
+
+    $safeValue = $Value
+    foreach ($invalidChar in [System.IO.Path]::GetInvalidFileNameChars()) {
+        $safeValue = $safeValue.Replace([string]$invalidChar, '_')
+    }
+
+    if ([string]::IsNullOrWhiteSpace($safeValue)) {
+        return $DefaultValue
+    }
+
+    return $safeValue
+}
+
+function Convert-ToSingleQuotedPowerShellLiteral {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Value
+    )
+
+    return "'" + $Value.Replace("'", "''") + "'"
+}
+
+function Get-DriverPackFileName {
+    param(
+        [Parameter()]
+        $DriverPackObject
+    )
+
+    if (-not $DriverPackObject) {
+        return $null
+    }
+
+    $fileName = [string]$DriverPackObject.FileName
+    if (-not [string]::IsNullOrWhiteSpace($fileName)) {
+        return [System.IO.Path]::GetFileName($fileName)
+    }
+
+    $url = [string]$DriverPackObject.Url
+    if ([string]::IsNullOrWhiteSpace($url)) {
+        return $null
+    }
+
+    try {
+        return [System.IO.Path]::GetFileName(([System.Uri]$url).AbsolutePath)
+    } catch {
+        return [System.IO.Path]::GetFileName($url)
+    }
 }
 
 function Get-DriverFolderRelativePath {
@@ -468,30 +665,26 @@ function Get-DriveVolumeMetadata {
 }
 
 function Get-DriverFolderItem {
-    $driverFolders = Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Root -match '^[A-Z]:\\$' } | ForEach-Object {
-        $driveRoot = [string]$_.Root
-        $driverFolderPath = Join-Path -Path $driveRoot -ChildPath 'OSDCloud\Drivers'
-        if (Test-Path -LiteralPath $driverFolderPath) {
-            $volumeMetadata = Get-DriveVolumeMetadata -DriveRoot $driveRoot
-            Get-ChildItem -LiteralPath $driverFolderPath -Directory -ErrorAction SilentlyContinue | ForEach-Object {
-                $folderName = [string]$_.Name
-                $isAutoDefaultMatch = @('Auto', 'Default') -contains $folderName
-                $isManufacturerMatch = (-not [string]::IsNullOrWhiteSpace($deviceOSDManufacturer)) -and ($folderName -ieq [string]$deviceOSDManufacturer)
-                $isModelMatch = (-not [string]::IsNullOrWhiteSpace($deviceOSDModel)) -and ($folderName -like "*$deviceOSDModel*")
-                $isProductMatch = (-not [string]::IsNullOrWhiteSpace($deviceOSDProduct)) -and ($folderName -like "*$deviceOSDProduct*")
+    $driverFolders = Get-OSDCloudCache -Type Drivers -ErrorAction SilentlyContinue |
+        Where-Object { $_.Type -eq 'Drivers' -and -not [string]::IsNullOrWhiteSpace([string]$_.FullName) } |
+        ForEach-Object {
+            $folderPath = [string]$_.FullName
+            $folderName = [System.IO.Path]::GetFileName($folderPath)
+            $isAutoDefaultMatch = @('Auto', 'Default') -contains $folderName
+            $isManufacturerMatch = (-not [string]::IsNullOrWhiteSpace($deviceOSDManufacturer)) -and ($folderName -ieq [string]$deviceOSDManufacturer)
+            $isModelMatch = (-not [string]::IsNullOrWhiteSpace($deviceOSDModel)) -and ($folderName -like "*$deviceOSDModel*")
+            $isProductMatch = (-not [string]::IsNullOrWhiteSpace($deviceOSDProduct)) -and ($folderName -like "*$deviceOSDProduct*")
 
-                [PSCustomObject]@{
-                    Name           = $_.FullName
-                    Path           = $_.FullName
-                    RelativePath   = Get-DriverFolderRelativePath -Path $_.FullName
-                    DriveRoot      = [string]$volumeMetadata.DriveRoot
-                    VolumeLabel    = [string]$volumeMetadata.VolumeLabel
-                    VolumeUniqueId = [string]$volumeMetadata.VolumeUniqueId
-                    IsSelected     = ($isAutoDefaultMatch -or $isManufacturerMatch -or $isModelMatch -or $isProductMatch)
-                }
+            [PSCustomObject]@{
+                Name           = $folderPath
+                Path           = $folderPath
+                RelativePath   = Get-DriverFolderRelativePath -Path $folderPath
+                DriveRoot      = [string]$_.DriveRoot
+                VolumeLabel    = [string]$_.VolumeLabel
+                VolumeUniqueId = [string]$_.VolumeUniqueId
+                IsSelected     = ($isAutoDefaultMatch -or $isManufacturerMatch -or $isModelMatch -or $isProductMatch)
             }
         }
-    }
 
     return @($driverFolders | Sort-Object -Property Path -Unique)
 }
@@ -501,6 +694,7 @@ $UseLocalIsoToggle       = $window.FindName("UseLocalIsoToggle")
 $LocalIsoCombo           = $window.FindName("LocalIsoCombo")
 $CloudOperatingSystemCard = $window.FindName("CloudOperatingSystemCard")
 $LocalIsoFiles           = @(Get-LocalIsoFile)
+$DriverPackCacheItems    = @(Get-DriverPackCacheItems)
 
 if ($LocalIsoFiles.Count -gt 0) {
     $LocalIsoCard.Visibility = [System.Windows.Visibility]::Visible
@@ -813,6 +1007,9 @@ $SelectedOSLanguageText  = $window.FindName("SelectedOSLanguageText")
 $SelectedIdText          = $window.FindName("SelectedIdText")
 $SelectedFileNameText    = $window.FindName("SelectedFileNameText")
 $DriverPackUrlText       = $window.FindName("DriverPackUrlText")
+$DriverPackCacheLabelText = $window.FindName("DriverPackCacheLabelText")
+$DriverPackCachePathText = $window.FindName("DriverPackCachePathText")
+$DriverPackDownloadButton = $window.FindName("DriverPackDownloadButton")
 $DriverPackUrlText.Text  = [string]$global:OSDCloudDeploy.DriverPackObject.Url
 if ($global:OSDCloudDeploy.DriverFolderPaths.Count -gt 0) {
     $DriverFolderPathText.Text = ($global:OSDCloudDeploy.DriverFolderPaths -join '; ')
@@ -928,8 +1125,41 @@ function Update-OsResults {
 function Update-DriverPackResults {
     $selectedDriverPackName                      = Get-ComboValue -ComboBox $DriverPackCombo
     $global:OSDCloudDeploy.DriverPackName        = $selectedDriverPackName
-    $global:OSDCloudDeploy.DriverPackObject      = $global:OSDCloudDeploy.DriverPackValues | Where-Object { $_.Name -eq $selectedDriverPackName }
+    $global:OSDCloudDeploy.DriverPackObject      = $global:OSDCloudDeploy.DriverPackValues | Where-Object { $_.Name -eq $selectedDriverPackName } | Select-Object -First 1
     $DriverPackUrlText.Text                      = [string]$global:OSDCloudDeploy.DriverPackObject.Url
+    $DriverPackCacheItems                        = @(Get-DriverPackCacheItems)
+
+    $matchedCacheFile = Get-DriverPackCacheFile -DriverPackObject $global:OSDCloudDeploy.DriverPackObject -CacheItems $DriverPackCacheItems
+    $script:DriverPackUsbTarget = Get-DriverPackUsbCacheTarget
+
+    if ($matchedCacheFile) {
+        $DriverPackCachePathText.Text = [string]$matchedCacheFile.FullName
+        $DriverPackCachePathText.Visibility = [System.Windows.Visibility]::Visible
+        $DriverPackCacheLabelText.Visibility = [System.Windows.Visibility]::Visible
+    } else {
+        $DriverPackCachePathText.Text = ''
+        $DriverPackCachePathText.Visibility = [System.Windows.Visibility]::Collapsed
+        $DriverPackCacheLabelText.Visibility = [System.Windows.Visibility]::Collapsed
+    }
+
+    if ($DriverPackDownloadButton) {
+        $hasDownloadableDriverPack = ($null -ne $global:OSDCloudDeploy.DriverPackObject) -and
+            -not [string]::IsNullOrWhiteSpace([string]$global:OSDCloudDeploy.DriverPackObject.Url) -and
+            -not [string]::IsNullOrWhiteSpace((Get-DriverPackFileName -DriverPackObject $global:OSDCloudDeploy.DriverPackObject)
+            )
+
+        if ($hasDownloadableDriverPack -and -not $matchedCacheFile -and $script:DriverPackUsbTarget) {
+            $DriverPackDownloadButton.Visibility = [System.Windows.Visibility]::Visible
+            $targetDescription = [string]$script:DriverPackUsbTarget.DriveRoot
+            if (-not [string]::IsNullOrWhiteSpace([string]$script:DriverPackUsbTarget.VolumeLabel)) {
+                $targetDescription = "$targetDescription ($([string]$script:DriverPackUsbTarget.VolumeLabel))"
+            }
+            $DriverPackDownloadButton.ToolTip = "Download selected Driver Pack to $targetDescription"
+        } else {
+            $DriverPackDownloadButton.Visibility = [System.Windows.Visibility]::Collapsed
+            $DriverPackDownloadButton.ToolTip = $null
+        }
+    }
 }
 
 function Update-DriverFolderResults {
@@ -1002,6 +1232,60 @@ $OSEditionCombo.Add_SelectionChanged({ Update-OsResults })
 $OSLanguageCodeCombo.Add_SelectionChanged({ Update-OsResults })
 $script:SelectionConfirmed = $false
 
+if ($DriverPackDownloadButton) {
+    $DriverPackDownloadButton.Add_Click({
+            $driverPackObject = $global:OSDCloudDeploy.DriverPackObject
+            if (-not $driverPackObject) {
+                [System.Windows.MessageBox]::Show('Select a Driver Pack before downloading.', 'Driver Pack Download', 'OK', 'Warning') | Out-Null
+                return
+            }
+
+            $driverPackUrl = [string]$driverPackObject.Url
+            $driverPackFileName = Get-DriverPackFileName -DriverPackObject $driverPackObject
+            if ([string]::IsNullOrWhiteSpace($driverPackUrl) -or [string]::IsNullOrWhiteSpace($driverPackFileName)) {
+                [System.Windows.MessageBox]::Show('The selected Driver Pack does not provide a downloadable URL or filename.', 'Driver Pack Download', 'OK', 'Warning') | Out-Null
+                return
+            }
+
+            $usbTarget = Get-DriverPackUsbCacheTarget
+            if (-not $usbTarget) {
+                [System.Windows.MessageBox]::Show('No USB OSDCloud cache target with more than 10 GB free space is available.', 'Driver Pack Download', 'OK', 'Warning') | Out-Null
+                Update-DriverPackResults
+                return
+            }
+
+            $manufacturerFolderName = Convert-ToSafePathSegment -Value ([string]$deviceOSDManufacturer)
+            if ([string]::IsNullOrWhiteSpace($manufacturerFolderName)) {
+                $manufacturerFolderName = Convert-ToSafePathSegment -Value ([string]$driverPackObject.Manufacturer)
+            }
+
+            $destinationDirectory = Join-Path -Path ([string]$usbTarget.DriveRoot) -ChildPath ("OSDCloud\\DriverPacks\\$manufacturerFolderName")
+            $destinationPath = Join-Path -Path $destinationDirectory -ChildPath $driverPackFileName
+
+            $cacheMatch = Get-DriverPackCacheFile -DriverPackObject $driverPackObject -CacheItems (Get-DriverPackCacheItems)
+            if ($cacheMatch) {
+                Update-DriverPackResults
+                [System.Windows.MessageBox]::Show("Driver Pack is already cached at $([string]$cacheMatch.FullName).", 'Driver Pack Download', 'OK', 'Information') | Out-Null
+                return
+            }
+
+            $destinationDirectoryLiteral = Convert-ToSingleQuotedPowerShellLiteral -Value $destinationDirectory
+            $destinationPathLiteral = Convert-ToSingleQuotedPowerShellLiteral -Value $destinationPath
+            $driverPackUrlLiteral = Convert-ToSingleQuotedPowerShellLiteral -Value $driverPackUrl
+
+            $downloadCommand = "`$ProgressPreference = 'SilentlyContinue'; New-Item -Path $destinationDirectoryLiteral -ItemType Directory -Force | Out-Null; & curl.exe --location --fail --output $destinationPathLiteral $driverPackUrlLiteral"
+
+            try {
+                Start-Process -FilePath 'powershell.exe' -ArgumentList @('-NoLogo', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', $downloadCommand) -ErrorAction Stop
+                # [System.Windows.MessageBox]::Show("Started download to $destinationPath", 'Driver Pack Download', 'OK', 'Information') | Out-Null
+            } catch {
+                [System.Windows.MessageBox]::Show("Failed to start Driver Pack download: $($_.Exception.Message)", 'Driver Pack Download', 'OK', 'Error') | Out-Null
+            }
+
+            Update-DriverPackResults
+        })
+}
+
 $StartButton.Add_Click({
     $TaskSequenceStepsGrid.CommitEdit([System.Windows.Controls.DataGridEditingUnit]::Cell, $true) | Out-Null
     $TaskSequenceStepsGrid.CommitEdit([System.Windows.Controls.DataGridEditingUnit]::Row, $true) | Out-Null
@@ -1016,6 +1300,7 @@ $StartButton.Add_Click({
 
 Update-OsResults
 Update-OperatingSystemSourceVisibility
+Update-DriverPackResults
 Update-DriverFolderResults
 
 # Initialize task sequence summary if present
