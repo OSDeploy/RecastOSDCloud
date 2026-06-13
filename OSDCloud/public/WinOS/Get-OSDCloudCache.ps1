@@ -5,7 +5,8 @@ function Get-OSDCloudCache {
 
     .DESCRIPTION
         Enumerates mounted file system drives and discovers OSDCloud cache content.
-        Returns objects with Type, FullName, and SizeMB properties.
+        Returns objects with Type, FullName, SizeMB,
+        DriveRoot, VolumeLabel, and VolumeUniqueId properties.
 
         If Type is omitted, returns discovered '<DriveLetter>:\OSDCloud' cache root
         folders as Type 'Cache'.
@@ -27,7 +28,8 @@ function Get-OSDCloudCache {
         cache content types.
 
     .OUTPUTS
-        System.Object[]. Objects with Type, FullName, and SizeMB.
+        System.Object[]. Objects with Type, FullName, SizeMB,
+        DriveRoot, VolumeLabel, and VolumeUniqueId.
 
     .EXAMPLE
         Get-OSDCloudCache
@@ -87,19 +89,47 @@ function Get-OSDCloudCache {
         return [math]::Round((([int64]$item.Length) / 1MB), 2)
     }
 
+    function Get-DriveVolumeMetadata {
+        param(
+            [Parameter(Mandatory)]
+            [string]$DriveRoot
+        )
+
+        $volume = $null
+        if ($DriveRoot -match '^[A-Z]:\\$') {
+            try {
+                $volume = Get-Volume -DriveLetter $DriveRoot.Substring(0, 1) -ErrorAction Stop
+            } catch {
+                $volume = $null
+            }
+        }
+
+        return [PSCustomObject]@{
+            DriveRoot      = $DriveRoot
+            VolumeLabel    = if ($volume) { [string]$volume.FileSystemLabel } else { $null }
+            VolumeUniqueId = if ($volume) { [string]$volume.UniqueId } else { $null }
+        }
+    }
+
     function New-CacheResultObject {
         param(
             [Parameter(Mandatory)]
             [string]$ResultType,
 
             [Parameter(Mandatory)]
-            [string]$ResultFullName
+            [string]$ResultFullName,
+
+            [Parameter(Mandatory)]
+            $VolumeMetadata
         )
 
         [PSCustomObject]@{
-            Type     = $ResultType
-            FullName = $ResultFullName
-            SizeMB   = Get-FileOnlySizeMB -Path $ResultFullName
+            Type           = $ResultType
+            FullName       = $ResultFullName
+            SizeMB         = Get-FileOnlySizeMB -Path $ResultFullName
+            DriveRoot      = [string]$VolumeMetadata.DriveRoot
+            VolumeLabel    = [string]$VolumeMetadata.VolumeLabel
+            VolumeUniqueId = [string]$VolumeMetadata.VolumeUniqueId
         }
     }
 
@@ -110,15 +140,19 @@ function Get-OSDCloudCache {
             $osdCloudPath = Join-Path -Path $driveRoot -ChildPath 'OSDCloud'
 
             if (Test-Path -LiteralPath $osdCloudPath) {
-                $osdCloudPath
+                $volumeMetadata = Get-DriveVolumeMetadata -DriveRoot $driveRoot
+                [PSCustomObject]@{
+                    CachePath      = $osdCloudPath
+                    VolumeMetadata = $volumeMetadata
+                }
             }
         }
 
-    $cachePaths = @($cachePaths | Sort-Object -Unique)
+    $cachePaths = @($cachePaths | Sort-Object -Property CachePath -Unique)
 
     if (-not $PSBoundParameters.ContainsKey('Type')) {
-        $result = foreach ($cachePath in $cachePaths) {
-            New-CacheResultObject -ResultType 'Cache' -ResultFullName $cachePath
+        $result = foreach ($cacheEntry in $cachePaths) {
+            New-CacheResultObject -ResultType 'Cache' -ResultFullName ([string]$cacheEntry.CachePath) -VolumeMetadata $cacheEntry.VolumeMetadata
         }
 
         $result = @($result | Sort-Object -Property FullName, Type -Unique | Sort-Object -Property FullName)
@@ -135,64 +169,64 @@ function Get-OSDCloudCache {
     $result = foreach ($selectedType in $selectedTypes) {
         switch ($selectedType) {
             'ESD' {
-                foreach ($cachePath in $cachePaths) {
-                    $osPath = Join-Path -Path $cachePath -ChildPath 'OS'
+                foreach ($cacheEntry in $cachePaths) {
+                    $osPath = Join-Path -Path $cacheEntry.CachePath -ChildPath 'OS'
                     if (Test-Path -LiteralPath $osPath) {
                         Get-ChildItem -LiteralPath $osPath -Recurse -File -Filter '*.esd' -ErrorAction SilentlyContinue |
                             ForEach-Object {
-                                New-CacheResultObject -ResultType 'ESD' -ResultFullName ([string]$_.FullName)
+                                New-CacheResultObject -ResultType 'ESD' -ResultFullName ([string]$_.FullName) -VolumeMetadata $cacheEntry.VolumeMetadata
                             }
                     }
                 }
                 break
             }
             'ISO' {
-                foreach ($cachePath in $cachePaths) {
-                    $isoPath = Join-Path -Path $cachePath -ChildPath 'ISO'
+                foreach ($cacheEntry in $cachePaths) {
+                    $isoPath = Join-Path -Path $cacheEntry.CachePath -ChildPath 'ISO'
                     if (Test-Path -LiteralPath $isoPath) {
                         Get-ChildItem -LiteralPath $isoPath -Recurse -File -Filter '*.iso' -ErrorAction SilentlyContinue |
                             ForEach-Object {
-                                New-CacheResultObject -ResultType 'ISO' -ResultFullName ([string]$_.FullName)
+                                New-CacheResultObject -ResultType 'ISO' -ResultFullName ([string]$_.FullName) -VolumeMetadata $cacheEntry.VolumeMetadata
                             }
                     }
                 }
                 break
             }
             'DriverPacks' {
-                foreach ($cachePath in $cachePaths) {
-                    $driverPacksPath = Join-Path -Path $cachePath -ChildPath 'DriverPacks'
+                foreach ($cacheEntry in $cachePaths) {
+                    $driverPacksPath = Join-Path -Path $cacheEntry.CachePath -ChildPath 'DriverPacks'
                     if (Test-Path -LiteralPath $driverPacksPath) {
                         Get-ChildItem -LiteralPath $driverPacksPath -Recurse -File -ErrorAction SilentlyContinue |
                             Where-Object { $_.Extension -in @('.cab', '.exe', '.msi', '.zip') } |
                             ForEach-Object {
-                                New-CacheResultObject -ResultType 'DriverPacks' -ResultFullName ([string]$_.FullName)
+                                New-CacheResultObject -ResultType 'DriverPacks' -ResultFullName ([string]$_.FullName) -VolumeMetadata $cacheEntry.VolumeMetadata
                             }
                     }
                 }
                 break
             }
             'Drivers' {
-                foreach ($cachePath in $cachePaths) {
-                    $driversPath = Join-Path -Path $cachePath -ChildPath 'Drivers'
+                foreach ($cacheEntry in $cachePaths) {
+                    $driversPath = Join-Path -Path $cacheEntry.CachePath -ChildPath 'Drivers'
                     if (Test-Path -LiteralPath $driversPath) {
                         Get-ChildItem -LiteralPath $driversPath -Directory -ErrorAction SilentlyContinue |
                             Where-Object {
                                 @(Get-ChildItem -LiteralPath $_.FullName -Recurse -File -Filter '*.inf' -ErrorAction SilentlyContinue).Count -gt 0
                             } |
                             ForEach-Object {
-                                New-CacheResultObject -ResultType 'Drivers' -ResultFullName ([string]$_.FullName)
+                                New-CacheResultObject -ResultType 'Drivers' -ResultFullName ([string]$_.FullName) -VolumeMetadata $cacheEntry.VolumeMetadata
                             }
                     }
                 }
                 break
             }
             'WIM' {
-                foreach ($cachePath in $cachePaths) {
-                    $wimPath = Join-Path -Path $cachePath -ChildPath 'WIM'
+                foreach ($cacheEntry in $cachePaths) {
+                    $wimPath = Join-Path -Path $cacheEntry.CachePath -ChildPath 'WIM'
                     if (Test-Path -LiteralPath $wimPath) {
                         Get-ChildItem -LiteralPath $wimPath -Recurse -File -Filter '*.wim' -ErrorAction SilentlyContinue |
                             ForEach-Object {
-                                New-CacheResultObject -ResultType 'WIM' -ResultFullName ([string]$_.FullName)
+                                New-CacheResultObject -ResultType 'WIM' -ResultFullName ([string]$_.FullName) -VolumeMetadata $cacheEntry.VolumeMetadata
                             }
                     }
                 }
