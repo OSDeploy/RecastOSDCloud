@@ -54,7 +54,8 @@ function Get-OSDCloudCatalogHp {
 
                 if (Test-Path $tempCatalogPackagePath) {
                     Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Validating CAB file"
-                    $cabTest = try { & expand.exe -t:$tempCatalogPackagePath 2>&1 } catch { $null }
+                    # Use list mode for CAB validation to avoid destination warnings.
+                    $cabTest = try { & expand.exe -D $tempCatalogPackagePath 2>&1 } catch { $null }
                     if ($LASTEXITCODE -ne 0) {
                         Write-Warning "CAB file validation failed: $cabTest"
                         Remove-Item -Path $tempCatalogPackagePath -Force -ErrorAction SilentlyContinue
@@ -116,7 +117,7 @@ function Get-OSDCloudCatalogHp {
             $CatalogVersion = Get-Date -Format yy.MM.dd
         }
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Catalog version: $CatalogVersion"
-        
+
         $HpSoftPaqList = $XmlCatalogContent.NewDataSet.HPClientDriverPackCatalog.SoftPaqList.SoftPaq
         $HpModelList = $XmlCatalogContent.NewDataSet.HPClientDriverPackCatalog.ProductOSDriverPackList.ProductOSDriverPack
         $HpModelList = $HpModelList | Where-Object {$_.OSId -ge '4317'}
@@ -175,7 +176,7 @@ function Get-OSDCloudCatalogHp {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Found $($Results.Count) Windows 11 driver packs"
         $Results
     }
-    
+
     end {
         #=================================================
         if ($VerbosePreference -eq 'Continue' -or $DebugPreference -eq 'Continue') {
