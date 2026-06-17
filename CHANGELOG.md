@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 26.6.17.1 - June 17, 2026
+
+### Added
+
+- `Get-OSDCloudCache` cmdlet to enumerate OSDCloud cache content and volume metadata.
+- `Deploy-OSDCloudCLI` cmdlet and `vNext` workflow support for CLI-based deployment flows.
+- New Fluent `vNext` workflow UI updates, including Cloud Operating System download actions and Driver Pack cache presentation.
+
+### Changed
+
+- Module version bumped to `26.6.17.1`.
+- Refactored deployment and workflow UX orchestration, including function naming and task alignment updates.
+- Improved WinPE initialization behavior for USB drive-letter reassignment and disk handling reliability.
+- Updated Microsoft and HP driver pack catalog handling and version extraction behavior.
+- Simplified workflow task sequencing by removing redundant driver application steps.
+
+### Maintenance
+
+- Updated Microsoft Surface driver pack catalog snapshots.
+- Increased driver pack catalog update workflow cadence.
+
 ## 26.6.12.1 - June 12, 2026
 
 ### Added
