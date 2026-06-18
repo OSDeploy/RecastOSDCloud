@@ -1,5 +1,47 @@
+<#=================================================================================
+    Get-DeployOSDCloudOperatingSystem
+    ================================================================================
+    - Gets a single operating system record based on system architecture and
+      language preferences
+    - Filters from available OS records using a priority order for language codes
+    ================================================================================
+    .SYNOPSIS
+        Gets a single operating system record from the OSDCloud catalog
+
+    .DESCRIPTION
+        Retrieves operating system metadata from Microsoft catalogs and filters
+        based on processor architecture and language preferences. The function
+        evaluates language codes in a specific priority order and returns the
+        first matching operating system record.
+
+    .PARAMETER None
+        This function does not accept parameters. Filtering is done through
+        environment variables and global variables.
+
+    .EXAMPLE
+        PS C:\> Get-DeployOSDCloudOperatingSystem
+        Returns the first matching operating system based on current culture
+
+    .EXAMPLE
+        PS C:\> Get-DeployOSDCloudOperatingSystem | Format-List *
+        Displays all properties of the selected operating system
+
+    .EXAMPLE
+        PS C:\> $os = Get-DeployOSDCloudOperatingSystem
+        PS C:\> $os.FileName
+        Returns the download filename for the selected operating system
+
+    .NOTES
+        Author: OSDeploy
+        Version: 1.0
+        GitHub: https://github.com/OSDeploy
+
+    .LINK
+        https://www.osdeploy.com/
+=================================================================================#>
 function Get-DeployOSDCloudOperatingSystem {
     [CmdletBinding()]
+    [OutputType([pscustomobject])]
     param ()
     $ErrorActionPreference = 'Stop'
 
@@ -41,15 +83,15 @@ function Get-DeployOSDCloudOperatingSystem {
     $LanguageCodeCulture = Get-Culture | Select-Object -ExpandProperty Name -First 1
     # 5. Default Json Configuration
 
-    if ($LanguageCodeGlobal -and ($records.OSLanguageCode -match $LanguageCodeGlobal)) {
+    if ($LanguageCodeGlobal) {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Set OSLanguageCode from global variable $LanguageCodeGlobal"
         $records = $records | Where-Object { $_.OSLanguageCode -eq $LanguageCodeGlobal }
     }
-    elseif ($LanguageCodeEnvironment -and ($records.OSLanguageCode -match $LanguageCodeEnvironment)) {
+    elseif ($LanguageCodeEnvironment) {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Set OSLanguageCode from environment variable $LanguageCodeEnvironment"
         $records = $records | Where-Object { $_.OSLanguageCode -eq $LanguageCodeEnvironment }
     }
-    elseif ($LanguageCodeCulture -and ($records.OSLanguageCode -match $LanguageCodeCulture)) {
+    elseif ($LanguageCodeCulture) {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Set OSLanguageCode from Get-Culture value $LanguageCodeCulture"
         $records = $records | Where-Object { $_.OSLanguageCode -eq $LanguageCodeCulture }
     }
@@ -57,5 +99,9 @@ function Get-DeployOSDCloudOperatingSystem {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] No OSLanguageCode preference set, using default records"
     }
     #=================================================
+    if (-not $records) {
+        Write-Warning "[$($MyInvocation.MyCommand.Name)] No operating systems found matching criteria"
+        return
+    }
     return $records | Select-Object -First 1
 }

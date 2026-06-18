@@ -92,15 +92,15 @@
             "command": "step-install-bcdboot"
         },
         {
-            "name": "Export WinPE OEM Drivers to Local Disk",
+            "name": "OEM Drivers: Export to Local Disk",
             "command": "step-Export-WindowsDriver-OemWinPE"
         },
         {
-            "name": "Apply WinPE Drivers to offline Windows Image",
+            "name": "OEM Drivers: Apply to Windows",
             "command": "step-Add-WindowsDriver-OemWinOS"
         },
         {
-            "name": "Apply WinPE Drivers to offline Windows Recovery Environment",
+            "name": "OEM Drivers: Apply to Windows Recovery Environment",
             "command": "step-Add-WindowsDriver-OemWinRE"
         },
         {
@@ -109,7 +109,7 @@
             "testinfullos": true
         },
         {
-            "name": "Firmware: Apply Driver",
+            "name": "Firmware: Apply Firmware Driver Capsule",
             "command": "step-Add-WindowsDriver-Firmware",
             "skip": false
         },
@@ -123,42 +123,42 @@
             "command": "step-Add-WindowsDriver-DriverPack"
         },
         {
-            "name": "Apply Drivers from selected DriverFolder",
+            "name": "Driver Folders: Apply to Windows",
             "command": "step-Add-WindowsDriver-DriverFolder"
         },
         {
-            "name": "Download Drivers from Microsoft Update Catalog",
+            "name": "Microsoft Update Catalog: Download",
             "command": "step-Save-WindowsDriver-MSUpdate",
             "testinfullos": true
         },
         {
-            "name": "Apply Microsoft Update Drivers - All",
+            "name": "Microsoft Update Catalog: Apply all drivers",
             "command": "step-Add-WindowsDriver-MSUpdate"
         },
         {
-            "name": "Apply Microsoft Update Drivers - Disk",
+            "name": "Microsoft Update Catalog: Apply disk drivers",
             "command": "step-Add-WindowsDriver-Disk",
             "skip": true
         },
         {
-            "name": "Apply Microsoft Update Drivers - Net",
+            "name": "Microsoft Update Catalog: Apply net drivers",
             "command": "step-Add-WindowsDriver-Net"
         },
         {
-            "name": "Apply Microsoft Update Drivers - Scsi",
+            "name": "Microsoft Update Catalog: Apply scsi drivers",
             "command": "step-Add-WindowsDriver-Scsi",
             "skip": true
         },
         {
-            "name": "Hotfix for Setup Displayed Eula",
+            "name": "Hotfix: Setup Displayed Eula",
             "command": "step-update-setupdisplayedeula"
         },
         {
-            "name": "Update PowerShell Modules -Offline",
+            "name": "PowerShell Modules: Update Inbox Modules",
             "command": "step-powershell-updatemodule"
         },
         {
-            "name": "Save-Module OSD",
+            "name": "Save-Module: OSD",
             "command": "step-powershell-savemodule",
             "parameters": {
                 "name": "OSD"
@@ -166,7 +166,7 @@
             "skip": true
         },
         {
-            "name": "Save-Module WindowsAutopilotIntune",
+            "name": "Save-Module: WindowsAutopilotIntune",
             "command": "step-powershell-savemodule",
             "parameters": {
                 "name": "WindowsAutopilotIntune"
@@ -174,7 +174,7 @@
             "skip": true
         },
         {
-            "name": "Save-Module Microsoft.Graph.Groups",
+            "name": "Save-Module: Microsoft.Graph.Groups",
             "command": "step-powershell-savemodule",
             "parameters": {
                 "name": "Microsoft.Graph.Groups"
@@ -182,7 +182,7 @@
             "skip": true
         },
         {
-            "name": "Save-Module Microsoft.Graph.Authentication",
+            "name": "Save-Module: Microsoft.Graph.Authentication",
             "command": "step-powershell-savemodule",
             "parameters": {
                 "name": "Microsoft.Graph.Authentication"
@@ -190,10 +190,10 @@
             "skip": true
         },
         {
-            "name": "Save-Module Microsoft.Graph.Identity.DirectoryManagement",
+            "name": "Save-Module: Microsoft.Graph.Identity.DirectoryManagement",
             "command": "step-powershell-savemodule",
             "parameters": {
-                "name": "Microsoft.Graph.Authentication"
+                "name": "Microsoft.Graph.Identity.DirectoryManagement"
             },
             "skip": true
         },
