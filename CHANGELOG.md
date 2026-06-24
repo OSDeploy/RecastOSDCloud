@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 26.6.23.1 - June 23, 2026
+
+### Changed
+
+- Module version bumped to `26.6.23.1`.
+
 ## 26.6.17.1 - June 17, 2026
 
 ### Added
