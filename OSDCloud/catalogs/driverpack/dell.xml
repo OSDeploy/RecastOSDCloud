@@ -1,4 +1,4 @@
-<DriverPackManifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" baseLocation="downloads.dell.com" dateTime="2026-06-17T10:33:02" releaseID="95WN5" version="2026.06.02" application="OnDemandCabBuilder" schemaVersion="2.3" xsi:noNamespaceSchemaLocation="https://downloads.dell.com/catalog/clientschema/4.0/DriverPackManifest.xsd" baseLocationAccessProtocols="HTTP FTP" deltaBase="http://en.community.dell.com" xmlns="openmanage/cm/dm">
+<DriverPackManifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" baseLocation="downloads.dell.com" dateTime="2026-06-24T08:10:53" releaseID="WHJNY" version="2026.06.04" application="OnDemandCabBuilder" schemaVersion="2.3" xsi:noNamespaceSchemaLocation="https://downloads.dell.com/catalog/clientschema/4.0/DriverPackManifest.xsd" baseLocationAccessProtocols="HTTP FTP" deltaBase="http://en.community.dell.com" xmlns="openmanage/cm/dm">
   <DriverPackage format="cab" hashMD5="4B4B4330EBFF3E9F353D2C3D7B4450F6" size="72429980" dateTime="2014-07-11T00:00:00" vendorVersion="1.0" dellVersion="A01" path="FOLDER02291001M/1/160-vista-A01-JFH0G.CAB" releaseID="JFH0G" delta="/techcenter/enterprise-client/w/wiki/optiplex-160-vista-driver-cab" type="win">
     <Name>
       <Display lang="en"><![CDATA[160-vista-A01-JFH0G.CAB]]></Display>
@@ -45460,7 +45460,7 @@
       </Cryptography>
     </DriverPackMetadataInfo>
   </DriverPackage>
-  <DriverPackage format="cab" hashMD5="6f8d68ecf6876b9e22855c614e2d5788" size="33410892" dateTime="2026-05-29T05:13:37" vendorVersion="1.0" dellVersion="A10" path="FOLDER14542934M/1/WinPE11.0-Drivers-A10-XCXDW.cab" releaseID="XCXDW" delta="" type="winpe">
+   <DriverPackage format="cab" hashMD5="6f8d68ecf6876b9e22855c614e2d5788" size="33410892" dateTime="2026-05-29T05:13:37" vendorVersion="1.0" dellVersion="A10" path="FOLDER14542934M/1/WinPE11.0-Drivers-A10-XCXDW.cab" releaseID="XCXDW" delta="" type="winpe">
     <Name>
       <Display lang="en"><![CDATA[WinPE11.0-Drivers-A10-XCXDW.cab]]></Display>
     </Name>
@@ -45495,6 +45495,51 @@
         <Hash algorithm="MD5">b0cfc327d5bdec43608c414db4a9163d</Hash>
         <Hash algorithm="SHA1">56d06feb849f4381f95ce96248badc7fd0fa44bc</Hash>
         <Hash algorithm="SHA256">200b0fa6eb7e85e5a94088a4dcd9e0a7c9a2dc9b6d8b69f134292e8d9f2084a2</Hash>
+      </Cryptography>
+    </DriverPackMetadataInfo>
+  </DriverPackage>
+  <DriverPackage format="exe" hashMD5="92E0BFE9A0FD1379BBD4245A8E5F66AC" size="2205815200" dateTime="2025-12-19T05:06:45" vendorVersion="1.0" dellVersion="A10" path="FOLDER13955013M/1/Precision-3581-8HF4K_Win10_1.0_A10.exe" releaseID="8HF4K" delta="" type="win">
+    <Name>
+      <Display lang="en"><![CDATA[Precision-3581-8HF4K_Win10_1.0_A10.exe]]></Display>
+    </Name>
+    <Description>
+      <Display lang="en"><![CDATA[With the Dell Command Deploy Driver Packs, an I/T Administrator can perform the following tasks:
+1) Use Microsoft Windows OS-based PnP enumeration capabilities to install drivers for applicable devices
+2) Create a system-level optimized deployment sequence
+3) Setup an appropriate boot control sequence.
+4) Optimize the deployment of targeted system-specific driver packages.]]></Display>
+    </Description>
+    <SupportedOperatingSystems>
+      <OperatingSystem osCode="Windows10" osVendor="Microsoft" osArch="x64" osType="client" majorVersion="10" minorVersion="0" spMajorVersion="0" spMinorVersion="0">
+        <Display lang="en"><![CDATA[ Windows 10 x64 ]]></Display>
+        <SupportedLanguages>
+          <Language lang="en">English</Language>
+        </SupportedLanguages>
+      </OperatingSystem>
+    </SupportedOperatingSystems>
+    <SupportedSystems>
+      <Brand key="11" prefix="PRE">
+        <Display lang="en"><![CDATA[ Precision ]]></Display>
+        <Model systemID="0C07" name="Precision 3581" rtsDate="2023-03-15T16:00:00" generation="">
+          <Display lang="en"><![CDATA[ Precision 3581 ]]></Display>
+        </Model>
+      </Brand>
+    </SupportedSystems>
+    <ImportantInfo URL="http://www.dell.com/support/home/us/en/04/Drivers/DriversDetails?driverId=8HF4K">
+      <Display lang="en"><![CDATA[Please visit http://Dell.com/Command for additional help on using CABs for OS Deployment.]]></Display>
+    </ImportantInfo>
+    <Cryptography>
+      <Hash algorithm="MD5">92E0BFE9A0FD1379BBD4245A8E5F66AC</Hash>
+      <Hash algorithm="SHA1">D15535B832EE420E377D4C7AA122E10610B02BEB</Hash>
+      <Hash algorithm="SHA256">034C955985F1186A8125FFD02FDBAC07D137DB6B438BC266933CA5C297A63885</Hash>
+    </Cryptography>
+    <DriverPackMetadataInfo>
+      <Size>442490</Size>
+      <path>FOLDER13954990M/1/Precision-3581-8HF4K_Win10_1.0_A10.xml</path>
+      <Cryptography>
+        <Hash algorithm="MD5">B339A6605AE1531EF0BFADD9E7A8DA45</Hash>
+        <Hash algorithm="SHA1">D722DDD80C836B62AAD757B1EA6E2488C57B1343</Hash>
+        <Hash algorithm="SHA256">78D49AE6577E423C45DBE703DE97FB50B423BF2666F802BDD66689FCFB606662</Hash>
       </Cryptography>
     </DriverPackMetadataInfo>
   </DriverPackage>
@@ -55257,6 +55302,96 @@
         <Hash algorithm="MD5">7F195BC9ADD6064C46FFE3A340D26481</Hash>
         <Hash algorithm="SHA1">8274500E29C73BAE1F0AD409B157D61B712A19E4</Hash>
         <Hash algorithm="SHA256">9D5BF0871C639AAB3CD2A66E02D2F69BA3BF503868D2B8E10E4C60963651E355</Hash>
+      </Cryptography>
+    </DriverPackMetadataInfo>
+  </DriverPackage>
+  <DriverPackage format="exe" hashMD5="ACCA16FBE3AD3719C4C5DC7E0FAD2023" size="2313338072" dateTime="2026-06-24T02:00:47" vendorVersion="1.0" dellVersion="A00" path="FOLDER14314428M/1/PW516261-N7TJ4_Win11_1.0_A00.exe" releaseID="N7TJ4" delta="" type="win">
+    <Name>
+      <Display lang="en"><![CDATA[PW516261-N7TJ4_Win11_1.0_A00.exe]]></Display>
+    </Name>
+    <Description>
+      <Display lang="en"><![CDATA[With the Dell Command Deploy Driver Packs, an I/T Administrator can perform the following tasks:
+1) Use Microsoft Windows OS-based PnP enumeration capabilities to install drivers for applicable devices
+2) Create a system-level optimized deployment sequence
+3) Setup an appropriate boot control sequence.
+4) Optimize the deployment of targeted system-specific driver packages.]]></Display>
+    </Description>
+    <SupportedOperatingSystems>
+      <OperatingSystem osCode="Windows11" osVendor="Microsoft" osArch="x64" osType="client" majorVersion="10" minorVersion="0" spMajorVersion="0" spMinorVersion="0">
+        <Display lang="en"><![CDATA[ Windows 11 x64 ]]></Display>
+        <SupportedLanguages>
+          <Language lang="en">English</Language>
+        </SupportedLanguages>
+      </OperatingSystem>
+    </SupportedOperatingSystems>
+    <SupportedSystems>
+      <Brand key="60" prefix="DPML">
+        <Display lang="en"><![CDATA[ Dell Pro Max Laptops ]]></Display>
+        <Model systemID="0DBD" name="PW516261" rtsDate="2026-05-27T16:00:00" generation="">
+          <Display lang="en"><![CDATA[ PW516261 ]]></Display>
+        </Model>
+      </Brand>
+    </SupportedSystems>
+    <ImportantInfo URL="http://www.dell.com/support/home/us/en/04/Drivers/DriversDetails?driverId=N7TJ4">
+      <Display lang="en"><![CDATA[Please visit http://Dell.com/Command for additional help on using CABs for OS Deployment.]]></Display>
+    </ImportantInfo>
+    <Cryptography>
+      <Hash algorithm="MD5">ACCA16FBE3AD3719C4C5DC7E0FAD2023</Hash>
+      <Hash algorithm="SHA1">46D05E532424758F446006CAB2EDE50A01743364</Hash>
+      <Hash algorithm="SHA256">21E95CEAC31A1EF964F3A57E005AE2A4E55B15A06453B439FE0F30992416BDAF</Hash>
+    </Cryptography>
+    <DriverPackMetadataInfo>
+      <Size>450579</Size>
+      <path>FOLDER14314402M/1/PW516261-N7TJ4_Win11_1.0_A00.xml</path>
+      <Cryptography>
+        <Hash algorithm="MD5">F2E77FF22176C8A280EDD83390E82A87</Hash>
+        <Hash algorithm="SHA1">11ECF2CA39D8A4EF9CBC6845651549C0EEF21970</Hash>
+        <Hash algorithm="SHA256">DD94D0A618BAC68CF95685CF4A870DAAAA5940033532C9CBE886D5C282CD8CEA</Hash>
+      </Cryptography>
+    </DriverPackMetadataInfo>
+  </DriverPackage>
+  <DriverPackage format="exe" hashMD5="ADA28C1718387886E2D895166A269A5A" size="2133646400" dateTime="2026-06-24T02:00:47" vendorVersion="1.0" dellVersion="A00" path="FOLDER14319605M/1/PW514261-X3J2W_Win11_1.0_A00.exe" releaseID="X3J2W" delta="" type="win">
+    <Name>
+      <Display lang="en"><![CDATA[PW514261-X3J2W_Win11_1.0_A00.exe]]></Display>
+    </Name>
+    <Description>
+      <Display lang="en"><![CDATA[With the Dell Command Deploy Driver Packs, an I/T Administrator can perform the following tasks:
+1) Use Microsoft Windows OS-based PnP enumeration capabilities to install drivers for applicable devices
+2) Create a system-level optimized deployment sequence
+3) Setup an appropriate boot control sequence.
+4) Optimize the deployment of targeted system-specific driver packages.]]></Display>
+    </Description>
+    <SupportedOperatingSystems>
+      <OperatingSystem osCode="Windows11" osVendor="Microsoft" osArch="x64" osType="client" majorVersion="10" minorVersion="0" spMajorVersion="0" spMinorVersion="0">
+        <Display lang="en"><![CDATA[ Windows 11 x64 ]]></Display>
+        <SupportedLanguages>
+          <Language lang="en">English</Language>
+        </SupportedLanguages>
+      </OperatingSystem>
+    </SupportedOperatingSystems>
+    <SupportedSystems>
+      <Brand key="60" prefix="DPML">
+        <Display lang="en"><![CDATA[ Dell Pro Max Laptops ]]></Display>
+        <Model systemID="0DBC" name="PW514261" rtsDate="2026-05-27T16:00:00" generation="">
+          <Display lang="en"><![CDATA[ PW514261 ]]></Display>
+        </Model>
+      </Brand>
+    </SupportedSystems>
+    <ImportantInfo URL="http://www.dell.com/support/home/us/en/04/Drivers/DriversDetails?driverId=X3J2W">
+      <Display lang="en"><![CDATA[Please visit http://Dell.com/Command for additional help on using CABs for OS Deployment.]]></Display>
+    </ImportantInfo>
+    <Cryptography>
+      <Hash algorithm="MD5">ADA28C1718387886E2D895166A269A5A</Hash>
+      <Hash algorithm="SHA1">6B075CAEC852159DFCF26E019103A90F930295F7</Hash>
+      <Hash algorithm="SHA256">0E45BB8EB900D4C82048692E5CF92AC768967A5AD7503CCD19928D6702D391AF</Hash>
+    </Cryptography>
+    <DriverPackMetadataInfo>
+      <Size>491916</Size>
+      <path>FOLDER14319596M/1/PW514261-X3J2W_Win11_1.0_A00.xml</path>
+      <Cryptography>
+        <Hash algorithm="MD5">63A3E3FD40C46FC723267C256150E2F8</Hash>
+        <Hash algorithm="SHA1">819409F79387218670228900C0DF1FC64A2BF853</Hash>
+        <Hash algorithm="SHA256">1B8424E36281697AD38DB9B37B34D4C0BFBAF4321AC7C5817C9CD058DCB6F52D</Hash>
       </Cryptography>
     </DriverPackMetadataInfo>
   </DriverPackage>
