@@ -1,5 +1,46 @@
+<#=================================================================================
+    Get-DeployOSDCloudOperatingSystems
+    ================================================================================
+    - Retrieves all operating system records from Microsoft catalogs
+    - Parses XML metadata files and extracts OS build, version, architecture,
+      language, and activation information
+    - Returns sorted array of operating system objects
+    ================================================================================
+    .SYNOPSIS
+        Retrieves all operating system records from the OSDCloud catalog
+
+    .DESCRIPTION
+        Imports operating system metadata from Microsoft catalog XML files
+        located in the catalogs\operatingsystem directory. Parses file names
+        and XML attributes to extract OS build numbers, versions, architecture,
+        language codes, and download information.
+
+    .PARAMETER None
+        This function does not accept parameters.
+
+    .EXAMPLE
+        PS C:\> Get-DeployOSDCloudOperatingSystems
+        Returns all available operating system records
+
+    .EXAMPLE
+        PS C:\> Get-DeployOSDCloudOperatingSystems | Where-Object { $_.OSName -eq 'Windows 11' }
+        Returns only Windows 11 operating systems
+
+    .EXAMPLE
+        PS C:\> Get-DeployOSDCloudOperatingSystems | Group-Object OperatingSystem
+        Groups operating systems by major version
+
+    .NOTES
+        Author: OSDeploy
+        Version: 1.0
+        GitHub: https://github.com/OSDeploy
+
+    .LINK
+        https://www.osdeploy.com/
+=================================================================================#>
 function Get-DeployOSDCloudOperatingSystems {
     [CmdletBinding()]
+    [OutputType([pscustomobject[]])]
     param ()
     $ErrorActionPreference = 'Stop'
 
