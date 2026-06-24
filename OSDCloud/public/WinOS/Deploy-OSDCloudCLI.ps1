@@ -161,6 +161,8 @@ function Deploy-OSDCloudCLI {
         $OSLanguageCode = [System.String]$PSBoundParameters['OSLanguageCode']
         $Task = [System.String]$PSBoundParameters['Task']
 
+        Write-Host -ForegroundColor Yellow "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Preview Release: This function is for feedback only. Expect frequent changes before the official release."
+
         #=================================================
         # Initialize OSDCloudWorkflow
         $WorkflowName = 'cli'
