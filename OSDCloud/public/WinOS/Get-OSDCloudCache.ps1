@@ -18,6 +18,7 @@ function Get-OSDCloudCache {
           '<DriveLetter>:\OSDCloud\DriverPacks' recursively.
         - Drivers: Immediate folders under '<DriveLetter>:\OSDCloud\Drivers' that
           contain at least one .inf file in any child folder.
+                - Profiles: Immediate folders under '<DriveLetter>:\OSDCloud\Profiles'.
         - WIM: All .wim files under '<DriveLetter>:\OSDCloud\WIM' recursively.
         - *: Includes all supported Type values.
 
@@ -55,7 +56,7 @@ function Get-OSDCloudCache {
     [OutputType([System.Object[]])]
     param (
         [Parameter()]
-        [ValidateSet('ESD', 'ISO', 'DriverPacks', 'Drivers', 'WIM', '*')]
+        [ValidateSet('ESD', 'ISO', 'DriverPacks', 'Drivers', 'Profiles', 'WIM', '*')]
         [string[]]$Type
     )
 
@@ -163,7 +164,7 @@ function Get-OSDCloudCache {
 
     $selectedTypes = @($Type | Sort-Object -Unique)
     if ($selectedTypes -contains '*') {
-        $selectedTypes = @('ESD', 'ISO', 'DriverPacks', 'Drivers', 'WIM')
+        $selectedTypes = @('ESD', 'ISO', 'DriverPacks', 'Drivers', 'Profiles', 'WIM')
     }
 
     $result = foreach ($selectedType in $selectedTypes) {
@@ -215,6 +216,18 @@ function Get-OSDCloudCache {
                             } |
                             ForEach-Object {
                                 New-CacheResultObject -ResultType 'Drivers' -ResultFullName ([string]$_.FullName) -VolumeMetadata $cacheEntry.VolumeMetadata
+                            }
+                    }
+                }
+                break
+            }
+            'Profiles' {
+                foreach ($cacheEntry in $cachePaths) {
+                    $profilesPath = Join-Path -Path $cacheEntry.CachePath -ChildPath 'Profiles'
+                    if (Test-Path -LiteralPath $profilesPath) {
+                        Get-ChildItem -LiteralPath $profilesPath -Directory -ErrorAction SilentlyContinue |
+                            ForEach-Object {
+                                New-CacheResultObject -ResultType 'Profiles' -ResultFullName ([string]$_.FullName) -VolumeMetadata $cacheEntry.VolumeMetadata
                             }
                     }
                 }

@@ -1,7 +1,7 @@
 ---
 external help file: OSDCloud-help.xml
 Module Name: OSDCloud
-online version:
+online version: https://github.com/OSDeploy/OSDCloud/blob/main/PRIVACY.md
 schema: 2.0.0
 ---
 
@@ -114,6 +114,12 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
+### System.Void
 ## NOTES
+This command writes deployment status to the host and starts workflow tasks.
+In GUI mode, workflow execution starts only after the operator clicks Start.
 
 ## RELATED LINKS
+
+[https://github.com/OSDeploy/OSDCloud/blob/main/PRIVACY.md](https://github.com/OSDeploy/OSDCloud/blob/main/PRIVACY.md)
+

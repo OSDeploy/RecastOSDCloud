@@ -1,7 +1,7 @@
 ---
 external help file: OSDCloud-help.xml
 Module Name: OSDCloud
-online version:
+online version: https://github.com/OSDeploy/OSDCloud/blob/main/PRIVACY.md
 schema: 2.0.0
 ---
 
