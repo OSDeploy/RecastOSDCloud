@@ -65,7 +65,7 @@ function Initialize-OSDCloudDeploy {
 
     # Limit to matching Processor Architecture
     $ProcessorArchitecture = $env:PROCESSOR_ARCHITECTURE
-    $global:DeployOSDCloudOperatingSystems = Get-DeployOSDCloudOperatingSystems | Where-Object { $_.OSArchitecture -match "$ProcessorArchitecture" }
+    $global:DeployOSDCloudOperatingSystems = Get-MCTOperatingSystemsOSDCloud | Where-Object { $_.OSArchitecture -match "$ProcessorArchitecture" }
 
     # Need to fail if no OS found for Architecture
     if (-not $global:DeployOSDCloudOperatingSystems) {
