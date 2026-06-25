@@ -36,7 +36,8 @@
         'Show-WinPEStartupIpconfig',
         'Show-WinPEStartupWifi',
         'Update-WinPEStartupModule',
-        'Start-OSDCloudExplorer'
+        'Start-OSDCloudExplorer',
+        'Get-MCTOperatingSystemsOSDCloud'
     )
     CmdletsToExport   = @()
     VariablesToExport = @()
