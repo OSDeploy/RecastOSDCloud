@@ -1,25 +1,25 @@
 <#=================================================================================
-    Get-MCTOperatingSystems
+    Get-CoreOperatingSystems
     ================================================================================
-    - Returns XML content entries from catalogs\mct-operatingsystems as objects
+    - Returns XML content entries from core\operatingsystems as objects
     ================================================================================
     .SYNOPSIS
         Gets Microsoft catalog operating system entries from XML files.
 
     .DESCRIPTION
-        Enumerates all XML files under the module path catalogs\mct-operatingsystems,
+        Enumerates all XML files under the module path core\operatingsystems,
         parses each File node, and returns the node properties as
         PowerShell objects.
 
     .EXAMPLE
-        PS C:\> Get-MCTOperatingSystems
+        PS C:\> Get-CoreOperatingSystems
         Returns all operating system entries from the XML catalogs.
 
     .NOTES
         Author: OSDeploy
         Version: 1.0
 =================================================================================#>
-function Get-MCTOperatingSystems {
+function Get-CoreOperatingSystems {
     [CmdletBinding()]
     [OutputType([pscustomobject[]])]
     param ()
@@ -27,7 +27,7 @@ function Get-MCTOperatingSystems {
     $ErrorActionPreference = 'Stop'
     $records = @()
 
-    $srcRoot = Join-Path (Get-OSDCloudModulePath) 'catalogs\mct-operatingsystems'
+    $srcRoot = Join-Path (Get-OSDCloudModulePath) 'core\operatingsystems'
 
     foreach ($file in (Get-ChildItem -Path $srcRoot -Filter '*.xml' -Recurse -File | Sort-Object FullName)) {
         Write-Verbose "[$(Get-Date -Format s)] [$($MyInvocation.MyCommand.Name)] Importing $($file.FullName)"

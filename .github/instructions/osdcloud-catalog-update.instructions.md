@@ -53,7 +53,7 @@ Each `<File>` element contains:
 
 1. **Add the XML file** to `catalogs/operatingsystem/` following the naming convention above.
 
-2. **Register the build number** in `private/Get-MCTOperatingSystemsOSDCloud.ps1`.
+2. **Register the build number** in `private/Get-OSDCloudCoreOperatingSystems.ps1`.
    Locate the `switch ($OSBuild)` block and add a new case:
 
    ```powershell
@@ -219,4 +219,4 @@ Key differences:
 - **Omitting the build switch case** — a new OS XML will load without errors but produce zero OS options in the UX because every `<File>` hits the `default { continue }` branch.
 - **Stale `microsoft.json` driver URLs** — `Get-OSDCloudCatalogSurface` serves MSI URLs from `microsoft.json`; if `UpdatePage` links change and the automated workflow has not run, deployed drivers may point to outdated or removed files. Run `Update-MicrosoftCatalog.ps1` manually to refresh.
 - **Editing OEM XML snapshots manually** — Dell/HP/Lenovo XML is replaced wholesale from upstream; manual edits will be lost on the next snapshot refresh.
-- **Adding a Windows version string to workflow configs without the catalog XML** — the UX will offer the version but `Get-MCTOperatingSystemsOSDCloud` will return no matching ESD entries, causing `Initialize-OSDCloudDeploy` to throw.
+- **Adding a Windows version string to workflow configs without the catalog XML** — the UX will offer the version but `Get-OSDCloudCoreOperatingSystems` will return no matching ESD entries, causing `Initialize-OSDCloudDeploy` to throw.

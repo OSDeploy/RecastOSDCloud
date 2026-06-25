@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 26.6.25.1 - June 25, 2026
+
+### Added
+
+- Added `Get-OSDCloudCoreOperatingSystems` and updated operating system retrieval flow to use core operating system records.
+
+### Changed
+
+- Module version bumped to `26.6.25.1`.
+- Updated deployment operating system architecture filtering to align with the new core operating system retrieval path.
+- Replaced references to `Get-MCTOperatingSystemsOSDCloud` with `Get-OSDCloudCoreOperatingSystems` and removed redundant related change-log code blocks.
+
 ## 26.6.23.1 - June 23, 2026
 
 ### Changed
