@@ -1,8 +1,8 @@
 <#=================================================================================
-    Get-MCTOperatingSystemsOSDCloud
+    Get-OSDCloudCoreOperatingSystems
     ================================================================================
     - Retrieves all operating system records from Microsoft catalogs
-        - Uses Get-MCTOperatingSystems records and extracts OS build, version,
+        - Uses Get-CoreOperatingSystems records and extracts OS build, version,
             architecture, language, and activation information
     - Returns sorted array of operating system objects
     ================================================================================
@@ -10,7 +10,7 @@
         Retrieves all operating system records from the OSDCloud catalog
 
     .DESCRIPTION
-        Imports operating system metadata from Get-MCTOperatingSystems,
+        Imports operating system metadata from Get-CoreOperatingSystems,
         then parses file names and catalog properties to extract OS build
         numbers, versions, architecture, language codes, and download
         information.
@@ -19,15 +19,15 @@
         This function does not accept parameters.
 
     .EXAMPLE
-        PS C:\> Get-MCTOperatingSystemsOSDCloud
+        PS C:\> Get-OSDCloudCoreOperatingSystems
         Returns all available operating system records
 
     .EXAMPLE
-        PS C:\> Get-MCTOperatingSystemsOSDCloud | Where-Object { $_.OSName -eq 'Windows 11' }
+        PS C:\> Get-OSDCloudCoreOperatingSystems | Where-Object { $_.OSName -eq 'Windows 11' }
         Returns only Windows 11 operating systems
 
     .EXAMPLE
-        PS C:\> Get-MCTOperatingSystemsOSDCloud | Group-Object OperatingSystem
+        PS C:\> Get-OSDCloudCoreOperatingSystems | Group-Object OperatingSystem
         Groups operating systems by major version
 
     .NOTES
@@ -38,14 +38,14 @@
     .LINK
         https://www.osdeploy.com/
 =================================================================================#>
-function Get-MCTOperatingSystemsOSDCloud {
+function Get-OSDCloudCoreOperatingSystems {
     [CmdletBinding()]
     [OutputType([pscustomobject[]])]
     param ()
     $ErrorActionPreference = 'Stop'
     $records = @()
 
-    $mctRecords = Get-MCTOperatingSystems
+    $mctRecords = Get-CoreOperatingSystems
 
     if (-not $mctRecords) {
         return $records

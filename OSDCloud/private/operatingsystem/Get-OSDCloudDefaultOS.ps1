@@ -1,5 +1,5 @@
 <#=================================================================================
-    Get-DeployOSDCloudOperatingSystem
+    Get-OSDCloudDefaultOS
     ================================================================================
     - Gets a single operating system record based on system architecture and
       language preferences
@@ -19,15 +19,15 @@
         environment variables and global variables.
 
     .EXAMPLE
-        PS C:\> Get-DeployOSDCloudOperatingSystem
+        PS C:\> Get-OSDCloudDefaultOS
         Returns the first matching operating system based on current culture
 
     .EXAMPLE
-        PS C:\> Get-DeployOSDCloudOperatingSystem | Format-List *
+        PS C:\> Get-OSDCloudDefaultOS | Format-List *
         Displays all properties of the selected operating system
 
     .EXAMPLE
-        PS C:\> $os = Get-DeployOSDCloudOperatingSystem
+        PS C:\> $os = Get-OSDCloudDefaultOS
         PS C:\> $os.FileName
         Returns the download filename for the selected operating system
 
@@ -39,7 +39,7 @@
     .LINK
         https://www.osdeploy.com/
 =================================================================================#>
-function Get-DeployOSDCloudOperatingSystem {
+function Get-OSDCloudDefaultOS {
     [CmdletBinding()]
     [OutputType([pscustomobject])]
     param ()
@@ -63,7 +63,7 @@ function Get-DeployOSDCloudOperatingSystem {
         FilePath        : http://dl.delivery.mp.microsoft.com/filestreamingservice/files/79a3f5e0-d04d-4689-a5d4-3ea35f8b189a/26200.7462.251207-0044.25h2_ge_release_svc_refresh_CLIENTCONSUMER_RET_x64FRE_en-gb.esd
     #>
 
-    $records = Get-MCTOperatingSystemsOSDCloud
+    $records = Get-OSDCloudCoreOperatingSystems
     #=================================================
     # Limit the results based on $env:PROCESSOR_ARCHITECTURE
     $ProcessorArchitecture = $env:PROCESSOR_ARCHITECTURE
