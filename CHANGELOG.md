@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 26.6.25.2 - June 25, 2026
+
+### Changed
+
+- Module version bumped to `26.6.25.2`.
+- `Get-OSDCloudCache` now supports a `Profiles` type that returns folders under `<DriveLetter>:\OSDCloud\Profiles`.
+
 ## 26.6.25.1 - June 25, 2026
 
 ### Added
