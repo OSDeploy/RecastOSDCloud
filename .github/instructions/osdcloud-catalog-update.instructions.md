@@ -101,7 +101,7 @@ Each `<File>` element contains:
 | `lenovo.xml` | OEM XML snapshot | Lenovo | Download + replace |
 | `surface.json` | JSON array | Microsoft (Surface) | Manual edit / `Update-MicrosoftCatalog.ps1` |
 | `panasonic.json` | Nested JSON | Panasonic | Manual edit |
-| `default.json` | JSON array | ARM64 / multi-OEM | Manual edit |
+| `generic.json` | JSON array | ARM64 / multi-OEM | Manual edit |
 
 OEM source URLs are defined in `module.json` under each manufacturer key (`driverpackcatalogoem`).
 Dell, HP, and Lenovo catalogs are fetched at runtime by their respective `Get-OSDCloudCatalog*` functions; local files are fallback only.
@@ -203,7 +203,7 @@ This file uses a different nested schema compared to other driver pack catalogs.
 
 ---
 
-### default.json (ARM64 and generic driver packs)
+### generic.json (ARM64 and generic driver packs)
 
 Used for ARM64 deployments (all manufacturers) and AMD64 devices that are not Dell, HP, Lenovo, or Microsoft. Uses the same flat JSON array schema as `surface.json`.
 

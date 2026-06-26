@@ -1,6 +1,6 @@
 ---
-description: "Step-by-step guide for updating OSDCloud driver pack catalogs: refresh Dell/HP/Lenovo XML snapshots, add or update Surface models in surface.json, update panasonic.json, or add ARM64 entries to default.json."
-argument-hint: "dell | hp | lenovo | microsoft | panasonic | default | all"
+description: "Step-by-step guide for updating OSDCloud driver pack catalogs: refresh Dell/HP/Lenovo XML snapshots, add or update Surface models in surface.json, update panasonic.json, or add ARM64 entries to generic.json."
+argument-hint: "dell | hp | lenovo | microsoft | panasonic | generic | all"
 agent: "agent"
 ---
 
@@ -17,7 +17,7 @@ If the user provided an argument, use it to determine which catalogs to update:
 | `lenovo` | `core/driverpacks/lenovo.xml` |
 | `microsoft` | `core/driverpacks/surface.json` |
 | `panasonic` | `core/driverpacks/panasonic.json` |
-| `default` | `core/driverpacks/default.json` |
+| `generic` | `core/driverpacks/generic.json` |
 | `all` | All of the above |
 
 If no argument was provided, ask: **Which catalog(s) need updating?** (list the options above).
@@ -108,7 +108,7 @@ Then:
 
 ---
 
-## Default (ARM64 / generic) -- default.json
+## Generic (ARM64 / generic) -- generic.json
 
 Ask the user for the new entry fields (same schema as `surface.json`):
 `CatalogVersion`, `ReleaseDate`, `Name`, `Manufacturer`, `Model`, `SystemId`, `FileName`, `Url`, `OperatingSystem`, `OSArchitecture`, `HashMD5`.
@@ -127,7 +127,7 @@ After all edits, confirm each item:
 - [ ] OEM XML snapshots replaced (Dell/HP/Lenovo as applicable)
 - [ ] `surface.json` edited (if applicable)
 - [ ] `panasonic.json` updated with new `LastDateModified` (if applicable)
-- [ ] `default.json` updated (if applicable)
+- [ ] `generic.json` updated (if applicable)
 - [ ] No manual edits made to Dell/HP/Lenovo XML content
 
 Report a one-line summary of each file changed and what was updated.

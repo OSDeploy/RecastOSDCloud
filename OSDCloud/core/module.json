@@ -1,6 +1,6 @@
 {
-    "default": {
-        "driverpackcataloglocal": "core\\driverpacks\\default.json"
+    "generic": {
+        "driverpackcataloglocal": "core\\driverpacks\\generic.json"
     },
     "dell": {
         "driverpackcataloglocal": "core\\driverpacks\\dell.xml",
