@@ -43,12 +43,12 @@ function Get-OSDCloudCatalogSurface {
         # Load from temp cache if available
         $useCache = $false
         if (Test-Path $tempCatalogPath) {
-            Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Loading cached catalog from $tempCatalogPath"
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $tempCatalogPath"
             $JsonCatalogContent = Get-Content -Path $tempCatalogPath -Raw -Encoding UTF8 | ConvertFrom-Json
             $useCache = $true
         }
         else {
-            Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Loading base catalog from $localCatalogPath"
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $localCatalogPath"
             $JsonCatalogContent = Get-Content -Path $localCatalogPath -Raw -Encoding UTF8 | ConvertFrom-Json
         }
 
@@ -109,7 +109,7 @@ function Get-OSDCloudCatalogSurface {
                     Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Cache hit for $($item.Model) -> $fileName"
                 }
                 else {
-                    Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Checking UpdatePage for $($item.Model): $updatePage"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Downloading $updatePage"
                     try {
                         $response = Invoke-WebRequest -Uri $updatePage -UseBasicParsing -UserAgent $userAgent -MaximumRedirection 5 -ErrorAction Stop
                         $html     = $response.Content
@@ -124,7 +124,7 @@ function Get-OSDCloudCatalogSurface {
                         if ($allMsi.Count -eq 0) {
                             $pageId     = [System.Web.HttpUtility]::ParseQueryString(([uri]$updatePage).Query)['id']
                             $confirmUri = "https://www.microsoft.com/en-us/download/confirmation.aspx?id=$pageId"
-                            Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] No MSI on details page, trying confirmation page: $confirmUri"
+                            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Downloading $confirmUri"
                             $response = Invoke-WebRequest -Uri $confirmUri -UseBasicParsing -UserAgent $userAgent -MaximumRedirection 5 -ErrorAction Stop
                             $html     = $response.Content
                             $allMsi   = @(

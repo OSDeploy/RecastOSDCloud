@@ -13,18 +13,18 @@ function Get-OSDCloudCatalogPanasonic {
         # Build realtime catalog from online source, if fails fallback to offline catalog
         try {
             if (-not (Test-Path $tempCatalogPath)) {
-                Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Downloading Panasonic driver pack catalog from $oemDriverPackCatalog"
+                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Downloading $oemDriverPackCatalog"
                 $sourceContent = Invoke-RestMethod -Uri $oemDriverPackCatalog -UseBasicParsing -ErrorAction Stop
                 
                 if ($sourceContent) {
-                    Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Processing Panasonic driver pack catalog content"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Processing $tempCatalogPath"
                     $sourceContent | Out-File -FilePath $tempCatalogPath -Encoding utf8 -Force
                     $JsonCatalogContent = $sourceContent
                 }
             } else {
                 Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Using temp Panasonic driver pack catalog"
                 if (Test-Path $tempCatalogPath) {
-                    Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Loading temp catalog from $tempCatalogPath"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $tempCatalogPath"
                     $JsonCatalogContent = Get-Content -Path $tempCatalogPath -Raw | ConvertFrom-Json
                 }
             }
@@ -35,7 +35,7 @@ function Get-OSDCloudCatalogPanasonic {
         
         # Load offline catalog if online catalog failed
         if (-not $JsonCatalogContent) {
-            Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Loading offline catalog from $localDriverPackCatalog"
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $localDriverPackCatalog"
             $JsonCatalogContent = Get-Content -Path $localDriverPackCatalog -Raw | ConvertFrom-Json
         }
         
