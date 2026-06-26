@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 26.6.26.1 - June 26, 2026
+
+### Changed
+
+- Module version bumped to `26.6.26.1`.
+- Renamed the generic driver pack catalog mapping from `default` to `generic` and updated catalog path references from `core\\driverpacks\\default.json` to `core\\driverpacks\\generic.json`.
+- Standardized `Write-Host` output formatting across deployment, workflow, CLI, Wi-Fi startup, date/time sync, and driver-step scripts by removing redundant function-name prefixes from host messages.
+- Improved `Initialize-OSDCloudDeploy` console output to include detected `OSDManufacturer`, `OSDModel`, `OSDProduct`, and selected driver pack name/URL details.
+- Updated OEM catalog retrieval logging in Dell, HP, Lenovo, Panasonic, and Surface catalog functions to provide clearer host-level download/load/extract progress messages.
+- Applied consistency and readability formatting updates in affected PowerShell scripts.
+
+### Maintenance
+
+- Updated catalog-update guidance and driver pack catalog update prompt content to align with the `generic` driver pack catalog naming.
+
 ## 26.6.25.2 - June 25, 2026
 
 ### Changed
