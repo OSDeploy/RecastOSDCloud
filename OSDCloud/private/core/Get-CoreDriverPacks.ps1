@@ -41,8 +41,8 @@ function Get-CoreDriverPacks {
     )
 
     # Load default catalog once
-    $DefaultCatalogPath = Join-Path (Get-OSDCloudModulePath) $OSDCloudModule.default.driverpackcataloglocal
-    $DefaultCatalog = Get-Content -Path $DefaultCatalogPath -Raw | ConvertFrom-Json
+    $GenericCatalogPath = Join-Path (Get-OSDCloudModulePath) $OSDCloudModule.generic.driverpackcataloglocal
+    $DefaultCatalog = Get-Content -Path $GenericCatalogPath -Raw | ConvertFrom-Json
 
     if ($ProcessorArchitecture -eq 'amd64') {
         $DriverPackValues = switch ($Manufacturer) {
