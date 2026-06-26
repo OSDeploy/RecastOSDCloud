@@ -121,17 +121,21 @@ function Initialize-OSDCloudDeploy {
     $OSDManufacturer = $global:OSDCloudDevice.OSDManufacturer
     $OSDModel = $global:OSDCloudDevice.OSDModel
     $OSDProduct = $global:OSDCloudDevice.OSDProduct
-
-    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSDManufacturer: $OSDManufacturer"
-    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSDModel: $OSDModel"
-    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSDProduct: $OSDProduct"
-
     $DriverPackValues = Get-CoreDriverPacks
     $DriverPackObject = $DriverPackValues | Where-Object { $_.SystemId -match $OSDProduct } | Select-Object -First 1
 
     if ($DriverPackObject) {
+        Write-Host -ForegroundColor Gray "[$(Get-Date -format s)] OSDManufacturer: $OSDManufacturer"
+        Write-Host -ForegroundColor Gray "[$(Get-Date -format s)] OSDModel: $OSDModel"
+        Write-Host -ForegroundColor Gray "[$(Get-Date -format s)] OSDProduct: $OSDProduct"
         $DriverPackName = $DriverPackObject.Name
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] DriverPackName: $DriverPackName"
+        $DriverPackUrl = $DriverPackObject.Url
+        Write-Host -ForegroundColor Gray "[$(Get-Date -format s)] DriverPack: $DriverPackName"
+        Write-Host -ForegroundColor Gray "[$(Get-Date -format s)] DriverPack Url: $DriverPackUrl"
+    } else {
+        Write-Host -ForegroundColor Gray "[$(Get-Date -format s)] OSDManufacturer: $OSDManufacturer"
+        Write-Host -ForegroundColor Gray "[$(Get-Date -format s)] OSDModel: $OSDModel"
+        Write-Host -ForegroundColor Gray "[$(Get-Date -format s)] OSDProduct: $OSDProduct"
     }
     #=================================================
     # Main

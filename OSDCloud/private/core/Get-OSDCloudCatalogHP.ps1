@@ -49,11 +49,12 @@ function Get-OSDCloudCatalogHp {
         # Build realtime catalog from online source, if fails fallback to offline catalog
         try {
             if ($Force -or -not (Test-Path $tempCatalogPath)) {
-                Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Downloading HP driver pack catalog from $oemDriverPackCatalog"
+
+                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Downloading $oemDriverPackCatalog"
                 $null = Invoke-WebRequest -Uri $oemDriverPackCatalog -OutFile $tempCatalogPackagePath -ErrorAction Stop
 
                 if (Test-Path $tempCatalogPackagePath) {
-                    Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Validating CAB file"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Validating $tempCatalogPackagePath"
                     # Use list mode for CAB validation to avoid destination warnings.
                     $cabTest = try { & expand.exe -D $tempCatalogPackagePath 2>&1 } catch { $null }
                     if ($LASTEXITCODE -ne 0) {
@@ -63,7 +64,7 @@ function Get-OSDCloudCatalogHp {
                 }
 
                 if (Test-Path $tempCatalogPackagePath) {
-                    Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Extracting catalog from CAB file"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Extracting $tempCatalogPath"
                     # expand.exe is used for CAB extraction as Expand-Archive only supports ZIP
                     $expandResult = & expand.exe $tempCatalogPackagePath $tempCatalogPath 2>&1
                     if ($LASTEXITCODE -ne 0) {
@@ -81,10 +82,10 @@ function Get-OSDCloudCatalogHp {
 
         # Load catalog content
         if (Test-Path $tempCatalogPath) {
-            Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Loading temp catalog from $tempCatalogPath"
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $tempCatalogPath"
             [xml]$XmlCatalogContent = Get-Content -Path $tempCatalogPath -Raw
         } else {
-            Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Loading offline catalog from $localDriverPackCatalog"
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $localDriverPackCatalog"
             [xml]$XmlCatalogContent = Get-Content -Path $localDriverPackCatalog -Raw
         }
 
