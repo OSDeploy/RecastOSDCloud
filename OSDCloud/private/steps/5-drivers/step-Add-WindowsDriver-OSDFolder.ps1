@@ -30,7 +30,7 @@ function step-Add-WindowsDriver-OSDFolder {
                 $matchedDirs = Get-ChildItem -Path $parentPath -Directory -ErrorAction SilentlyContinue |
                     Where-Object { $_.Name -like "$osdManufacturer*" }
                 foreach ($dir in $matchedDirs) {
-                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] OSDManufacturer folder match: $($dir.FullName)"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSDManufacturer folder match: $($dir.FullName)"
                     Add-WindowsDriver -Path $OfflinePath -Driver $dir.FullName -Recurse -ForceUnsigned `
                         -LogPath "$LogPath\dism-add-windowsdriver-osdfolder.log" `
                         -ErrorAction SilentlyContinue | Out-Null
@@ -40,7 +40,7 @@ function step-Add-WindowsDriver-OSDFolder {
                     Where-Object { $_.BaseName -like "$osdManufacturer*" }
                 foreach ($zip in $matchedZips) {
                     $expandPath = Join-Path -Path $expandRoot -ChildPath $zip.BaseName
-                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] OSDManufacturer zip match: $($zip.FullName)"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSDManufacturer zip match: $($zip.FullName)"
                     Expand-Archive -Path $zip.FullName -DestinationPath $expandPath -Force
                     Add-WindowsDriver -Path $OfflinePath -Driver $expandPath -Recurse -ForceUnsigned `
                         -LogPath "$LogPath\dism-add-windowsdriver-osdfolder.log" `
@@ -51,7 +51,7 @@ function step-Add-WindowsDriver-OSDFolder {
                 $matchedScripts = Get-ChildItem -Path $parentPath -File -Filter "*.ps1" -ErrorAction SilentlyContinue |
                     Where-Object { $_.BaseName -like "$osdManufacturer*" }
                 foreach ($script in $matchedScripts) {
-                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] OSDManufacturer ps1 match: $($script.FullName)"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSDManufacturer ps1 match: $($script.FullName)"
                     & $script.FullName
                 }
             }
@@ -66,7 +66,7 @@ function step-Add-WindowsDriver-OSDFolder {
                 $matchedDirs = Get-ChildItem -Path $parentPath -Directory -ErrorAction SilentlyContinue |
                     Where-Object { $_.Name -like "*$osdModel*" }
                 foreach ($dir in $matchedDirs) {
-                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] OSDModel folder match: $($dir.FullName)"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSDModel folder match: $($dir.FullName)"
                     Add-WindowsDriver -Path $OfflinePath -Driver $dir.FullName -Recurse -ForceUnsigned `
                         -LogPath "$LogPath\dism-add-windowsdriver-osdfolder.log" `
                         -ErrorAction SilentlyContinue | Out-Null
@@ -76,7 +76,7 @@ function step-Add-WindowsDriver-OSDFolder {
                     Where-Object { $_.BaseName -like "*$osdModel*" }
                 foreach ($zip in $matchedZips) {
                     $expandPath = Join-Path -Path $expandRoot -ChildPath $zip.BaseName
-                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] OSDModel zip match: $($zip.FullName)"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSDModel zip match: $($zip.FullName)"
                     Expand-Archive -Path $zip.FullName -DestinationPath $expandPath -Force
                     Add-WindowsDriver -Path $OfflinePath -Driver $expandPath -Recurse -ForceUnsigned `
                         -LogPath "$LogPath\dism-add-windowsdriver-osdfolder.log" `
@@ -87,7 +87,7 @@ function step-Add-WindowsDriver-OSDFolder {
                 $matchedScripts = Get-ChildItem -Path $parentPath -File -Filter "*.ps1" -ErrorAction SilentlyContinue |
                     Where-Object { $_.BaseName -like "*$osdModel*" }
                 foreach ($script in $matchedScripts) {
-                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] OSDModel ps1 match: $($script.FullName)"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSDModel ps1 match: $($script.FullName)"
                     & $script.FullName
                 }
             }
@@ -102,7 +102,7 @@ function step-Add-WindowsDriver-OSDFolder {
                 $matchedDirs = Get-ChildItem -Path $parentPath -Directory -ErrorAction SilentlyContinue |
                     Where-Object { $_.Name -like "*$osdProduct*" }
                 foreach ($dir in $matchedDirs) {
-                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] OSDProduct folder match: $($dir.FullName)"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSDProduct folder match: $($dir.FullName)"
                     Add-WindowsDriver -Path $OfflinePath -Driver $dir.FullName -Recurse -ForceUnsigned `
                         -LogPath "$LogPath\dism-add-windowsdriver-osdfolder.log" `
                         -ErrorAction SilentlyContinue | Out-Null
@@ -112,7 +112,7 @@ function step-Add-WindowsDriver-OSDFolder {
                     Where-Object { $_.BaseName -like "*$osdProduct*" }
                 foreach ($zip in $matchedZips) {
                     $expandPath = Join-Path -Path $expandRoot -ChildPath $zip.BaseName
-                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] OSDProduct zip match: $($zip.FullName)"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSDProduct zip match: $($zip.FullName)"
                     Expand-Archive -Path $zip.FullName -DestinationPath $expandPath -Force
                     Add-WindowsDriver -Path $OfflinePath -Driver $expandPath -Recurse -ForceUnsigned `
                         -LogPath "$LogPath\dism-add-windowsdriver-osdfolder.log" `
@@ -123,7 +123,7 @@ function step-Add-WindowsDriver-OSDFolder {
                 $matchedScripts = Get-ChildItem -Path $parentPath -File -Filter "*.ps1" -ErrorAction SilentlyContinue |
                     Where-Object { $_.BaseName -like "*$osdProduct*" }
                 foreach ($script in $matchedScripts) {
-                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] OSDProduct ps1 match: $($script.FullName)"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSDProduct ps1 match: $($script.FullName)"
                     & $script.FullName
                 }
             }

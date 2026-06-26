@@ -71,7 +71,7 @@ function Connect-OSDCloudWifiByXMLProfile {
     )
 
     $SSID = ([xml](Get-Content $wifiProfile)).WLANProfile.Name
-    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Connecting to $SSID"
+    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Connecting to $SSID"
 
     # just for sure
     $null = Netsh WLAN delete profile "$SSID"
