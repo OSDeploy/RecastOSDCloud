@@ -46,6 +46,11 @@ function Initialize-OSDCloudDeploy {
     #=================================================
     # OSDCloudWorkflowTasks
     # Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Initialize OSDCloud Tasks"
+    # If $WorkflowName is not default, display a message that this Workflow is for Beta or Testing purposes only
+    if ($WorkflowName -ne 'default') {
+        Write-Warning "[$(Get-Date -format s)] The workflow '$WorkflowName' is for Beta testing purposes only."
+    }
+
     Initialize-OSDCloudWorkflowTasks -WorkflowName $WorkflowName
     # Make sure at least one workflow task is defined
     if (-not $global:OSDCloudWorkflowTasks) {
