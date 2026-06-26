@@ -10,12 +10,12 @@ function Get-OSDCloudCatalogDell {
 
     .EXAMPLE
         Get-OSDCloudCatalogDell
-        
+
         Retrieves the Dell driver pack catalog for Windows 11.
 
     .OUTPUTS
         PSCustomObject[]
-        Returns custom objects with driver pack information including Name, Model, 
+        Returns custom objects with driver pack information including Name, Model,
         SystemId, URL, ReleaseDate, and other metadata.
 
     .NOTES
@@ -23,7 +23,7 @@ function Get-OSDCloudCatalogDell {
     #>
     [CmdletBinding()]
     param ()
-    
+
     begin {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Start"
         #=================================================
@@ -38,7 +38,7 @@ function Get-OSDCloudCatalogDell {
             if ($Force -or -not (Test-Path $tempCatalogPath)) {
                 Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Downloading $oemDriverPackCatalog"
                 $null = Invoke-WebRequest -Uri $oemDriverPackCatalog -OutFile $tempCatalogPackagePath -ErrorAction Stop
-                
+
                 if (Test-Path $tempCatalogPackagePath) {
                     Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Extracting $tempCatalogPath"
                     # expand.exe is used for CAB extraction as Expand-Archive only supports ZIP
@@ -54,7 +54,7 @@ function Get-OSDCloudCatalogDell {
             Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Failed to download DriverPack catalog: $($_.Exception.Message)"
             Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Falling back to local catalog"
         }
-        
+
         # Load catalog content
         if (Test-Path $tempCatalogPath) {
             Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $tempCatalogPath"
@@ -63,7 +63,7 @@ function Get-OSDCloudCatalogDell {
             Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $localDriverPackCatalog"
             [xml]$XmlCatalogContent = Get-Content -Path $localDriverPackCatalog -Raw
         }
-        
+
         # Validate catalog content
         if (-not $XmlCatalogContent) {
             $errorRecord = [System.Management.Automation.ErrorRecord]::new(
@@ -75,7 +75,7 @@ function Get-OSDCloudCatalogDell {
             $PSCmdlet.ThrowTerminatingError($errorRecord)
         }
     }
-    
+
     process {
         #=================================================
         # Build Catalog
@@ -89,9 +89,9 @@ function Get-OSDCloudCatalogDell {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Catalog version: $CatalogVersion"
 
         $DellDriverPackXml = $XmlCatalogContent.DriverPackManifest.DriverPackage
-        
+
         # Fixed handling null values
-        $DellDriverPackXml = $DellDriverPackXml | Where-Object { 
+        $DellDriverPackXml = $DellDriverPackXml | Where-Object {
             $osCode = $_.SupportedOperatingSystems.OperatingSystem.osCode
             $osCode -and ($osCode.Trim() | Select-Object -Unique) -notmatch 'winpe'
         }
@@ -144,7 +144,7 @@ function Get-OSDCloudCatalogDell {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Found $($Results.Count) Windows 11 driver packs"
         $Results
     }
-    
+
     end {
         #=================================================
         if ($VerbosePreference -eq 'Continue' -or $DebugPreference -eq 'Continue') {

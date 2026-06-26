@@ -1,7 +1,7 @@
 function Get-OSDCloudCatalogPanasonic {
     [CmdletBinding()]
     param ()
-    
+
     begin {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Start"
         #=================================================
@@ -15,7 +15,7 @@ function Get-OSDCloudCatalogPanasonic {
             if (-not (Test-Path $tempCatalogPath)) {
                 Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Downloading $oemDriverPackCatalog"
                 $sourceContent = Invoke-RestMethod -Uri $oemDriverPackCatalog -UseBasicParsing -ErrorAction Stop
-                
+
                 if ($sourceContent) {
                     Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Processing $tempCatalogPath"
                     $sourceContent | Out-File -FilePath $tempCatalogPath -Encoding utf8 -Force
@@ -32,13 +32,13 @@ function Get-OSDCloudCatalogPanasonic {
             Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Failed to download Panasonic driver pack catalog: $($_.Exception.Message)"
             Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Falling back to local catalog"
         }
-        
+
         # Load offline catalog if online catalog failed
         if (-not $JsonCatalogContent) {
             Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $localDriverPackCatalog"
             $JsonCatalogContent = Get-Content -Path $localDriverPackCatalog -Raw | ConvertFrom-Json
         }
-        
+
         # Validate catalog content
         if (-not $JsonCatalogContent) {
             $errorRecord = [System.Management.Automation.ErrorRecord]::new(
@@ -50,7 +50,7 @@ function Get-OSDCloudCatalogPanasonic {
             $PSCmdlet.ThrowTerminatingError($errorRecord)
         }
     }
-    
+
     process {
         #=================================================
         # Build Catalog
@@ -58,10 +58,10 @@ function Get-OSDCloudCatalogPanasonic {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Building driver pack catalog"
         $CatalogVersion = Get-Date $JsonCatalogContent.LastDateModified -Format "yy.MM.dd"
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Catalog version: $CatalogVersion"
-        
+
         $ModelList = $JsonCatalogContent.Models
         #=================================================
-        # Create Object 
+        # Create Object
         #=================================================
         $Results = foreach ($Model in $ModelList) {
 
@@ -108,7 +108,7 @@ function Get-OSDCloudCatalogPanasonic {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Found $($Results.Count) Windows 11 driver packs"
         $Results
     }
-    
+
     end {
         #=================================================
         if ($VerbosePreference -eq 'Continue' -or $DebugPreference -eq 'Continue') {

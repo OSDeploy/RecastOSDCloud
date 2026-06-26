@@ -10,12 +10,12 @@ function Get-OSDCloudCatalogLenovo {
 
     .EXAMPLE
         Get-OSDCloudCatalogLenovo
-        
+
         Retrieves the Lenovo driver pack catalog for Windows 11.
 
     .OUTPUTS
         PSCustomObject[]
-        Returns custom objects with driver pack information including Name, Model, 
+        Returns custom objects with driver pack information including Name, Model,
         SystemId, URL, ReleaseDate, and other metadata.
 
     .NOTES
@@ -23,7 +23,7 @@ function Get-OSDCloudCatalogLenovo {
     #>
     [CmdletBinding()]
     param ()
-    
+
     begin {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Start"
         #=================================================
@@ -37,7 +37,7 @@ function Get-OSDCloudCatalogLenovo {
             if (-not (Test-Path $tempCatalogPath)) {
                 Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Downloading $oemDriverPackCatalog"
                 $sourceContent = Invoke-RestMethod -Uri $oemDriverPackCatalog -UseBasicParsing -ErrorAction Stop
-                
+
                 if ($sourceContent) {
                     Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Processing $tempCatalogPath"
                     # Remove BOM (Byte Order Mark) from the beginning of the content
@@ -56,13 +56,13 @@ function Get-OSDCloudCatalogLenovo {
             Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Failed to download DriverPack catalog: $($_.Exception.Message)"
             Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Falling back to local catalog"
         }
-        
+
         # Load offline catalog if online catalog failed
         if (-not $XmlCatalogContent) {
             Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $localDriverPackCatalog"
             [xml]$XmlCatalogContent = Get-Content -Path $localDriverPackCatalog -Raw
         }
-        
+
         # Validate catalog content
         if (-not $XmlCatalogContent) {
             $errorRecord = [System.Management.Automation.ErrorRecord]::new(
@@ -74,7 +74,7 @@ function Get-OSDCloudCatalogLenovo {
             $PSCmdlet.ThrowTerminatingError($errorRecord)
         }
     }
-    
+
     process {
         #=================================================
         # Build Catalog
@@ -82,10 +82,10 @@ function Get-OSDCloudCatalogLenovo {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Building driver pack catalog"
         $CatalogVersion = Get-Date -Format yy.MM.dd
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Catalog version: $CatalogVersion"
-        
+
         $ModelList = $XmlCatalogContent.ModelList.Model
         #=================================================
-        # Create Object 
+        # Create Object
         #=================================================
         $Results = foreach ($Model in $ModelList) {
             foreach ($Item in $Model.SCCM) {
@@ -94,7 +94,7 @@ function Get-OSDCloudCatalogLenovo {
                 $ReleaseDate = $Item.date
                 # Need to convert it to this format: 22.09.28
                 $ReleaseDate = Get-Date $ReleaseDate -Format "yy.MM.dd"
-                
+
                 $OSVersion = $Item.version
                 if ($OSVersion -eq '*') {
                     $OSVersion = $null
@@ -140,7 +140,7 @@ function Get-OSDCloudCatalogLenovo {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Found $($Results.Count) Windows 11 driver packs"
         $Results
     }
-    
+
     end {
         #=================================================
         if ($VerbosePreference -eq 'Continue' -or $DebugPreference -eq 'Continue') {
