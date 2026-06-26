@@ -4,7 +4,7 @@ function Get-OSDCloudCatalogSurface {
         Retrieves the Microsoft Surface driver pack catalog, enriching entries from live download pages.
 
     .DESCRIPTION
-        Loads the bundled microsoft.json catalog as the offline base. For entries that include an
+        Loads the bundled surface.json catalog as the offline base. For entries that include an
         UpdatePage URL, the function scrapes the corresponding Microsoft download page to find the
         newest available MSI and updates FileName, Url, and ReleaseDate accordingly.
         Results are cached in $env:TEMP so subsequent calls within the same session skip network
@@ -26,8 +26,8 @@ function Get-OSDCloudCatalogSurface {
         Url, OperatingSystem, OSArchitecture, and HashMD5 properties.
 
     .NOTES
-        Base catalog: catalogs/driverpack/microsoft.json (bundled with the module)
-        Temp cache:   $env:TEMP\osdcloud-driverpack-microsoft.json
+        Base catalog: core/driverpacks/surface.json (bundled with the module)
+        Temp cache:   $env:TEMP\osdcloud-driverpack-surface.json
     #>
     [CmdletBinding()]
     param ()
@@ -37,8 +37,8 @@ function Get-OSDCloudCatalogSurface {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Start"
         #=================================================
         # Paths
-        $localCatalogPath = Join-Path (Get-OSDCloudModulePath) 'catalogs\driverpack\microsoft.json'
-        $tempCatalogPath  = "$env:TEMP\osdcloud-driverpack-microsoft.json"
+        $localCatalogPath = Join-Path (Get-OSDCloudModulePath) $OSDCloudModule.surface.driverpackcataloglocal
+        $tempCatalogPath  = "$env:TEMP\osdcloud-driverpack-surface.json"
         #=================================================
         # Load from temp cache if available
         $useCache = $false

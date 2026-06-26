@@ -91,7 +91,7 @@ Do not hard-code deployment logic in orchestration functions.
 
 ## Catalogs
 
-Driver packs: `catalogs/driverpack/` (XML/JSON, mirrored from OEM sources listed in `module.json`).
+Driver packs: `core/driverpacks/` (XML/JSON, mirrored from OEM sources listed in `module.json`).
 OS metadata: `catalogs/operatingsystem/` (named `<build>-<windows-version>.xml`).
 Update catalog files when new OS builds or driver pack versions are released; do not edit them manually for content that should be fetched upstream.
 

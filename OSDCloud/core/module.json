@@ -1,23 +1,30 @@
 {
+    "default": {
+        "driverpackcataloglocal": "core\\driverpacks\\default.json"
+    },
     "dell": {
-        "driverpackcataloglocal": "catalogs\\driverpack\\dell.xml",
+        "driverpackcataloglocal": "core\\driverpacks\\dell.xml",
         "driverpackcatalogoem": "https://downloads.dell.com/catalog/DriverPackCatalog.cab",
-        "driverpackcataloggit": "https://raw.githubusercontent.com/OSDeploy/OSDCloud/refs/heads/main/OSDCloud/catalogs/driverpack/dell.xml"
+        "driverpackcataloggit": "https://raw.githubusercontent.com/OSDeploy/OSDCloud/refs/heads/main/OSDCloud/core/driverpacks/dell.xml"
     },
     "hp": {
-        "driverpackcataloglocal": "catalogs\\driverpack\\hp.xml",
+        "driverpackcataloglocal": "core\\driverpacks\\hp.xml",
         "driverpackcatalogoem": "https://hpia.hpcloud.hp.com/downloads/driverpackcatalog/HPClientDriverPackCatalog.cab",
-        "driverpackcataloggit": "https://raw.githubusercontent.com/OSDeploy/OSDCloud/refs/heads/main/OSDCloud/catalogs/driverpack/hp.xml"
+        "driverpackcataloggit": "https://raw.githubusercontent.com/OSDeploy/OSDCloud/refs/heads/main/OSDCloud/core/driverpacks/hp.xml"
     },
     "lenovo": {
-        "driverpackcataloglocal": "catalogs\\driverpack\\lenovo.xml",
+        "driverpackcataloglocal": "core\\driverpacks\\lenovo.xml",
         "driverpackcatalogoem": "https://download.lenovo.com/cdrt/td/catalogv2.xml",
-        "driverpackcataloggit": "https://raw.githubusercontent.com/OSDeploy/OSDCloud/refs/heads/main/OSDCloud/catalogs/driverpack/lenovo.xml"
+        "driverpackcataloggit": "https://raw.githubusercontent.com/OSDeploy/OSDCloud/refs/heads/main/OSDCloud/core/driverpacks/lenovo.xml"
     },
     "panasonic": {
-        "driverpackcataloglocal": "catalogs\\driverpack\\panasonic.json",
+        "driverpackcataloglocal": "core\\driverpacks\\panasonic.json",
         "driverpackcatalogoem": "https://pna-b2b-storage-mkt.s3.amazonaws.com/computer/software/apps/Panasonic.json",
-        "driverpackcataloggit": "https://raw.githubusercontent.com/OSDeploy/OSDCloud/refs/heads/main/OSDCloud/catalogs/driverpack/panasonic.json"
+        "driverpackcataloggit": "https://raw.githubusercontent.com/OSDeploy/OSDCloud/refs/heads/main/OSDCloud/core/driverpacks/panasonic.json"
+    },
+    "surface": {
+        "driverpackcataloglocal": "core\\driverpacks\\surface.json",
+        "driverpackcataloggit": "https://raw.githubusercontent.com/OSDeploy/OSDCloud/refs/heads/main/OSDCloud/core/driverpacks/surface.json"
     },
     "links": {
         "david": "https://linkedin.com/in/davidsegura",
