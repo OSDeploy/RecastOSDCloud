@@ -1,5 +1,5 @@
 ---
-description: "Step-by-step guide for updating OSDCloud driver pack catalogs: refresh Dell/HP/Lenovo XML snapshots, add or update Surface models in microsoft.json, update panasonic.json, or add ARM64 entries to default.json."
+description: "Step-by-step guide for updating OSDCloud driver pack catalogs: refresh Dell/HP/Lenovo XML snapshots, add or update Surface models in surface.json, update panasonic.json, or add ARM64 entries to default.json."
 argument-hint: "dell | hp | lenovo | microsoft | panasonic | default | all"
 agent: "agent"
 ---
@@ -12,12 +12,12 @@ If the user provided an argument, use it to determine which catalogs to update:
 
 | Argument | Catalog file(s) |
 |---|---|
-| `dell` | `catalogs/driverpack/dell.xml` |
-| `hp` | `catalogs/driverpack/hp.xml` |
-| `lenovo` | `catalogs/driverpack/lenovo.xml` |
-| `microsoft` | `catalogs/driverpack/microsoft.json` |
-| `panasonic` | `catalogs/driverpack/panasonic.json` |
-| `default` | `catalogs/driverpack/default.json` |
+| `dell` | `core/driverpacks/dell.xml` |
+| `hp` | `core/driverpacks/hp.xml` |
+| `lenovo` | `core/driverpacks/lenovo.xml` |
+| `microsoft` | `core/driverpacks/surface.json` |
+| `panasonic` | `core/driverpacks/panasonic.json` |
+| `default` | `core/driverpacks/default.json` |
 | `all` | All of the above |
 
 If no argument was provided, ask: **Which catalog(s) need updating?** (list the options above).
@@ -42,7 +42,7 @@ For each OEM XML catalog being refreshed:
 
 3. **Replace the local snapshot**:
    ```powershell
-   Copy-Item "$env:TEMP\DriverPackCatalog.xml" 'catalogs\driverpack\dell.xml' -Force
+   Copy-Item "$env:TEMP\DriverPackCatalog.xml" 'core\driverpacks\dell.xml' -Force
    ```
 
 4. **Do not edit the XML content** -- it is consumed as-is.
@@ -51,9 +51,9 @@ For each OEM XML catalog being refreshed:
 
 ---
 
-## Microsoft (Surface) -- microsoft.json
+## Microsoft (Surface) -- surface.json
 
-`microsoft.json` is the sole source of truth for Surface driver packs. `Get-OSDCloudCatalogSurface` reads it directly at runtime and enriches entries from live download pages for models that have an `UpdatePage` URL. **There is no `microsoft.xml` to regenerate.**
+`surface.json` is the sole source of truth for Surface driver packs. `Get-OSDCloudCatalogSurface` reads it directly at runtime and enriches entries from live download pages for models that have an `UpdatePage` URL. **There is no `surface.xml` to regenerate.**
 
 ### If adding or updating a model entry manually
 
@@ -74,12 +74,12 @@ Then:
 
 1. Set `CatalogVersion` and `ReleaseDate` to today's date in `YY.MM.DD` format.
 2. Set `Name` to `"Surface <Model> [<ReleaseDate>]"` (no "Microsoft" prefix in the Name field).
-3. Edit `catalogs/driverpack/microsoft.json` -- insert the new entry in the correct position (sort by Model name).
+3. Edit `core/driverpacks/surface.json` -- insert the new entry in the correct position (sort by Model name).
 4. Confirm the file is saved.
 
 ### Automated update via GitHub Actions
 
-The `update-catalog-microsoft.yaml` workflow runs `.github/scripts/Update-MicrosoftCatalog.ps1` every 4 hours and on demand. It scrapes every `UpdatePage` URL in `microsoft.json`, selects the best available MSI, and commits any changes automatically. Run `workflow_dispatch` to trigger an immediate update.
+The `update-catalog-microsoft.yaml` workflow runs `.github/scripts/Update-MicrosoftCatalog.ps1` every 4 hours and on demand. It scrapes every `UpdatePage` URL in `surface.json`, selects the best available MSI, and commits any changes automatically. Run `workflow_dispatch` to trigger an immediate update.
 
 ---
 
@@ -110,7 +110,7 @@ Then:
 
 ## Default (ARM64 / generic) -- default.json
 
-Ask the user for the new entry fields (same schema as `microsoft.json`):
+Ask the user for the new entry fields (same schema as `surface.json`):
 `CatalogVersion`, `ReleaseDate`, `Name`, `Manufacturer`, `Model`, `SystemId`, `FileName`, `Url`, `OperatingSystem`, `OSArchitecture`, `HashMD5`.
 
 Rules:
@@ -125,7 +125,7 @@ Rules:
 After all edits, confirm each item:
 
 - [ ] OEM XML snapshots replaced (Dell/HP/Lenovo as applicable)
-- [ ] `microsoft.json` edited (if applicable)
+- [ ] `surface.json` edited (if applicable)
 - [ ] `panasonic.json` updated with new `LastDateModified` (if applicable)
 - [ ] `default.json` updated (if applicable)
 - [ ] No manual edits made to Dell/HP/Lenovo XML content

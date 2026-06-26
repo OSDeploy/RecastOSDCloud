@@ -22,7 +22,7 @@ jobs:
         id: update
         shell: pwsh
         run: |
-          .\.github\scripts\Update-MicrosoftCatalog.ps1 -JsonPath 'OSDCloud\catalogs\driverpack\microsoft.json'
+          .\.github\scripts\Update-MicrosoftCatalog.ps1 -JsonPath 'OSDCloud\core\driverpacks\surface.json'
 
       - name: Commit if changed
         if: steps.update.outputs.changed == 'true'
@@ -31,7 +31,7 @@ jobs:
           git config user.name  'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
 
-          git add OSDCloud/catalogs/driverpack/microsoft.json
+          git add OSDCloud/core/driverpacks/surface.json
 
           if (git diff --cached --quiet) {
               Write-Host "No changes to commit."
