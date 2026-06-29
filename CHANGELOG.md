@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 26.6.29.1 - June 29, 2026
+
+### Changed
+
+- Module version bumped to `26.6.29.1`.
+- Refactored `Get-OSDCloudCatalogLenovo` by commenting out the redundant `HashMD5` grouping/sort pass when filtering the latest driver packs per model.
+
 ## 26.6.26.1 - June 26, 2026
 
 ### Changed
