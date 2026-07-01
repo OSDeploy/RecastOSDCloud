@@ -118,6 +118,7 @@ function Initialize-OSDCloudDevice {
     # Win32_OperatingSystem
     $classWin32OperatingSystem = Get-CimInstance -ClassName Win32_OperatingSystem | Select-Object -Property *
     $classWin32OperatingSystem | Out-File (Join-Path -Path $LogsPath -ChildPath 'Win32_OperatingSystem.txt') -Width 4096 -Force
+    $OSArchitecture = $classWin32OperatingSystem.OSArchitecture | ConvertTo-TrimmedString
     #=================================================
     # Win32_PnPEntity
     $classWin32PnPEntity = Get-CimInstance -ClassName Win32_PnPEntity | Select-Object -Property *
@@ -230,7 +231,7 @@ function Initialize-OSDCloudDevice {
                         [System.Text.EncoderFallback]::ReplacementFallback,
                         [System.Text.DecoderFallback]::ReplacementFallback
                     )
-                    
+
                     $dbText = $utf8Encoding.GetString($dbBytes)
                     if ([string]::IsNullOrWhiteSpace($dbText)) {
                         $dbText = [System.Text.Encoding]::ASCII.GetString($dbBytes)
@@ -467,6 +468,32 @@ function Initialize-OSDCloudDevice {
         $OSDProduct = 'Unknown'
     }
     #=================================================
+    #   OSDCloudProperty
+    #=================================================
+    # Use OSDCloudProperty to override these properties:
+    # OSDManufacturer
+    # OSDModel
+    # OSDProduct
+    # OSArchitecture
+    $ProcessorArchitecture = $env:PROCESSOR_ARCHITECTURE
+    if ($global:OSDCloudProperty) {
+        if ($global:OSDCloudProperty.OSDManufacturer) {
+            $OSDManufacturer = $global:OSDCloudProperty.OSDManufacturer
+        }
+        if ($global:OSDCloudProperty.OSDModel) {
+            $OSDModel = $global:OSDCloudProperty.OSDModel
+        }
+        if ($global:OSDCloudProperty.OSDProduct) {
+            $OSDProduct = $global:OSDCloudProperty.OSDProduct
+        }
+        if ($global:OSDCloudProperty.OSArchitecture) {
+            $OSArchitecture = $global:OSDCloudProperty.OSArchitecture
+        }
+        if ($global:OSDCloudProperty.ProcessorArchitecture) {
+            $ProcessorArchitecture = $global:OSDCloudProperty.ProcessorArchitecture
+        }
+    }
+    #=================================================
     #   Pass Variables to OSDCloudDevice
     #=================================================
     $global:OSDCloudDevice = $null
@@ -500,9 +527,9 @@ function Initialize-OSDCloudDevice {
         NetGateways               = $NetGateways
         NetIPAddress              = $NetIPAddress
         NetMacAddress             = $NetMacAddress
-        OSArchitecture            = $classWin32OperatingSystem.OSArchitecture
+        OSArchitecture            = $OSArchitecture
         OSVersion                 = $classWin32OperatingSystem.Version
-        ProcessorArchitecture     = $env:PROCESSOR_ARCHITECTURE
+        ProcessorArchitecture     = $ProcessorArchitecture
         SerialNumber              = $SerialNumber
         SystemFirmwareHardwareId  = $SystemFirmwareHardwareId
         TimeZone                  = $classWin32TimeZone.StandardName

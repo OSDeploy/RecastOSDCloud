@@ -6,19 +6,19 @@ function Get-OSDCloudProperty {
     .DESCRIPTION
         Returns the OSDCloud Property override values that control deployment configuration.
         By default, the effective values assembled from every method are returned: the module
-        defaults, the registry, the JSON file, the in-session $global:OSDCloudProperty layer, and
-        the session file ($env:SystemDrive\OSDCloudSession.json) are merged in increasing order of
-        precedence (Module < Registry < Json < In-session < Session), so the result reflects all
-        properties set by any source even when a deploy has not run yet.
-        Use -Source to inspect an individual layer (the module defaults, the registry, or the
-        JSON file) which is useful for troubleshooting override precedence.
+        defaults, the JSON file, the in-session $global:OSDCloudProperty layer, and the session
+        file ($env:SystemDrive\OSDCloudSession.json) are merged in increasing order of precedence
+        (Module < Json < In-session < Session), so the result reflects all properties set by any
+        source even when a deploy has not run yet.
+        Use -Source to inspect an individual layer (the module defaults or the JSON file) which
+        is useful for troubleshooting override precedence.
 
         With no -Name, all available Property values for the selected source are returned as a
         single object. With -Name, only the value for that property is returned.
 
-        When -Source is Registry or Json, every value stored at that location is returned,
-        including names that are not part of the Property whitelist. Whitelisting only governs
-        which values participate in the override layer, not what this cmdlet displays.
+        When -Source is Json, every value stored in the file is returned, including names that
+        are not part of the Property whitelist. Whitelisting only governs which values
+        participate in the override layer, not what this cmdlet displays.
 
     .PARAMETER Name
         The name of a single Property to return. When omitted, all properties for the source
@@ -27,18 +27,13 @@ function Get-OSDCloudProperty {
     .PARAMETER Source
         The layer to read from:
             Property (default) - the effective values merged from every method
-                                 (Module < Registry < Json < in-session < session file)
+                                 (Module < Json < in-session < session file)
             Module             - the module-default values shipped in core\OSDCloudProperty.json
-            Registry           - values stored under HKLM:\SOFTWARE\OSDCloud
             Json               - values stored in the Property JSON file
 
     .PARAMETER Path
         Optional path used when -Source is Json. Defaults to the environment-appropriate
         Property JSON path.
-
-    .PARAMETER RegistryPath
-        Optional registry key used when -Source is Registry. Defaults to
-        'HKLM:\SOFTWARE\OSDCloud'.
 
     .EXAMPLE
         Get-OSDCloudProperty
@@ -52,9 +47,9 @@ function Get-OSDCloudProperty {
         Returns the effective OSEdition override value.
 
     .EXAMPLE
-        Get-OSDCloudProperty -Source Registry
+        Get-OSDCloudProperty -Source Json
 
-        Returns the Property values stored in the registry.
+        Returns the Property values stored in the JSON file.
 
     .OUTPUTS
         System.Management.Automation.PSCustomObject
@@ -69,17 +64,13 @@ function Get-OSDCloudProperty {
         $Name,
 
         [Parameter(Mandatory = $false)]
-        [ValidateSet('Property', 'Module', 'Registry', 'Json')]
+        [ValidateSet('Property', 'Module', 'Json')]
         [System.String]
         $Source = 'Property',
 
         [Parameter(Mandatory = $false)]
         [System.String]
-        $Path,
-
-        [Parameter(Mandatory = $false)]
-        [System.String]
-        $RegistryPath = 'HKLM:\SOFTWARE\OSDCloud'
+        $Path
     )
 
     $Error.Clear()
@@ -121,30 +112,6 @@ function Get-OSDCloudProperty {
                 Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Module default JSON file not found: $modulePath"
             }
         }
-        'Registry' {
-            # Surface ALL values stored under the key for inspection, not just the whitelisted
-            # Property keys. Whitelisting only governs the override layer, not this display.
-            $values = [ordered]@{}
-            if (Test-Path -Path $RegistryPath) {
-                $registryValues = Get-ItemProperty -Path $RegistryPath -ErrorAction SilentlyContinue
-                if ($registryValues) {
-                    $excludedNames = @('PSPath', 'PSParentPath', 'PSChildName', 'PSDrive', 'PSProvider')
-                    foreach ($property in $registryValues.PSObject.Properties) {
-                        if ($property.Name -in $excludedNames) {
-                            continue
-                        }
-                        $typedValue = ConvertTo-OSDCloudPropertyValue -Name $property.Name -Value $property.Value
-                        if ($null -eq $typedValue) {
-                            $typedValue = $property.Value
-                        }
-                        $values[$property.Name] = $typedValue
-                    }
-                }
-            }
-            else {
-                Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Registry key not found: $RegistryPath"
-            }
-        }
         'Json' {
             # Surface ALL values stored in the JSON file for inspection, not just the whitelisted
             # Property keys.
@@ -176,10 +143,9 @@ function Get-OSDCloudProperty {
             # precedence so the result reflects all properties set by any source, even when a
             # deploy has not run yet:
             #   1. Module defaults (lowest) - core\OSDCloudProperty.json shipped with the module
-            #   2. Registry                 - HKLM:\SOFTWARE\OSDCloud
-            #   3. JSON file                - Property JSON file
-            #   4. In-session               - $global:OSDCloudProperty (parameters)
-            #   5. Session file (highest)   - $env:SystemDrive\OSDCloudSession.json (Set-OSDCloudProperty)
+            #   2. JSON file                - Property JSON file
+            #   3. In-session               - $global:OSDCloudProperty (parameters)
+            #   4. Session file (highest)   - $env:SystemDrive\OSDCloudSession.json (Set-OSDCloudProperty)
             $values = [ordered]@{}
 
             # Layer 1: Module defaults
@@ -197,13 +163,7 @@ function Get-OSDCloudProperty {
                 }
             }
 
-            # Layer 2: Registry
-            $registryValues = Get-OSDCloudPropertyFromRegistry -Path $RegistryPath
-            foreach ($key in $registryValues.Keys) {
-                $values[$key] = $registryValues[$key]
-            }
-
-            # Layer 3: JSON file
+            # Layer 2: JSON file
             $jsonValues = if ($PSBoundParameters.ContainsKey('Path')) {
                 Get-OSDCloudPropertyFromJson -Path $Path
             }
@@ -214,14 +174,14 @@ function Get-OSDCloudProperty {
                 $values[$key] = $jsonValues[$key]
             }
 
-            # Layer 4: In-session overrides
+            # Layer 3: In-session overrides
             if ($global:OSDCloudProperty) {
                 foreach ($key in $global:OSDCloudProperty.Keys) {
                     $values[$key] = $global:OSDCloudProperty[$key]
                 }
             }
 
-            # Layer 5: Session persistence file (highest precedence) - values written by
+            # Layer 4: Session persistence file (highest precedence) - values written by
             # Set-OSDCloudProperty to $env:SystemDrive\OSDCloudSession.json
             $sessionPath = Join-Path -Path "$env:SystemDrive\" -ChildPath 'OSDCloudSession.json'
             if (Test-Path -Path $sessionPath -PathType Leaf) {

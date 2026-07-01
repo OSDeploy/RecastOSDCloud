@@ -64,7 +64,7 @@ function Deploy-OSDCloudCLI {
 
         #=================================================
         # Initialize OSDCloudWorkflow
-        # Override values (Parameters > JSON > Registry) are assembled into $global:OSDCloudProperty
+        # Override values (Parameters > JSON) are assembled into $global:OSDCloudProperty
         # and applied to $global:OSDCloudDeploy - including operating system resolution - inside
         # Initialize-OSDCloudDeploy.
         $WorkflowName = 'cli'
