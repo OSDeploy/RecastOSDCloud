@@ -28,6 +28,8 @@
         'Get-OSDCloudCache',
         'Get-OSDCloudModulePath',
         'Get-OSDCloudModuleVersion',
+        'Get-OSDCloudProperty',
+        'Set-OSDCloudProperty',
         'Show-OSDCloudDeviceInfo',
         'Invoke-WinPEStartup',
         'Invoke-WinPEStartupManager',
