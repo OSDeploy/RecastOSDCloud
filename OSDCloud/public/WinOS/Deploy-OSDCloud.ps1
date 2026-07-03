@@ -29,6 +29,10 @@ function Deploy-OSDCloud {
     .PARAMETER Force
         Suppresses supported confirmation prompts for destructive workflow steps.
 
+    .PARAMETER ProfileName
+        The full OS profile name used to resolve the Env file path. Defaults to 'default'.
+        Ignored in WinPE.
+
     .EXAMPLE
         Deploy-OSDCloud
 
@@ -49,6 +53,11 @@ function Deploy-OSDCloud {
         Deploy-OSDCloud -CLI -OperatingSystem 'Windows 11 24H2' -OSEdition 'Enterprise'
 
         Runs in CLI mode using dynamic runtime overrides from the selected workflow.
+
+    .EXAMPLE
+        Deploy-OSDCloud -ProfileName 'Lab'
+
+        Launches the OSDCloud graphical UX using the 'Lab' profile Env path.
 
     .OUTPUTS
         System.Void
@@ -75,7 +84,33 @@ function Deploy-OSDCloud {
 
         [Parameter(Mandatory = $false)]
         [System.Management.Automation.SwitchParameter]
-        $Force
+        $Force,
+
+        [Parameter(Mandatory = $false)]
+        [ArgumentCompleter({
+            param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
+
+            $profileNames = @('default')
+            if ($env:SystemDrive -ne 'X:' -and $env:ProgramData) {
+                $profileRoot = Join-Path -Path $env:ProgramData -ChildPath 'OSDeployCore\OSDCloud\Profiles'
+                if (Test-Path -Path $profileRoot -PathType Container) {
+                    $directoryNames = Get-ChildItem -Path $profileRoot -Directory -ErrorAction SilentlyContinue |
+                        Select-Object -ExpandProperty Name
+                    if ($directoryNames) {
+                        $profileNames += $directoryNames
+                    }
+                }
+            }
+
+            foreach ($profileName in ($profileNames | Sort-Object -Unique)) {
+                if ($profileName -like "$wordToComplete*") {
+                    [System.Management.Automation.CompletionResult]::new($profileName, $profileName, 'ParameterValue', $profileName)
+                }
+            }
+        })]
+        [ValidateNotNullOrEmpty()]
+        [System.String]
+        $ProfileName = 'default'
     )
 
     dynamicparam {
@@ -92,8 +127,11 @@ function Deploy-OSDCloud {
         Write-Host -ForegroundColor DarkGray 'https://github.com/OSDeploy/OSDCloud/blob/main/PRIVACY.md'
         Write-Host
 
-        $propertyParameters = ConvertTo-OSDCloudPropertyParameter -BoundParameters $PSBoundParameters
-        Initialize-OSDCloudDeploy -WorkflowName $WorkflowName -PropertyParameters $propertyParameters
+        $envParameters = @{}
+        if (Get-Command -Name 'ConvertTo-OSDCloudEnvParameter' -ErrorAction SilentlyContinue) {
+            $envParameters = ConvertTo-OSDCloudEnvParameter -BoundParameters $PSBoundParameters
+        }
+        Initialize-OSDCloudDeploy -WorkflowName $WorkflowName -EnvParameters $envParameters -ProfileName $ProfileName
 
         if ($CLI.IsPresent) {
             Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Invoke-OSDCloudWorkflowTask"

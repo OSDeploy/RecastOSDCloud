@@ -14,6 +14,10 @@ function Deploy-OSDCloudCLI {
     .PARAMETER Force
         Skips confirmation prompts for destructive workflow steps that support force behavior.
 
+    .PARAMETER ProfileName
+        The full OS profile name used to resolve the Env file path. Defaults to 'default'.
+        Ignored in WinPE.
+
     .EXAMPLE
         Deploy-OSDCloudCLI
 
@@ -39,6 +43,11 @@ function Deploy-OSDCloudCLI {
 
         Runs the default workflow and suppresses supported confirmation prompts.
 
+    .EXAMPLE
+        Deploy-OSDCloudCLI -ProfileName 'Lab'
+
+        Runs the CLI workflow using the 'Lab' profile Env path.
+
     .OUTPUTS
         System.Void
 
@@ -51,7 +60,33 @@ function Deploy-OSDCloudCLI {
     param (
         [Parameter(Mandatory = $false)]
         [System.Management.Automation.SwitchParameter]
-        $Force
+        $Force,
+
+        [Parameter(Mandatory = $false)]
+        [ArgumentCompleter({
+            param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
+
+            $profileNames = @('default')
+            if ($env:SystemDrive -ne 'X:' -and $env:ProgramData) {
+                $profileRoot = Join-Path -Path $env:ProgramData -ChildPath 'OSDeployCore\OSDCloud\Profiles'
+                if (Test-Path -Path $profileRoot -PathType Container) {
+                    $directoryNames = Get-ChildItem -Path $profileRoot -Directory -ErrorAction SilentlyContinue |
+                        Select-Object -ExpandProperty Name
+                    if ($directoryNames) {
+                        $profileNames += $directoryNames
+                    }
+                }
+            }
+
+            foreach ($profileName in ($profileNames | Sort-Object -Unique)) {
+                if ($profileName -like "$wordToComplete*") {
+                    [System.Management.Automation.CompletionResult]::new($profileName, $profileName, 'ParameterValue', $profileName)
+                }
+            }
+        })]
+        [ValidateNotNullOrEmpty()]
+        [System.String]
+        $ProfileName = 'default'
     )
 
     dynamicparam {
@@ -64,12 +99,15 @@ function Deploy-OSDCloudCLI {
 
         #=================================================
         # Initialize OSDCloudWorkflow
-        # Override values (Parameters > JSON) are assembled into $global:OSDCloudProperty
+        # Override values (Parameters > ENV) are assembled into $global:OSDCloudEnv
         # and applied to $global:OSDCloudDeploy - including operating system resolution - inside
         # Initialize-OSDCloudDeploy.
         $WorkflowName = 'cli'
-        $propertyParameters = ConvertTo-OSDCloudPropertyParameter -BoundParameters $PSBoundParameters
-        Initialize-OSDCloudDeploy -WorkflowName $WorkflowName -PropertyParameters $propertyParameters
+        $envParameters = @{}
+        if (Get-Command -Name 'ConvertTo-OSDCloudEnvParameter' -ErrorAction SilentlyContinue) {
+            $envParameters = ConvertTo-OSDCloudEnvParameter -BoundParameters $PSBoundParameters
+        }
+        Initialize-OSDCloudDeploy -WorkflowName $WorkflowName -EnvParameters $envParameters -ProfileName $ProfileName
 
         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OperatingSystem: $($global:OSDCloudDeploy.OperatingSystem)"
         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSEdition: $($global:OSDCloudDeploy.OSEdition)"
