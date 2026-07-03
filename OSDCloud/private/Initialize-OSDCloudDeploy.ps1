@@ -6,12 +6,28 @@ function Initialize-OSDCloudDeploy {
             ValueFromPipelineByPropertyName = $true)]
         [Alias('Name')]
         [System.String]
-        $WorkflowName = 'default'
+        $WorkflowName = 'default',
+
+        [Parameter(Mandatory = $false)]
+        [System.Collections.IDictionary]
+        $EnvParameters,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [System.String]
+        $ProfileName = 'default'
     )
     $ErrorActionPreference = 'Stop'
     #=================================================
     # Get module details
     $ModuleVersion = $($MyInvocation.MyCommand.Module.Version)
+    #=================================================
+    # OSDCloud Env override layer
+    # Assemble $global:OSDCloudEnv early so initial property resolution can consume
+    # values from the selected profile and parameter overrides.
+    if (Get-Command -Name 'Initialize-OSDCloudEnv' -ErrorAction SilentlyContinue) {
+        Initialize-OSDCloudEnv -Parameters $EnvParameters -ProfileName $ProfileName | Out-Null
+    }
     #=================================================
     # Dependencies
     # Make sure curl.exe is present and throw if not
@@ -40,9 +56,9 @@ function Initialize-OSDCloudDeploy {
     #=================================================
     # OSDCloudDevice
     if (-not ($global:OSDCloudDevice)) {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Initialize OSDCloud Device $ModuleVersion"
-        Initialize-OSDCloudDevice
     }
+    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Initialize OSDCloud Device $ModuleVersion"
+    Initialize-OSDCloudDevice
     #=================================================
     # OSDCloudWorkflowTasks
     # Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Initialize OSDCloud Tasks"
@@ -69,7 +85,7 @@ function Initialize-OSDCloudDeploy {
     # Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Get OSDCloud OperatingSystems"
 
     # Limit to matching Processor Architecture
-    $ProcessorArchitecture = $env:PROCESSOR_ARCHITECTURE
+    $ProcessorArchitecture = $global:OSDCloudDevice.ProcessorArchitecture
     $global:DeployOSDCloudOperatingSystems = Get-OSDCloudCoreOperatingSystems | Where-Object { $_.OSArchitecture -match "$ProcessorArchitecture" }
 
     # Need to fail if no OS found for Architecture
@@ -110,6 +126,26 @@ function Initialize-OSDCloudDeploy {
     $OSLanguageCode = $global:OSDCloudWorkflowSettingsOS.OSLanguageCode.default
     $OSLanguageCodeValues = [array]$global:OSDCloudWorkflowSettingsOS.OSLanguageCode.values
     $OSVersion = ($global:OSDCloudWorkflowSettingsOS.OperatingSystem.default -split ' ')[2]
+    #=================================================
+    #   OSDCloudEnv
+    #=================================================
+    # Use OSDCloudEnv to override these properties:
+    #   OperatingSystem, OSEdition, OSActivation, OSLanguageCode
+    if ($global:OSDCloudEnv) {
+        if ($global:OSDCloudEnv.OperatingSystem) {
+            $OperatingSystem = $global:OSDCloudEnv.OperatingSystem
+        }
+        if ($global:OSDCloudEnv.OSEdition) {
+            $OSEdition = $global:OSDCloudEnv.OSEdition
+            $OSEditionId = ($OSEditionValues | Where-Object { $_.Edition -eq $OSEdition }).EditionId
+        }
+        if ($global:OSDCloudEnv.OSActivation) {
+            $OSActivation = $global:OSDCloudEnv.OSActivation
+        }
+        if ($global:OSDCloudEnv.OSLanguageCode) {
+            $OSLanguageCode = $global:OSDCloudEnv.OSLanguageCode
+        }
+    }
     #=================================================
     # OperatingSystemObject
     $OperatingSystemObject = $global:DeployOSDCloudOperatingSystems | Where-Object { $_.OperatingSystem -match $OperatingSystem } | Where-Object { $_.OSActivation -eq $OSActivation } | Where-Object { $_.OSLanguageCode -eq $OSLanguageCode }
@@ -179,6 +215,13 @@ function Initialize-OSDCloudDeploy {
         WorkflowName              = $WorkflowName
         WorkflowTaskName          = $WorkflowTaskName
         WorkflowTaskObject        = $WorkflowTaskObject
+    }
+    #=================================================
+    # OSDCloud Env override layer
+    # Apply the pre-assembled overrides onto $global:OSDCloudDeploy so they take effect
+    # everywhere.
+    if (Get-Command -Name 'Set-OSDCloudEnvOverride' -ErrorAction SilentlyContinue) {
+        Set-OSDCloudEnvOverride -Target $global:OSDCloudDeploy -ResolveOperatingSystem -AddMissingKeys
     }
     #=================================================
 }

@@ -468,29 +468,29 @@ function Initialize-OSDCloudDevice {
         $OSDProduct = 'Unknown'
     }
     #=================================================
-    #   OSDCloudProperty
+    #   OSDCloudEnv
     #=================================================
-    # Use OSDCloudProperty to override these properties:
+    # Use OSDCloudEnv to override these properties:
     # OSDManufacturer
     # OSDModel
     # OSDProduct
     # OSArchitecture
     $ProcessorArchitecture = $env:PROCESSOR_ARCHITECTURE
-    if ($global:OSDCloudProperty) {
-        if ($global:OSDCloudProperty.OSDManufacturer) {
-            $OSDManufacturer = $global:OSDCloudProperty.OSDManufacturer
+    if ($global:OSDCloudEnv) {
+        if ($global:OSDCloudEnv.OSDManufacturer) {
+            $OSDManufacturer = $global:OSDCloudEnv.OSDManufacturer
         }
-        if ($global:OSDCloudProperty.OSDModel) {
-            $OSDModel = $global:OSDCloudProperty.OSDModel
+        if ($global:OSDCloudEnv.OSDModel) {
+            $OSDModel = $global:OSDCloudEnv.OSDModel
         }
-        if ($global:OSDCloudProperty.OSDProduct) {
-            $OSDProduct = $global:OSDCloudProperty.OSDProduct
+        if ($global:OSDCloudEnv.OSDProduct) {
+            $OSDProduct = $global:OSDCloudEnv.OSDProduct
         }
-        if ($global:OSDCloudProperty.OSArchitecture) {
-            $OSArchitecture = $global:OSDCloudProperty.OSArchitecture
+        if ($global:OSDCloudEnv.OSArchitecture) {
+            $OSArchitecture = $global:OSDCloudEnv.OSArchitecture
         }
-        if ($global:OSDCloudProperty.ProcessorArchitecture) {
-            $ProcessorArchitecture = $global:OSDCloudProperty.ProcessorArchitecture
+        if ($global:OSDCloudEnv.ProcessorArchitecture) {
+            $ProcessorArchitecture = $global:OSDCloudEnv.ProcessorArchitecture
         }
     }
     #=================================================
