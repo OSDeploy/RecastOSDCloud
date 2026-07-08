@@ -28,7 +28,7 @@ function Get-OSDCloudCatalogLenovo {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Start"
         #=================================================
         # Catalogs
-        $localDriverPackCatalog = Join-Path (Get-OSDCloudModulePath) $OSDCloudModule.lenovo.driverpackcataloglocal
+        $localDriverPackCatalog = Join-Path $($MyInvocation.MyCommand.Module.ModuleBase) $OSDCloudModule.lenovo.driverpackcataloglocal
         $oemDriverPackCatalog = $OSDCloudModule.lenovo.driverpackcatalogoem
         $tempCatalogPath = "$($env:TEMP)\osdcloud-driverpack-lenovo.xml"
         #=================================================

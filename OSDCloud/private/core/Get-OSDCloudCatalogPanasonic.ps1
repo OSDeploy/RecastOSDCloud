@@ -6,7 +6,7 @@ function Get-OSDCloudCatalogPanasonic {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Start"
         #=================================================
         # Catalogs
-        $localDriverPackCatalog = Join-Path (Get-OSDCloudModulePath) $OSDCloudModule.panasonic.driverpackcataloglocal
+        $localDriverPackCatalog = Join-Path $($MyInvocation.MyCommand.Module.ModuleBase) $OSDCloudModule.panasonic.driverpackcataloglocal
         $oemDriverPackCatalog = $OSDCloudModule.panasonic.driverpackcatalogoem
         $tempCatalogPath = "$($env:TEMP)\osdcloud-driverpack-panasonic.json"
         #=================================================
