@@ -45,7 +45,12 @@ function Initialize-OSDCloudDevice {
     #=================================================
     $Error.Clear()
     #=================================================
-    Sync-WinpeInternetDateTime -ThresholdMinutes 5 -Force
+    try {
+        Sync-OSDCloudDateTime -ThresholdMinutes 5 -Force -ErrorAction Stop
+    }
+    catch {
+        Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Unable to sync date/time: $($_.Exception.Message)"
+    }
     #=================================================
     # Set the osdcloud-logs Path
     $LogsPath = "$env:TEMP\osdcloud-logs"
