@@ -18,7 +18,7 @@ function Get-OSDCloudWorkflowRuntimeParameter {
         'default' or 'cli'.
 
     .PARAMETER ModuleBase
-        The OSDCloud module base path. Typically $MyInvocation.MyCommand.Module.ModuleBase from
+        The OSDCloud module base path. Typically $($MyInvocation.MyCommand.Module.ModuleBase) from
         the calling cmdlet.
 
     .EXAMPLE
