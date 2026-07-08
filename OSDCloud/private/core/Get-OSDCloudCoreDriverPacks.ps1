@@ -20,18 +20,17 @@ PSCustomObject
 Array of driver pack objects containing driver information for the specified manufacturer and architecture.
 
 .EXAMPLE
-PS> Get-CoreDriverPacks
+PS> Get-OSDCloudCoreDriverPacks
 Returns driver packs for the current device's manufacturer and architecture.
 
 .EXAMPLE
-PS> Get-CoreDriverPacks -Manufacturer 'Dell' -ProcessorArchitecture 'amd64'
+PS> Get-OSDCloudCoreDriverPacks -Manufacturer 'Dell' -ProcessorArchitecture 'amd64'
 Returns driver packs for Dell devices with AMD64 architecture.
 
 .NOTES
-Requires Get-OSDCloudModulePath to be available.
 Requires manufacturer-specific cmdlets (Get-OSDCloudCatalogDell, Get-OSDCloudCatalogHp, etc.) to be available.
 #>
-function Get-CoreDriverPacks {
+function Get-OSDCloudCoreDriverPacks {
     [CmdletBinding()]
     param (
         [System.String]
@@ -41,7 +40,7 @@ function Get-CoreDriverPacks {
     )
 
     # Load default catalog once
-    $GenericCatalogPath = Join-Path (Get-OSDCloudModulePath) $OSDCloudModule.generic.driverpackcataloglocal
+    $GenericCatalogPath = Join-Path $($MyInvocation.MyCommand.Module.ModuleBase) $OSDCloudModule.generic.driverpackcataloglocal
     $DefaultCatalog = Get-Content -Path $GenericCatalogPath -Raw | ConvertFrom-Json
 
     if ($ProcessorArchitecture -eq 'amd64') {
