@@ -44,6 +44,7 @@ function Initialize-OSDCloudDevice {
     }
     #=================================================
     $Error.Clear()
+    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)]"
     #=================================================
     try {
         Sync-OSDCloudDateTime -ThresholdMinutes 5 -Force -ErrorAction Stop
