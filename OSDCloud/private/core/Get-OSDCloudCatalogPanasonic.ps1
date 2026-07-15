@@ -17,7 +17,7 @@ function Get-OSDCloudCatalogPanasonic {
                 $sourceContent = Invoke-RestMethod -Uri $oemDriverPackCatalog -UseBasicParsing -ErrorAction Stop
 
                 if ($sourceContent) {
-                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Processing $tempCatalogPath"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $tempCatalogPath"
                     $sourceContent | Out-File -FilePath $tempCatalogPath -Encoding utf8 -Force
                     $JsonCatalogContent = $sourceContent
                 }

@@ -39,7 +39,7 @@ function Get-OSDCloudCatalogLenovo {
                 $sourceContent = Invoke-RestMethod -Uri $oemDriverPackCatalog -UseBasicParsing -ErrorAction Stop
 
                 if ($sourceContent) {
-                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Processing $tempCatalogPath"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $tempCatalogPath"
                     # Remove BOM (Byte Order Mark) from the beginning of the content
                     $catalogContent = $sourceContent.Substring(3)
                     $catalogContent | Out-File -FilePath $tempCatalogPath -Encoding utf8 -Force
