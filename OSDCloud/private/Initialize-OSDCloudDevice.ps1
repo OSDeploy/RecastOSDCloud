@@ -1,3 +1,31 @@
+<#
+.SYNOPSIS
+Collects local hardware, firmware, TPM, and network details for OSDCloud.
+
+.DESCRIPTION
+Initialize-OSDCloudDevice gathers device information from CIM classes, firmware,
+and environment data, then normalizes manufacturer/model/product values for
+workflow use. It writes diagnostic logs to $env:TEMP\osdcloud-logs, attempts to
+copy logs to an available OSDCloudLogs path, and populates
+$global:OSDCloudDevice with an ordered property set used by downstream OSDCloud
+deployment logic.
+
+.EXAMPLE
+Initialize-OSDCloudDevice
+
+Collects current device metadata, creates or updates
+$global:OSDCloudDevice, and writes log artifacts for troubleshooting.
+
+.OUTPUTS
+None. This function does not emit pipeline output.
+
+.NOTES
+Side effects:
+- Clears the current PowerShell error collection.
+- Updates date/time in WinPE when needed.
+- Writes logs to $env:TEMP\osdcloud-logs.
+- Sets $global:OSDCloudDevice.
+#>
 function Initialize-OSDCloudDevice {
     [CmdletBinding()]
     param ()
@@ -16,8 +44,14 @@ function Initialize-OSDCloudDevice {
     }
     #=================================================
     $Error.Clear()
+    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)]"
     #=================================================
-    Sync-WinpeInternetDateTime -ThresholdMinutes 5 -Force
+    try {
+        Sync-OSDCloudDateTime -ThresholdMinutes 5 -Force -ErrorAction Stop
+    }
+    catch {
+        Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Unable to sync date/time: $($_.Exception.Message)"
+    }
     #=================================================
     # Set the osdcloud-logs Path
     $LogsPath = "$env:TEMP\osdcloud-logs"
