@@ -1,17 +1,41 @@
-<#
-.SYNOPSIS
-New-OSDDisk Private Function
-
-.DESCRIPTION
-New-OSDDisk Private Function
-
-.LINK
-https://github.com/OSDeploy/OSD/tree/master/Docs
-
-.NOTES
-19.10.10     Created by David Segura @SeguraOSD
-#>
 function New-OSDCloudPartitionWindows {
+    <#
+    .SYNOPSIS
+    Creates the Windows and optional recovery partitions.
+
+    .DESCRIPTION
+    Builds partition layouts for GPT or MBR systems, formats partitions, and
+    assigns expected drive letters for Windows deployment workflows.
+
+    .PARAMETER DiskNumber
+    Target disk number.
+
+    .PARAMETER LabelRecovery
+    Label to apply to the recovery partition.
+
+    .PARAMETER LabelWindows
+    Label to apply to the Windows partition.
+
+    .PARAMETER PartitionStyle
+    Partition style to use, GPT or MBR. If omitted, style is inferred.
+
+    .PARAMETER SizeRecovery
+    Recovery partition size when recovery is created.
+
+    .PARAMETER NoRecoveryPartition
+    Skips creation of the recovery partition.
+
+    .EXAMPLE
+    New-OSDPartitionWindows -DiskNumber 0 -PartitionStyle GPT
+    Creates Windows and recovery partitions on disk 0.
+
+    .LINK
+    https://github.com/OSDeploy/OSD/tree/master/docs
+
+    .NOTES
+    Author: David Segura - Recast Software
+    2026-07-16 - Moved help block inside function and normalized required sections
+    #>
     [CmdletBinding()]
     param (
         #Fixed Disk Number
@@ -20,13 +44,13 @@ function New-OSDCloudPartitionWindows {
         #Alias = Disk, Number
         [Alias('Disk','Number')]
         [int]$DiskNumber = 0,
-        
+
         #Drive Label of the Recovery Partition
         #Default = Recovery
         #Alias = LR, LabelR
         [Alias('LR','LabelR')]
         [string]$LabelRecovery = 'Recovery',
-        
+
         #Drive Label of the Windows Partition
         #Default = OS
         #Alias = LW, LabelW
@@ -86,7 +110,7 @@ function New-OSDCloudPartitionWindows {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] DISKPART> assign letter C"
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] DISKPART> exit"
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Formatting GPT Windows Partition NTFS with Label $LabelWindows on Drive Letter C"
-        
+
 $null = @"
 select disk $DiskNumber
 select partition $($PartitionWindows.PartitionNumber)
@@ -146,7 +170,7 @@ exit
     if ($PartitionStyle -eq 'MBR' -and $NoRecoveryPartition -eq $true) {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Creating MBR Windows Partition"
         $PartitionWindows = New-Partition -DiskNumber $DiskNumber -UseMaximumSize -MbrType IFS -DriveLetter C
-    
+
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Format-Volume -DriveLetter C -FileSystem NTFS -NewFileSystemLabel $LabelWindows"
         #$null = Format-Volume -Partition $PartitionWindows -NewFileSystemLabel "$LabelWindows" -FileSystem NTFS -Force -Confirm:$false
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Formatting MBR Recovery Partition NTFS with Label $LabelRecovery on Drive Letter R"
