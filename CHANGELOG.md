@@ -4,6 +4,32 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 26.7.22.1 - July 22, 2026
+
+### Added
+
+- Added module-level `osdcloud.env` defaults for organization and deployment branch values.
+- Added environment and profile support for pre-seeding deployment settings and overriding device and operating system selections.
+- Added dynamic workflow runtime parameters generated from workflow operating system and task definitions.
+- Added centralized download handling with curl validation, error handling, and improved warnings.
+- Added `Sync-OSDCloudDateTime` error handling for internet time synchronization.
+- Added `Get-DeploymentDiskObject` and reorganized disk-management helpers for deployment disk filtering and partition operations.
+- Added Windows 11 25H2 operating system catalog build `26200.8873`.
+- Added detailed documentation for disk-management and device-initialization functions, plus an ENV files guide.
+
+### Changed
+
+- Module version bumped to `26.7.22.1`.
+- Updated `Deploy-OSDCloud` and `Deploy-OSDCloudCLI` to share workflow parameter discovery, support profile selection, and handle dynamic operating system, edition, activation, language, and task parameters.
+- Updated deployment and device initialization to apply environment overrides for manufacturer, model, product, architecture, operating system, edition, activation, and language settings.
+- Updated driver pack catalog retrieval to use the core driver pack function and module-relative catalog paths.
+- Improved module path resolution, workflow parameter handling, download diagnostics, catalog loading messages, date/time synchronization, and deployment logging.
+- Improved device initialization documentation and retained deployment architecture detection from collected device information.
+
+### Removed
+
+- Removed the superseded disk-management helper layout in favor of the reorganized disk implementation.
+
 ## 26.6.29.1 - June 29, 2026
 
 ### Changed
