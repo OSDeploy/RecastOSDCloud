@@ -114,12 +114,16 @@ function Deploy-OSDCloud {
     )
 
     dynamicparam {
-        $moduleBase = $MyInvocation.MyCommand.Module.ModuleBase
+        $moduleBase = $($MyInvocation.MyCommand.Module.ModuleBase)
         $resolvedWorkflowName = if ($PSBoundParameters.ContainsKey('WorkflowName')) { [System.String]$PSBoundParameters['WorkflowName'] } else { 'default' }
         return Get-OSDCloudWorkflowRuntimeParameter -WorkflowName $resolvedWorkflowName -ModuleBase $moduleBase
     }
 
     end {
+        #=================================================
+        $ModuleVersion = $($MyInvocation.MyCommand.Module.Version)
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] $ModuleVersion"
+
         Write-Host -ForegroundColor DarkCyan 'OSDCloud collects analytic data during the deployment process to help improve the product and user experience.'
         Write-Host -ForegroundColor DarkCyan 'No personally identifiable information (PII) is collected, and all data is anonymized to protect user privacy.'
         Write-Host -ForegroundColor DarkCyan 'Collected data includes information about the deployment environment and system configuration.'
@@ -129,7 +133,7 @@ function Deploy-OSDCloud {
 
         $envParameters = @{}
         if (Get-Command -Name 'ConvertTo-OSDCloudEnvParameter' -ErrorAction SilentlyContinue) {
-            $envParameters = ConvertTo-OSDCloudEnvParameter -BoundParameters $PSBoundParameters
+            # $envParameters = ConvertTo-OSDCloudEnvParameter -BoundParameters $PSBoundParameters
         }
         Initialize-OSDCloudDeploy -WorkflowName $WorkflowName -EnvParameters $envParameters -ProfileName $ProfileName
 

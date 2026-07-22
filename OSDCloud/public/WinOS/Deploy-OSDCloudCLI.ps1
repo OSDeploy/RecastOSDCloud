@@ -90,7 +90,7 @@ function Deploy-OSDCloudCLI {
     )
 
     dynamicparam {
-        $moduleBase = $MyInvocation.MyCommand.Module.ModuleBase
+        $moduleBase = $($MyInvocation.MyCommand.Module.ModuleBase)
         return Get-OSDCloudWorkflowRuntimeParameter -WorkflowName 'cli' -ModuleBase $moduleBase
     }
 

@@ -7,9 +7,7 @@ function step-Add-WindowsDriver-OemWinRE {
     $Step = $global:OSDCloudCurrentStep
     #=================================================
     $LogPath = "C:\Windows\Temp\osdcloud-logs"
-
     $DriverPath = "C:\Windows\Temp\osdcloud-drivers-winpe"
-
     $WinrePath = "C:\Windows\System32\Recovery\winre.wim"
     $WinreMountPath = "C:\Windows\Temp\mount-winre"
 
