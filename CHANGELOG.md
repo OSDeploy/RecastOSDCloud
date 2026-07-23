@@ -25,6 +25,7 @@ All notable changes to this project will be documented in this file.
 - Updated driver pack catalog retrieval to use the core driver pack function and module-relative catalog paths.
 - Improved module path resolution, workflow parameter handling, download diagnostics, catalog loading messages, date/time synchronization, and deployment logging.
 - Improved device initialization documentation and retained deployment architecture detection from collected device information.
+- Updated the privacy policy with detailed deployment analytics, local device data and log handling, external service disclosures, and user choices.
 
 ### Removed
 
