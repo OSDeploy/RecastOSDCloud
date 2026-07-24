@@ -11,6 +11,7 @@
     </command:details>
     <maml:description>
       <maml:para>Initializes and runs an OSDCloud deployment workflow. By default, launches the graphical UI (UX) so the operator can configure deployment settings before starting. Use -CLI to skip the UI and immediately begin the workflow in the current console session.</maml:para>
+      <maml:para>In addition to the static parameters documented here, workflow-specific runtime parameters are added dynamically from the selected workflow definition.</maml:para>
       <maml:para>OSDCloud collects anonymous analytic data about the deployment environment and system configuration to help improve the product. No personally identifiable information (PII) is collected. By using OSDCloud you consent to this collection as described in the privacy policy: https://github.com/OSDeploy/OSDCloud/blob/main/PRIVACY.md</maml:para>
     </maml:description>
     <command:syntax>
@@ -39,6 +40,77 @@
           </dev:type>
           <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>Force</maml:name>
+          <maml:description>
+            <maml:para>Suppresses supported confirmation prompts for destructive workflow steps.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>ProfileName</maml:name>
+          <maml:description>
+            <maml:para>The full OS profile name used to resolve the Env file path. Defaults to 'default'. Ignored in WinPE.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>Default</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>OperatingSystem</maml:name>
+          <maml:description>
+            <maml:para>{{ Fill OperatingSystem Description }}</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>OSActivation</maml:name>
+          <maml:description>
+            <maml:para>{{ Fill OSActivation Description }}</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>OSEdition</maml:name>
+          <maml:description>
+            <maml:para>{{ Fill OSEdition Description }}</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>OSLanguageCode</maml:name>
+          <maml:description>
+            <maml:para>{{ Fill OSLanguageCode Description }}</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="proga">
           <maml:name>ProgressAction</maml:name>
           <maml:description>
@@ -47,6 +119,18 @@
           <command:parameterValue required="true" variableLength="false">ActionPreference</command:parameterValue>
           <dev:type>
             <maml:name>ActionPreference</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>Task</maml:name>
+          <maml:description>
+            <maml:para>{{ Fill Task Description }}</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -78,6 +162,78 @@
         </dev:type>
         <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>Force</maml:name>
+        <maml:description>
+          <maml:para>Suppresses supported confirmation prompts for destructive workflow steps.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>ProfileName</maml:name>
+        <maml:description>
+          <maml:para>The full OS profile name used to resolve the Env file path. Defaults to 'default'. Ignored in WinPE.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>Default</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>OperatingSystem</maml:name>
+        <maml:description>
+          <maml:para>{{ Fill OperatingSystem Description }}</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>OSActivation</maml:name>
+        <maml:description>
+          <maml:para>{{ Fill OSActivation Description }}</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>OSEdition</maml:name>
+        <maml:description>
+          <maml:para>{{ Fill OSEdition Description }}</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>OSLanguageCode</maml:name>
+        <maml:description>
+          <maml:para>{{ Fill OSLanguageCode Description }}</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="proga">
         <maml:name>ProgressAction</maml:name>
         <maml:description>
@@ -86,6 +242,18 @@
         <command:parameterValue required="true" variableLength="false">ActionPreference</command:parameterValue>
         <dev:type>
           <maml:name>ActionPreference</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>Task</maml:name>
+        <maml:description>
+          <maml:para>{{ Fill Task Description }}</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -104,7 +272,7 @@
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para>This command writes deployment status to the host and starts workflow tasks. In GUI mode, workflow execution starts only after the operator clicks Start.</maml:para>
+        <maml:para>This command writes deployment status to the host and starts workflow tasks. In GUI mode, workflow execution starts only after the operator clicks Start. Runtime parameters are provided by Get-OSDCloudWorkflowRuntimeParameter.</maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
@@ -129,6 +297,20 @@
           <maml:para>Launches the graphical UX for the 'latest' workflow.</maml:para>
         </dev:remarks>
       </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
+        <dev:code>Deploy-OSDCloud -CLI -OperatingSystem 'Windows 11 24H2' -OSEdition 'Enterprise'</dev:code>
+        <dev:remarks>
+          <maml:para>Runs in CLI mode using dynamic runtime overrides from the selected workflow.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 5 --------------------------</maml:title>
+        <dev:code>Deploy-OSDCloud -ProfileName 'Lab'</dev:code>
+        <dev:remarks>
+          <maml:para>Launches the OSDCloud graphical UX using the 'Lab' profile Env path.</maml:para>
+        </dev:remarks>
+      </command:example>
     </command:examples>
     <command:relatedLinks>
       <maml:navigationLink>
@@ -148,20 +330,22 @@
     </command:details>
     <maml:description>
       <maml:para>Initializes and runs an OSDCloud deployment workflow directly in the current console session without launching the graphical UX. This function is a CLI-only entry point and immediately invokes workflow tasks after initialization.</maml:para>
+      <maml:para>In addition to the static -Force parameter, workflow-specific runtime parameters are added dynamically from the CLI workflow definition.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
         <maml:name>Deploy-OSDCloudCLI</maml:name>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>SkipFirmwareUpdate</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
+          <maml:name>ProfileName</maml:name>
           <maml:description>
-            <maml:para>Skips firmware update download and apply steps in the workflow.</maml:para>
+            <maml:para>The full OS profile name used to resolve the Env file path. Defaults to 'default'. Ignored in WinPE.</maml:para>
           </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
-            <maml:name>SwitchParameter</maml:name>
+            <maml:name>String</maml:name>
             <maml:uri />
           </dev:type>
-          <dev:defaultValue>False</dev:defaultValue>
+          <dev:defaultValue>Default</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Force</maml:name>
@@ -250,18 +434,6 @@
     </command:syntax>
     <command:parameters>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
-        <maml:name>SkipFirmwareUpdate</maml:name>
-        <maml:description>
-          <maml:para>Skips firmware update download and apply steps in the workflow.</maml:para>
-        </maml:description>
-        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
-        <dev:type>
-          <maml:name>SwitchParameter</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>False</dev:defaultValue>
-      </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Force</maml:name>
         <maml:description>
           <maml:para>Skips confirmation prompts for destructive workflow steps that support force behavior.</maml:para>
@@ -272,6 +444,18 @@
           <maml:uri />
         </dev:type>
         <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
+        <maml:name>ProfileName</maml:name>
+        <maml:description>
+          <maml:para>The full OS profile name used to resolve the Env file path. Defaults to 'default'. Ignored in WinPE.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>Default</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>OperatingSystem</maml:name>
@@ -359,7 +543,7 @@
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para>This function does not display the graphical UX. Workflow execution begins immediately after initialization.</maml:para>
+        <maml:para>This function does not display the graphical UX. Workflow execution begins immediately after initialization. Runtime parameters are provided by Get-OSDCloudWorkflowRuntimeParameter for the 'cli' workflow.</maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
@@ -393,16 +577,16 @@
       </command:example>
       <command:example>
         <maml:title>-------------------------- EXAMPLE 5 --------------------------</maml:title>
-        <dev:code>Deploy-OSDCloudCLI -SkipFirmwareUpdate</dev:code>
+        <dev:code>Deploy-OSDCloudCLI -Force</dev:code>
         <dev:remarks>
-          <maml:para>Runs the default workflow and skips firmware update steps.</maml:para>
+          <maml:para>Runs the default workflow and suppresses supported confirmation prompts.</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
         <maml:title>-------------------------- EXAMPLE 6 --------------------------</maml:title>
-        <dev:code>Deploy-OSDCloudCLI -Force</dev:code>
+        <dev:code>Deploy-OSDCloudCLI -ProfileName 'Lab'</dev:code>
         <dev:remarks>
-          <maml:para>Runs the default workflow and suppresses supported confirmation prompts.</maml:para>
+          <maml:para>Runs the CLI workflow using the 'Lab' profile Env path.</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>

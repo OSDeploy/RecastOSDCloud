@@ -13,7 +13,7 @@ Starts an OSDCloud operating system deployment in CLI mode.
 ## SYNTAX
 
 ```
-Deploy-OSDCloudCLI [-SkipFirmwareUpdate] [-Force] [-ProgressAction <ActionPreference>]
+Deploy-OSDCloudCLI [-Force] [[-ProfileName] <String>] [-ProgressAction <ActionPreference>]
  [-OperatingSystem <String>] [-OSEdition <String>] [-OSActivation <String>] [-OSLanguageCode <String>]
  [-Task <String>] [<CommonParameters>]
 ```
@@ -23,6 +23,9 @@ Initializes and runs an OSDCloud deployment workflow directly in the current
 console session without launching the graphical UX.
 This function is a CLI-only
 entry point and immediately invokes workflow tasks after initialization.
+
+In addition to the static -Force parameter, workflow-specific runtime parameters
+are added dynamically from the CLI workflow definition.
 
 ## EXAMPLES
 
@@ -56,22 +59,22 @@ Runs the selected CLI workflow task.
 
 ### EXAMPLE 5
 ```
-Deploy-OSDCloudCLI -SkipFirmwareUpdate
-```
-
-Runs the default workflow and skips firmware update steps.
-
-### EXAMPLE 6
-```
 Deploy-OSDCloudCLI -Force
 ```
 
 Runs the default workflow and suppresses supported confirmation prompts.
 
+### EXAMPLE 6
+```
+Deploy-OSDCloudCLI -ProfileName 'Lab'
+```
+
+Runs the CLI workflow using the 'Lab' profile Env path.
+
 ## PARAMETERS
 
-### -SkipFirmwareUpdate
-Skips firmware update download and apply steps in the workflow.
+### -Force
+Skips confirmation prompts for destructive workflow steps that support force behavior.
 
 ```yaml
 Type: SwitchParameter
@@ -85,17 +88,19 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Force
-Skips confirmation prompts for destructive workflow steps that support force behavior.
+### -ProfileName
+The full OS profile name used to resolve the Env file path.
+Defaults to 'default'.
+Ignored in WinPE.
 
 ```yaml
-Type: SwitchParameter
+Type: String
 Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
-Default value: False
+Position: 1
+Default value: Default
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -202,5 +207,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 This function does not display the graphical UX.
 Workflow execution begins
 immediately after initialization.
+Runtime parameters are provided by
+Get-OSDCloudWorkflowRuntimeParameter for the 'cli' workflow.
 
 ## RELATED LINKS
