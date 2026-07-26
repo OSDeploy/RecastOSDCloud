@@ -8,7 +8,7 @@
 @{
     # --- Identity ---
     RootModule        = 'OSDCloud.psm1'
-    ModuleVersion     = '26.6.29.1'
+    ModuleVersion     = '26.7.25.1'
     CompatiblePSEditions = @('Core','Desktop')
     GUID              = '2fbd5c65-79c7-4561-9a2e-c4a4eebc89c7'
 
@@ -24,7 +24,6 @@
     # --- Exports ---
     FunctionsToExport = @(
         'Deploy-OSDCloud',
-        'Deploy-OSDCloudCLI',
         'Get-OSDCloudCache',
         'Get-OSDCloudModulePath',
         'Get-OSDCloudModuleVersion',
