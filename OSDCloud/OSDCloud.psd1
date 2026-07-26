@@ -24,7 +24,6 @@
     # --- Exports ---
     FunctionsToExport = @(
         'Deploy-OSDCloud',
-        'Deploy-OSDCloudCLI',
         'Get-OSDCloudCache',
         'Get-OSDCloudModulePath',
         'Get-OSDCloudModuleVersion',
