@@ -12,7 +12,7 @@ OSDCloud is a PowerShell module for deploying Windows with cloud-hosted operatin
 
 ## Requirements
 
-- Windows PowerShell 5.1
+- PowerShell 5.1 or PowerShell 7+ on Windows
 - Windows or WinPE environment (for PE-specific cmdlets)
 
 ## Install
@@ -44,6 +44,7 @@ Deploy-OSDCloud
 | Cmdlet | Description |
 |---|---|
 | `Deploy-OSDCloud` | Starts an OS deployment workflow (GUI or CLI mode). |
+| `Get-OSDCloudCache` | Returns the module cache path used for downloaded content. |
 | `Get-OSDCloudModulePath` | Returns the module installation directory. |
 | `Get-OSDCloudModuleVersion` | Returns the loaded module version. |
 | `Show-OSDCloudDeviceInfo` | Displays device hardware and environment information. |
@@ -53,8 +54,8 @@ Deploy-OSDCloud
 
 | Cmdlet | Alias | Description |
 |---|---|---|
-| `Invoke-WinPEStartup` | `Invoke-OSDCloudPEStartup` | Runs the full WinPE startup workflow. |
-| `Invoke-WinPEStartupManager` | — | Dispatches individual startup actions. |
+| `Invoke-WinPEStartup` | — | Runs the full WinPE startup workflow. |
+| `Invoke-WinPEStartupManager` | `Invoke-OSDCloudPEStartup` | Dispatches individual startup actions. |
 | `Show-WinPEStartupDevices` | `Show-PEStartupHardware` | Shows all PnP devices. |
 | `Show-WinPEStartupDeviceErrors` | `Show-PEStartupErrors` | Shows PnP devices with errors. |
 | `Show-WinPEStartupIpconfig` | `Show-PEStartupIpconfig` | Displays `ipconfig /all`. |
@@ -83,18 +84,14 @@ Task-oriented guides for IT admins. Start at the [docs index](docs/README.md), o
 
 | Reference page | Function |
 |---|---|
-| [docs/Deploy-OSDCloud.md](OSDCloud/docs/Deploy-OSDCloud.md) | `Deploy-OSDCloud` |
-| [docs/Get-OSDCloudModulePath.md](OSDCloud/docs/Get-OSDCloudModulePath.md) | `Get-OSDCloudModulePath` |
-| [docs/Get-OSDCloudModuleVersion.md](OSDCloud/docs/Get-OSDCloudModuleVersion.md) | `Get-OSDCloudModuleVersion` |
-| [docs/Show-OSDCloudDeviceInfo.md](OSDCloud/docs/Show-OSDCloudDeviceInfo.md) | `Show-OSDCloudDeviceInfo` |
-| [docs/Start-OSDCloudExplorer.md](OSDCloud/docs/Start-OSDCloudExplorer.md) | `Start-OSDCloudExplorer` |
-| [docs/Invoke-WinPEStartup.md](OSDCloud/docs/Invoke-WinPEStartup.md) | `Invoke-WinPEStartup` |
-| [docs/Invoke-WinPEStartupManager.md](OSDCloud/docs/Invoke-WinPEStartupManager.md) | `Invoke-WinPEStartupManager` |
-| [docs/Show-WinPEStartupDevices.md](OSDCloud/docs/Show-WinPEStartupDevices.md) | `Show-WinPEStartupDevices` |
-| [docs/Show-WinPEStartupDeviceErrors.md](OSDCloud/docs/Show-WinPEStartupDeviceErrors.md) | `Show-WinPEStartupDeviceErrors` |
-| [docs/Show-WinPEStartupIpconfig.md](OSDCloud/docs/Show-WinPEStartupIpconfig.md) | `Show-WinPEStartupIpconfig` |
-| [docs/Show-WinPEStartupWifi.md](OSDCloud/docs/Show-WinPEStartupWifi.md) | `Show-WinPEStartupWifi` |
-| [docs/Update-WinPEStartupModule.md](OSDCloud/docs/Update-WinPEStartupModule.md) | `Update-WinPEStartupModule` |
+| [OSDCloud/docs/Deploy-OSDCloud.md](OSDCloud/docs/Deploy-OSDCloud.md) | `Deploy-OSDCloud` |
+| [OSDCloud/docs/Get-OSDCloudCache.md](OSDCloud/docs/Get-OSDCloudCache.md) | `Get-OSDCloudCache` |
+| [OSDCloud/docs/Get-OSDCloudModulePath.md](OSDCloud/docs/Get-OSDCloudModulePath.md) | `Get-OSDCloudModulePath` |
+| [OSDCloud/docs/Get-OSDCloudModuleVersion.md](OSDCloud/docs/Get-OSDCloudModuleVersion.md) | `Get-OSDCloudModuleVersion` |
+| [OSDCloud/docs/Show-OSDCloudDeviceInfo.md](OSDCloud/docs/Show-OSDCloudDeviceInfo.md) | `Show-OSDCloudDeviceInfo` |
+| [OSDCloud/docs/Start-OSDCloudExplorer.md](OSDCloud/docs/Start-OSDCloudExplorer.md) | `Start-OSDCloudExplorer` |
+
+WinPE startup cmdlets are currently documented through in-module help. In WinPE, run `Get-Help <CmdletName> -Detailed` for usage details.
 
 ### External links
 
