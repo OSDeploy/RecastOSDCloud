@@ -28,7 +28,7 @@ function Get-OSDCloudCatalogDell {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Start"
         #=================================================
         # Catalogs
-        $localDriverPackCatalog = Join-Path (Get-OSDCloudModulePath) $OSDCloudModule.dell.driverpackcataloglocal
+        $localDriverPackCatalog = Join-Path $($MyInvocation.MyCommand.Module.ModuleBase) $OSDCloudModule.dell.driverpackcataloglocal
         $oemDriverPackCatalog = $OSDCloudModule.dell.driverpackcatalogoem
         $tempCatalogPackagePath = "$($env:TEMP)\DriverPackCatalog.cab"
         $tempCatalogPath = "$($env:TEMP)\osdcloud-driverpack-dell.xml"

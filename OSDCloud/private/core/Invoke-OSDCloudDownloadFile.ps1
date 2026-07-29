@@ -102,7 +102,7 @@ function Invoke-OSDCloudDownloadFile {
         elseif (([System.Net.WebRequest]::DefaultWebProxy).Address) {
             $UseWebClient = $true
         }
-        elseif (-not (Get-Command -Name 'curl.exe' -ErrorAction SilentlyContinue)) {
+        elseif (!(Test-CommandCurlExe)) {
             $UseWebClient = $true
         }
 
@@ -164,7 +164,7 @@ function Invoke-OSDCloudDownloadFile {
 
             if ($localExists -and ((Get-Item $DestinationFullName).Length -lt $remoteLength)) {
                 Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Download is incomplete after $RetryCount retries."
-                Write-Warning "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Could not download $DestinationFullName"
+                Write-Warning "Could not download $DestinationFullName"
                 $null
             }
         }
@@ -175,7 +175,7 @@ function Invoke-OSDCloudDownloadFile {
             Get-Item $DestinationFullName -Force
         }
         else {
-            Write-Warning "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Could not download $DestinationFullName"
+            Write-Warning "Could not download $DestinationFullName"
             $null
         }
         #=================================================

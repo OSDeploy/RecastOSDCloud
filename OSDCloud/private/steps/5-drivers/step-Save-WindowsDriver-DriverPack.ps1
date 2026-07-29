@@ -57,7 +57,7 @@ function step-Save-WindowsDriver-DriverPack {
     $MatchingFiles = Get-PSDrive -PSProvider FileSystem | ForEach-Object {
         Get-ChildItem "$($_.Name):\OSDCloud\DriverPacks\" -Include "$FileName" -File -Recurse -Force -ErrorAction Ignore
     }
-    
+
     if ($MatchingFiles) {
         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] DriverPack is available offline. OK."
         $IsOffline = $true
@@ -95,7 +95,7 @@ function step-Save-WindowsDriver-DriverPack {
     # Is there a USB drive available?
     $USBDrive = Get-DeviceUSBVolume | Where-Object { ($_.FileSystemLabel -match "OSDCloud|USB-DATA") } | `
                 Where-Object { $_.SizeGB -ge 16 } | Where-Object { $_.SizeRemainingGB -ge 10 } | Select-Object -First 1
-    
+
     Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] $($DriverPackObject.Url)"
     Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] FileName: $FileName"
 
@@ -150,10 +150,10 @@ function step-Save-WindowsDriver-DriverPack {
 
         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Removing C:\Windows\Temp\osdcloud-driverpack-download"
         Remove-Item -Path "C:\Windows\Temp\osdcloud-driverpack-download" -Recurse -Force -ErrorAction SilentlyContinue
-        
+
         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Removing $ExpandPath"
         Remove-Item -Path $ExpandPath -Recurse -Force -ErrorAction SilentlyContinue
-        
+
         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Removing C:\Drivers"
         Remove-Item -Path "C:\Drivers" -Recurse -Force -ErrorAction SilentlyContinue
         return
@@ -173,7 +173,7 @@ function step-Save-WindowsDriver-DriverPack {
 
         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Removing $ExpandPath"
         Remove-Item -Path $ExpandPath -Recurse -Force -ErrorAction SilentlyContinue
-        
+
         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Removing C:\Drivers"
         Remove-Item -Path "C:\Drivers" -Recurse -Force -ErrorAction SilentlyContinue
         return
@@ -194,10 +194,10 @@ function step-Save-WindowsDriver-DriverPack {
 
         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Removing C:\Windows\Temp\osdcloud-driverpack-download"
         Remove-Item -Path "C:\Windows\Temp\osdcloud-driverpack-download" -Recurse -Force -ErrorAction SilentlyContinue
-        
+
         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Removing $ExpandPath"
         Remove-Item -Path $ExpandPath -Recurse -Force -ErrorAction SilentlyContinue
-        
+
         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Removing C:\Drivers"
         Remove-Item -Path "C:\Drivers" -Recurse -Force -ErrorAction SilentlyContinue
         return
@@ -220,7 +220,7 @@ function step-Save-WindowsDriver-DriverPack {
 
             Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Removing C:\Windows\Temp\osdcloud-driverpack-download"
             Remove-Item -Path "C:\Windows\Temp\osdcloud-driverpack-download" -Recurse -Force -ErrorAction SilentlyContinue
-            
+
             Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Removing $ExpandPath"
             Remove-Item -Path $ExpandPath -Recurse -Force -ErrorAction SilentlyContinue
 
@@ -292,7 +292,7 @@ rd /s /q C:\Windows\Temp\osdcloud-driverpack-download
 
         $Content | Out-File -FilePath $SetupSpecializeCmd -Append -Encoding ascii -Width 2000 -Force
 
-        $ProvisioningPackage = Join-Path $(Get-OSDCloudModulePath) "core\setupspecialize\setupspecialize.ppkg"
+        $ProvisioningPackage = Join-Path $$($MyInvocation.MyCommand.Module.ModuleBase) "core\setupspecialize\setupspecialize.ppkg"
 
         if (Test-Path $ProvisioningPackage) {
             Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Adding Provisioning Package for SetupSpecialize"

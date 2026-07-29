@@ -27,7 +27,7 @@ function Get-CoreOperatingSystems {
     $ErrorActionPreference = 'Stop'
     $records = @()
 
-    $srcRoot = Join-Path (Get-OSDCloudModulePath) 'core\operatingsystems'
+    $srcRoot = Join-Path $($MyInvocation.MyCommand.Module.ModuleBase) 'core\operatingsystems'
 
     foreach ($file in (Get-ChildItem -Path $srcRoot -Filter '*.xml' -Recurse -File | Sort-Object FullName)) {
         Write-Verbose "[$(Get-Date -Format s)] [$($MyInvocation.MyCommand.Name)] Importing $($file.FullName)"

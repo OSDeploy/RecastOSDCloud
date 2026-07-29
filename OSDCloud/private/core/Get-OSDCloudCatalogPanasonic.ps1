@@ -6,7 +6,7 @@ function Get-OSDCloudCatalogPanasonic {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Start"
         #=================================================
         # Catalogs
-        $localDriverPackCatalog = Join-Path (Get-OSDCloudModulePath) $OSDCloudModule.panasonic.driverpackcataloglocal
+        $localDriverPackCatalog = Join-Path $($MyInvocation.MyCommand.Module.ModuleBase) $OSDCloudModule.panasonic.driverpackcataloglocal
         $oemDriverPackCatalog = $OSDCloudModule.panasonic.driverpackcatalogoem
         $tempCatalogPath = "$($env:TEMP)\osdcloud-driverpack-panasonic.json"
         #=================================================
@@ -17,7 +17,7 @@ function Get-OSDCloudCatalogPanasonic {
                 $sourceContent = Invoke-RestMethod -Uri $oemDriverPackCatalog -UseBasicParsing -ErrorAction Stop
 
                 if ($sourceContent) {
-                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Processing $tempCatalogPath"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $tempCatalogPath"
                     $sourceContent | Out-File -FilePath $tempCatalogPath -Encoding utf8 -Force
                     $JsonCatalogContent = $sourceContent
                 }

@@ -30,7 +30,7 @@
 
     # ── Non-blocking launch: spawn a separate PowerShell process and return immediately ──
     if (-not $DirectLaunch) {
-        $modulePsd1 = Join-Path $MyInvocation.MyCommand.Module.ModuleBase 'OSDCloud.psd1'
+        $modulePsd1 = Join-Path $($MyInvocation.MyCommand.Module.ModuleBase) 'OSDCloud.psd1'
         $exePath = if ($PSVersionTable.PSVersion.Major -ge 6) { 'pwsh' } else { 'powershell' }
         $cmd     = "Import-Module '$modulePsd1'; Start-OSDCloudExplorer -DirectLaunch"
         $encoded = [System.Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($cmd))

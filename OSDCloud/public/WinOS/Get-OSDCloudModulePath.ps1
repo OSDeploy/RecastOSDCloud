@@ -19,5 +19,5 @@ function Get-OSDCloudModulePath {
     [OutputType([System.String])]
     param ()
 
-    $MyInvocation.MyCommand.Module.ModuleBase
+    $($MyInvocation.MyCommand.Module.ModuleBase)
 }

@@ -9,6 +9,9 @@ function Deploy-OSDCloud {
         starting. Use -CLI to skip the UI and immediately begin the workflow in the
         current console session.
 
+        In addition to the static parameters documented here, workflow-specific runtime
+        parameters are added dynamically from the selected workflow definition.
+
         OSDCloud collects anonymous analytic data about the deployment environment and
         system configuration to help improve the product. No personally identifiable
         information (PII) is collected. By using OSDCloud you consent to this collection
@@ -22,6 +25,13 @@ function Deploy-OSDCloud {
     .PARAMETER CLI
         Skips the graphical UX and runs the deployment workflow immediately in the
         current console session.
+
+    .PARAMETER Force
+        Suppresses supported confirmation prompts for destructive workflow steps.
+
+    .PARAMETER ProfileName
+        The full OS profile name used to resolve the Env file path. Defaults to 'default'.
+        Ignored in WinPE.
 
     .EXAMPLE
         Deploy-OSDCloud
@@ -39,12 +49,23 @@ function Deploy-OSDCloud {
 
         Launches the graphical UX for the 'latest' workflow.
 
+    .EXAMPLE
+        Deploy-OSDCloud -CLI -OperatingSystem 'Windows 11 24H2' -OSEdition 'Enterprise'
+
+        Runs in CLI mode using dynamic runtime overrides from the selected workflow.
+
+    .EXAMPLE
+        Deploy-OSDCloud -ProfileName 'Lab'
+
+        Launches the OSDCloud graphical UX using the 'Lab' profile Env path.
+
     .OUTPUTS
         System.Void
 
     .NOTES
         This command writes deployment status to the host and starts workflow tasks.
         In GUI mode, workflow execution starts only after the operator clicks Start.
+        Runtime parameters are provided by Get-OSDCloudWorkflowRuntimeParameter.
 
     .LINK
         https://github.com/OSDeploy/OSDCloud/blob/main/PRIVACY.md
@@ -59,42 +80,88 @@ function Deploy-OSDCloud {
         $WorkflowName = 'default',
 
         [System.Management.Automation.SwitchParameter]
-        $CLI
+        $CLI,
+
+        [Parameter(Mandatory = $false)]
+        [System.Management.Automation.SwitchParameter]
+        $Force,
+
+        [Parameter(Mandatory = $false)]
+        [ArgumentCompleter({
+            param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
+
+            $profileNames = @('default')
+            if ($env:SystemDrive -ne 'X:' -and $env:ProgramData) {
+                $profileRoot = Join-Path -Path $env:ProgramData -ChildPath 'OSDeployCore\OSDCloud\Profiles'
+                if (Test-Path -Path $profileRoot -PathType Container) {
+                    $directoryNames = Get-ChildItem -Path $profileRoot -Directory -ErrorAction SilentlyContinue |
+                        Select-Object -ExpandProperty Name
+                    if ($directoryNames) {
+                        $profileNames += $directoryNames
+                    }
+                }
+            }
+
+            foreach ($profileName in ($profileNames | Sort-Object -Unique)) {
+                if ($profileName -like "$wordToComplete*") {
+                    [System.Management.Automation.CompletionResult]::new($profileName, $profileName, 'ParameterValue', $profileName)
+                }
+            }
+        })]
+        [ValidateNotNullOrEmpty()]
+        [System.String]
+        $ProfileName = 'default'
     )
 
-    Write-Host -ForegroundColor DarkCyan 'OSDCloud collects analytic data during the deployment process to help improve the product and user experience.'
-    Write-Host -ForegroundColor DarkCyan 'No personally identifiable information (PII) is collected, and all data is anonymized to protect user privacy.'
-    Write-Host -ForegroundColor DarkCyan 'Collected data includes information about the deployment environment and system configuration.'
-    Write-Host -ForegroundColor DarkCyan 'By using OSDCloud, you consent to the collection of analytic data as outlined in the privacy policy:'
-    Write-Host -ForegroundColor DarkGray 'https://github.com/OSDeploy/OSDCloud/blob/main/PRIVACY.md'
-    Write-Host
-
-    Initialize-OSDCloudDeploy -WorkflowName $WorkflowName
-
-    if ($CLI.IsPresent) {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Invoke-OSDCloudWorkflowTask"
-        $global:OSDCloudDeploy.TimeStart = Get-Date
-        $global:OSDCloudDeploy | Out-Host
-        Invoke-OSDCloudWorkflowTask
+    dynamicparam {
+        $moduleBase = $($MyInvocation.MyCommand.Module.ModuleBase)
+        $resolvedWorkflowName = if ($PSBoundParameters.ContainsKey('WorkflowName')) { [System.String]$PSBoundParameters['WorkflowName'] } else { 'default' }
+        return Get-OSDCloudWorkflowRuntimeParameter -WorkflowName $resolvedWorkflowName -ModuleBase $moduleBase
     }
-    else {
-        # Prevents the workflow from starting unless the Start button is clicked in the GUI
-        $global:OSDCloudDeploy.TimeStart = $null
 
-        Invoke-OSDCloudWorkflowUI -WorkflowName $WorkflowName
+    end {
+        #=================================================
+        $ModuleVersion = $($MyInvocation.MyCommand.Module.Version)
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] $ModuleVersion"
 
-        if ($null -ne $global:OSDCloudDeploy.TimeStart) {
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Invoke-OSDCloudWorkflowTask $WorkflowName"
+        Write-Host -ForegroundColor DarkCyan 'OSDCloud collects analytic data during the deployment process to help improve the product and user experience.'
+        Write-Host -ForegroundColor DarkCyan 'No personally identifiable information (PII) is collected, and all data is anonymized to protect user privacy.'
+        Write-Host -ForegroundColor DarkCyan 'Collected data includes information about the deployment environment and system configuration.'
+        Write-Host -ForegroundColor DarkCyan 'By using OSDCloud, you consent to the collection of analytic data as outlined in the privacy policy:'
+        Write-Host -ForegroundColor DarkGray 'https://github.com/OSDeploy/OSDCloud/blob/main/PRIVACY.md'
+        Write-Host
+
+        $envParameters = @{}
+        if (Get-Command -Name 'ConvertTo-OSDCloudEnvParameter' -ErrorAction SilentlyContinue) {
+            # $envParameters = ConvertTo-OSDCloudEnvParameter -BoundParameters $PSBoundParameters
+        }
+        Initialize-OSDCloudDeploy -WorkflowName $WorkflowName -EnvParameters $envParameters -ProfileName $ProfileName
+
+        if ($CLI.IsPresent) {
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Invoke-OSDCloudWorkflowTask"
+            $global:OSDCloudDeploy.TimeStart = Get-Date
             $global:OSDCloudDeploy | Out-Host
-            try {
-                Invoke-OSDCloudWorkflowTask
-            }
-            catch {
-                Write-Warning "Failed to invoke OSDCloud Workflow '$WorkflowName': $_"
-            }
+            Invoke-OSDCloudWorkflowTask
         }
         else {
-            Write-Host -ForegroundColor DarkCyan "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] OSDCloud Workflow '$WorkflowName' was not started."
+            # Prevents the workflow from starting unless the Start button is clicked in the GUI
+            $global:OSDCloudDeploy.TimeStart = $null
+
+            Invoke-OSDCloudWorkflowUI -WorkflowName $WorkflowName
+
+            if ($null -ne $global:OSDCloudDeploy.TimeStart) {
+                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Invoke-OSDCloudWorkflowTask $WorkflowName"
+                $global:OSDCloudDeploy | Out-Host
+                try {
+                    Invoke-OSDCloudWorkflowTask
+                }
+                catch {
+                    Write-Warning "Failed to invoke OSDCloud Workflow '$WorkflowName': $_"
+                }
+            }
+            else {
+                Write-Host -ForegroundColor DarkCyan "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] OSDCloud Workflow '$WorkflowName' was not started."
+            }
         }
     }
 }

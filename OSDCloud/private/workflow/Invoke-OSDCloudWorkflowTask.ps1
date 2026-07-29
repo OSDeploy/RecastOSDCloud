@@ -20,6 +20,13 @@ function Invoke-OSDCloudWorkflowTask {
     [System.Boolean]$global:IsVM = $OSDCloudDevice.IsVM
     [System.Boolean]$global:IsWinPE = $($env:SystemDrive -eq 'X:')
     #=================================================
+    # Re-apply the OSDCloud Property override layer to $global:OSDCloudDeploy so authoritative
+    # overrides win over any changes made by the workflow UI, and so the snapshot below
+    # inherits the final values.
+    if ($global:OSDCloudEnv -and (Get-Command -Name 'Set-OSDCloudEnvOverride' -ErrorAction SilentlyContinue)) {
+        Set-OSDCloudEnvOverride -Target $global:OSDCloudDeploy -ResolveOperatingSystem -AddMissingKeys
+    }
+    #=================================================
     $global:OSDCloudWorkflowInvoke = $null
     $global:OSDCloudWorkflowInvoke = [ordered]@{
         Architecture              = $global:Architecture
@@ -140,6 +147,7 @@ function Invoke-OSDCloudWorkflowTask {
     Send-OSDCloudDeployEvent -EventName $eventName -ApiKey $postApi -DistinctId $distinctId -Properties $eventProperties
     #endregion
     #=================================================
+    # Start Workflow Task Execution
     if ($null -ne $global:OSDCloudDeploy.WorkflowTaskObject) {
         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)]"
 

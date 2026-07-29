@@ -37,7 +37,7 @@ function Get-OSDCloudCatalogSurface {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Start"
         #=================================================
         # Paths
-        $localCatalogPath = Join-Path (Get-OSDCloudModulePath) $OSDCloudModule.surface.driverpackcataloglocal
+        $localCatalogPath = Join-Path $($MyInvocation.MyCommand.Module.ModuleBase) $OSDCloudModule.surface.driverpackcataloglocal
         $tempCatalogPath  = "$env:TEMP\osdcloud-driverpack-surface.json"
         #=================================================
         # Load from temp cache if available

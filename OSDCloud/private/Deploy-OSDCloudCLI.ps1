@@ -8,6 +8,9 @@ function Deploy-OSDCloudCLI {
         console session without launching the graphical UX. This function is a CLI-only
         entry point and immediately invokes workflow tasks after initialization.
 
+        In addition to the static parameters documented here, workflow-specific runtime
+        parameters are added dynamically from the CLI workflow definition.
+
     .PARAMETER OperatingSystem
         Overrides the CLI workflow OS default from workflow/cli/os-amd64.json
         or workflow/cli/os-arm64.json.
@@ -31,6 +34,10 @@ function Deploy-OSDCloudCLI {
 
     .PARAMETER Force
         Skips confirmation prompts for destructive workflow steps that support force behavior.
+
+    .PARAMETER ProfileName
+        The full OS profile name used to resolve the Env file path. Defaults to 'default'.
+        Ignored in WinPE.
 
     .EXAMPLE
         Deploy-OSDCloudCLI
@@ -62,12 +69,18 @@ function Deploy-OSDCloudCLI {
 
         Runs the default workflow and suppresses supported confirmation prompts.
 
+    .EXAMPLE
+        Deploy-OSDCloudCLI -ProfileName 'Lab'
+
+        Runs the CLI workflow using the 'Lab' profile Env path.
+
     .OUTPUTS
         System.Void
 
     .NOTES
         This function does not display the graphical UX. Workflow execution begins
-        immediately after initialization.
+        immediately after initialization. Runtime parameters are provided by
+        Get-OSDCloudWorkflowRuntimeParameter for the 'cli' workflow.
     #>
     [CmdletBinding()]
     param (
@@ -77,103 +90,66 @@ function Deploy-OSDCloudCLI {
 
         [Parameter(Mandatory = $false)]
         [System.Management.Automation.SwitchParameter]
-        $Force
+        $Force,
+
+        [Parameter(Mandatory = $false)]
+        [ArgumentCompleter({
+            param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
+
+            $profileNames = @('default')
+            if ($env:SystemDrive -ne 'X:' -and $env:ProgramData) {
+                $profileRoot = Join-Path -Path $env:ProgramData -ChildPath 'OSDeployCore\OSDCloud\Profiles'
+                if (Test-Path -Path $profileRoot -PathType Container) {
+                    $directoryNames = Get-ChildItem -Path $profileRoot -Directory -ErrorAction SilentlyContinue |
+                        Select-Object -ExpandProperty Name
+                    if ($directoryNames) {
+                        $profileNames += $directoryNames
+                    }
+                }
+            }
+
+            foreach ($profileName in ($profileNames | Sort-Object -Unique)) {
+                if ($profileName -like "$wordToComplete*") {
+                    [System.Management.Automation.CompletionResult]::new($profileName, $profileName, 'ParameterValue', $profileName)
+                }
+            }
+        })]
+        [ValidateNotNullOrEmpty()]
+        [System.String]
+        $ProfileName = 'default'
     )
 
     dynamicparam {
-        $workflowRootPath = Join-Path -Path $($MyInvocation.MyCommand.Module.ModuleBase) -ChildPath 'workflow'
-        $workflowPath = Join-Path -Path $workflowRootPath -ChildPath 'cli'
-        $tasksPath = Join-Path -Path $workflowPath -ChildPath 'tasks'
-
-        $osJsonFileName = if ($env:PROCESSOR_ARCHITECTURE -eq 'ARM64') { 'os-arm64.json' } else { 'os-amd64.json' }
-        $osJsonPath = Join-Path -Path $workflowPath -ChildPath $osJsonFileName
-
-        $operatingSystemValues = @()
-        $osActivationValues = @()
-        $osLanguageCodeValues = @()
-        $osEditionValues = @()
-        $taskValues = @()
-
-        if (Test-Path -Path $osJsonPath) {
-            $rawJsonContent = Get-Content -Path $osJsonPath -Raw
-            $jsonContent = $rawJsonContent -replace '(?m)(?<=^([^"]|"[^"]*")*)//.*' -replace '(?ms)/\*.*?\*/'
-            $osSettings = ConvertFrom-Json -InputObject $jsonContent
-            $operatingSystemValues = [string[]]$osSettings.OperatingSystem.values
-            $osActivationValues = [string[]]$osSettings.OSActivation.values
-            $osLanguageCodeValues = [string[]]$osSettings.OSLanguageCode.values
-            $osEditionValues = [string[]]($osSettings.OSEdition.values | ForEach-Object { $_.Edition })
-        }
-
-        if (Test-Path -Path $tasksPath) {
-            $taskJsonFiles = Get-ChildItem -Path $tasksPath -Filter '*.json' -File
-            if ($env:PROCESSOR_ARCHITECTURE -eq 'ARM64') {
-                $taskValues = [string[]]($taskJsonFiles |
-                    ForEach-Object { Get-Content -Path $_.FullName -Raw | ConvertFrom-Json } |
-                    Where-Object { $_.arm64 -eq $true } |
-                    Select-Object -ExpandProperty name)
-            }
-            else {
-                $taskValues = [string[]]($taskJsonFiles |
-                    ForEach-Object { Get-Content -Path $_.FullName -Raw | ConvertFrom-Json } |
-                    Where-Object { $_.amd64 -eq $true } |
-                    Select-Object -ExpandProperty name)
-            }
-        }
-
-        function New-OSDCloudCliRuntimeParameter {
-            param(
-                [Parameter(Mandatory = $true)]
-                [string]$Name,
-                [Parameter(Mandatory = $true)]
-                [string[]]$ValidateSetValues
-            )
-
-            $attributeCollection = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
-            $parameterAttribute = [System.Management.Automation.ParameterAttribute]::new()
-            $parameterAttribute.Mandatory = $false
-            $attributeCollection.Add($parameterAttribute)
-            $attributeCollection.Add([System.Management.Automation.ValidateNotNullOrEmptyAttribute]::new())
-
-            if ($ValidateSetValues.Count -gt 0) {
-                $validateSetAttribute = [System.Management.Automation.ValidateSetAttribute]::new($ValidateSetValues)
-                $validateSetAttribute.IgnoreCase = $true
-                $attributeCollection.Add($validateSetAttribute)
-            }
-
-            return [System.Management.Automation.RuntimeDefinedParameter]::new($Name, [System.String], $attributeCollection)
-        }
-
-        $dynamicParameters = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
-
-        $dynamicParameters.Add('OperatingSystem', (New-OSDCloudCliRuntimeParameter -Name 'OperatingSystem' -ValidateSetValues $operatingSystemValues))
-        $dynamicParameters.Add('OSEdition', (New-OSDCloudCliRuntimeParameter -Name 'OSEdition' -ValidateSetValues $osEditionValues))
-        $dynamicParameters.Add('OSActivation', (New-OSDCloudCliRuntimeParameter -Name 'OSActivation' -ValidateSetValues $osActivationValues))
-        $dynamicParameters.Add('OSLanguageCode', (New-OSDCloudCliRuntimeParameter -Name 'OSLanguageCode' -ValidateSetValues $osLanguageCodeValues))
-        $dynamicParameters.Add('Task', (New-OSDCloudCliRuntimeParameter -Name 'Task' -ValidateSetValues $taskValues))
-
-        return $dynamicParameters
+        $moduleBase = $($MyInvocation.MyCommand.Module.ModuleBase)
+        return Get-OSDCloudWorkflowRuntimeParameter -WorkflowName 'cli' -ModuleBase $moduleBase
     }
 
     begin {
-        $OperatingSystem = [System.String]$PSBoundParameters['OperatingSystem']
-        $OSEdition = [System.String]$PSBoundParameters['OSEdition']
-        $OSActivation = [System.String]$PSBoundParameters['OSActivation']
-        $OSLanguageCode = [System.String]$PSBoundParameters['OSLanguageCode']
-        $Task = [System.String]$PSBoundParameters['Task']
+        $OperatingSystem = if ($PSBoundParameters.ContainsKey('OperatingSystem')) { [System.String]$PSBoundParameters['OperatingSystem'] } else { $null }
+        $OSEdition = if ($PSBoundParameters.ContainsKey('OSEdition')) { [System.String]$PSBoundParameters['OSEdition'] } else { $null }
+        $OSActivation = if ($PSBoundParameters.ContainsKey('OSActivation')) { [System.String]$PSBoundParameters['OSActivation'] } else { $null }
+        $OSLanguageCode = if ($PSBoundParameters.ContainsKey('OSLanguageCode')) { [System.String]$PSBoundParameters['OSLanguageCode'] } else { $null }
+        $Task = if ($PSBoundParameters.ContainsKey('Task')) { [System.String]$PSBoundParameters['Task'] } else { $null }
 
         Write-Host -ForegroundColor Yellow "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Preview Release: This function is for feedback only. Expect frequent changes before the official release."
 
         #=================================================
         # Initialize OSDCloudWorkflow
+        # Override values (Parameters > ENV) are assembled into $global:OSDCloudEnv
+        # and applied to $global:OSDCloudDeploy - including operating system resolution - inside
+        # Initialize-OSDCloudDeploy.
         $WorkflowName = 'cli'
-        Initialize-OSDCloudDeploy -WorkflowName $WorkflowName
+        $envParameters = @{}
+        if (Get-Command -Name 'ConvertTo-OSDCloudEnvParameter' -ErrorAction SilentlyContinue) {
+            $envParameters = ConvertTo-OSDCloudEnvParameter -BoundParameters $PSBoundParameters
+        }
+        Initialize-OSDCloudDeploy -WorkflowName $WorkflowName -EnvParameters $envParameters -ProfileName $ProfileName
 
-        $selectedTask = if ($PSBoundParameters.ContainsKey('Task')) { $Task } else { [System.String]$global:OSDCloudDeploy.WorkflowTaskName }
-
-        $selectedOperatingSystem = if ($PSBoundParameters.ContainsKey('OperatingSystem')) { $OperatingSystem } else { [System.String]$global:OSDCloudDeploy.OperatingSystem }
-        $selectedOSEdition = if ($PSBoundParameters.ContainsKey('OSEdition')) { $OSEdition } else { [System.String]$global:OSDCloudDeploy.OSEdition }
-        $selectedOSActivation = if ($PSBoundParameters.ContainsKey('OSActivation')) { $OSActivation } else { [System.String]$global:OSDCloudDeploy.OSActivation }
-        $selectedOSLanguageCode = if ($PSBoundParameters.ContainsKey('OSLanguageCode')) { $OSLanguageCode } else { [System.String]$global:OSDCloudDeploy.OSLanguageCode }
+        $selectedTask = if ($null -ne $Task) { $Task } else { [System.String]$global:OSDCloudDeploy.WorkflowTaskName }
+        $selectedOperatingSystem = if ($null -ne $OperatingSystem) { $OperatingSystem } else { [System.String]$global:OSDCloudDeploy.OperatingSystem }
+        $selectedOSEdition = if ($null -ne $OSEdition) { $OSEdition } else { [System.String]$global:OSDCloudDeploy.OSEdition }
+        $selectedOSActivation = if ($null -ne $OSActivation) { $OSActivation } else { [System.String]$global:OSDCloudDeploy.OSActivation }
+        $selectedOSLanguageCode = if ($null -ne $OSLanguageCode) { $OSLanguageCode } else { [System.String]$global:OSDCloudDeploy.OSLanguageCode }
 
         if ($selectedOSEdition -in @('Enterprise', 'Enterprise N')) {
             if ($selectedOSActivation -ne 'Volume') {
@@ -249,6 +225,7 @@ function Deploy-OSDCloudCLI {
 
         $global:OSDCloudDeploy.SkipFirmwareUpdate = $SkipFirmwareUpdate.IsPresent
         $global:OSDCloudDeploy.Force = $Force.IsPresent
+
         #=================================================
         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Invoke-OSDCloudWorkflowTask"
         $global:OSDCloudDeploy.TimeStart = Get-Date
