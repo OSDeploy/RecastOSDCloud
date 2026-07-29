@@ -23,19 +23,21 @@
 
     # --- Exports ---
     FunctionsToExport = @(
+        # WinOS
         'Deploy-OSDCloud',
         'Get-OSDCloudCache',
         'Get-OSDCloudModulePath',
         'Get-OSDCloudModuleVersion',
         'Show-OSDCloudDeviceInfo',
+        'Start-OSDCloudExplorer',
+        # WinPE
         'Invoke-WinPEStartup',
         'Invoke-WinPEStartupManager',
-        'Show-WinPEStartupDevices',
         'Show-WinPEStartupDeviceErrors',
+        'Show-WinPEStartupDevices',
         'Show-WinPEStartupIpconfig',
         'Show-WinPEStartupWifi',
-        'Update-WinPEStartupModule',
-        'Start-OSDCloudExplorer'
+        'Update-WinPEStartupModule'
     )
     CmdletsToExport   = @()
     VariablesToExport = @()

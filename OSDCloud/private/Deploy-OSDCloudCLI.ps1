@@ -8,8 +8,29 @@ function Deploy-OSDCloudCLI {
         console session without launching the graphical UX. This function is a CLI-only
         entry point and immediately invokes workflow tasks after initialization.
 
-        In addition to the static -Force parameter, workflow-specific runtime parameters
-        are added dynamically from the CLI workflow definition.
+        In addition to the static parameters documented here, workflow-specific runtime
+        parameters are added dynamically from the CLI workflow definition.
+
+    .PARAMETER OperatingSystem
+        Overrides the CLI workflow OS default from workflow/cli/os-amd64.json
+        or workflow/cli/os-arm64.json.
+        The value must exist in the workflow's OperatingSystem values list
+        (for example, 'Windows 11 24H2').
+
+    .PARAMETER OSEdition
+        Overrides the CLI workflow OS edition.
+
+    .PARAMETER OSActivation
+        Overrides the CLI workflow OS activation channel.
+
+    .PARAMETER OSLanguageCode
+        Overrides the CLI workflow OS language code.
+
+    .PARAMETER Task
+        Selects the CLI workflow task by name from workflow/cli/tasks/*.json.
+
+    .PARAMETER SkipFirmwareUpdate
+        Skips firmware update download and apply steps in the workflow.
 
     .PARAMETER Force
         Skips confirmation prompts for destructive workflow steps that support force behavior.
@@ -39,6 +60,11 @@ function Deploy-OSDCloudCLI {
         Runs the selected CLI workflow task.
 
     .EXAMPLE
+        Deploy-OSDCloudCLI -SkipFirmwareUpdate
+
+        Runs the default workflow and skips firmware update steps.
+
+    .EXAMPLE
         Deploy-OSDCloudCLI -Force
 
         Runs the default workflow and suppresses supported confirmation prompts.
@@ -58,6 +84,10 @@ function Deploy-OSDCloudCLI {
     #>
     [CmdletBinding()]
     param (
+        [Parameter(Mandatory = $false)]
+        [System.Management.Automation.SwitchParameter]
+        $SkipFirmwareUpdate,
+
         [Parameter(Mandatory = $false)]
         [System.Management.Automation.SwitchParameter]
         $Force,
@@ -95,6 +125,12 @@ function Deploy-OSDCloudCLI {
     }
 
     begin {
+        $OperatingSystem = if ($PSBoundParameters.ContainsKey('OperatingSystem')) { [System.String]$PSBoundParameters['OperatingSystem'] } else { $null }
+        $OSEdition = if ($PSBoundParameters.ContainsKey('OSEdition')) { [System.String]$PSBoundParameters['OSEdition'] } else { $null }
+        $OSActivation = if ($PSBoundParameters.ContainsKey('OSActivation')) { [System.String]$PSBoundParameters['OSActivation'] } else { $null }
+        $OSLanguageCode = if ($PSBoundParameters.ContainsKey('OSLanguageCode')) { [System.String]$PSBoundParameters['OSLanguageCode'] } else { $null }
+        $Task = if ($PSBoundParameters.ContainsKey('Task')) { [System.String]$PSBoundParameters['Task'] } else { $null }
+
         Write-Host -ForegroundColor Yellow "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Preview Release: This function is for feedback only. Expect frequent changes before the official release."
 
         #=================================================
@@ -109,11 +145,87 @@ function Deploy-OSDCloudCLI {
         }
         Initialize-OSDCloudDeploy -WorkflowName $WorkflowName -EnvParameters $envParameters -ProfileName $ProfileName
 
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OperatingSystem: $($global:OSDCloudDeploy.OperatingSystem)"
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSEdition: $($global:OSDCloudDeploy.OSEdition)"
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSActivation: $($global:OSDCloudDeploy.OSActivation)"
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSLanguageCode: $($global:OSDCloudDeploy.OSLanguageCode)"
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Task: $($global:OSDCloudDeploy.WorkflowTaskName)"
+        $selectedTask = if ($null -ne $Task) { $Task } else { [System.String]$global:OSDCloudDeploy.WorkflowTaskName }
+        $selectedOperatingSystem = if ($null -ne $OperatingSystem) { $OperatingSystem } else { [System.String]$global:OSDCloudDeploy.OperatingSystem }
+        $selectedOSEdition = if ($null -ne $OSEdition) { $OSEdition } else { [System.String]$global:OSDCloudDeploy.OSEdition }
+        $selectedOSActivation = if ($null -ne $OSActivation) { $OSActivation } else { [System.String]$global:OSDCloudDeploy.OSActivation }
+        $selectedOSLanguageCode = if ($null -ne $OSLanguageCode) { $OSLanguageCode } else { [System.String]$global:OSDCloudDeploy.OSLanguageCode }
+
+        if ($selectedOSEdition -in @('Enterprise', 'Enterprise N')) {
+            if ($selectedOSActivation -ne 'Volume') {
+                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSEdition '$selectedOSEdition' requires OSActivation 'Volume'."
+            }
+            $selectedOSActivation = 'Volume'
+        }
+        elseif ($selectedOSEdition -in @('Home', 'Home N')) {
+            if ($selectedOSActivation -ne 'Retail') {
+                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSEdition '$selectedOSEdition' requires OSActivation 'Retail'."
+            }
+            $selectedOSActivation = 'Retail'
+        }
+
+        $operatingSystemValues = [array]$global:OSDCloudDeploy.OperatingSystemValues
+        if ($selectedOperatingSystem -notin $operatingSystemValues) {
+            throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] OperatingSystem '$selectedOperatingSystem' is not valid for workflow '$WorkflowName'. Valid values: $($operatingSystemValues -join ', ')"
+        }
+
+        $osActivationValues = [array]$global:OSDCloudDeploy.OSActivationValues
+        if ($selectedOSActivation -notin $osActivationValues) {
+            throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] OSActivation '$selectedOSActivation' is not valid for workflow '$WorkflowName'. Valid values: $($osActivationValues -join ', ')"
+        }
+
+        $osLanguageCodeValues = [array]$global:OSDCloudDeploy.OSLanguageCodeValues
+        if ($selectedOSLanguageCode -notin $osLanguageCodeValues) {
+            throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] OSLanguageCode '$selectedOSLanguageCode' is not valid for workflow '$WorkflowName'. Valid values: $($osLanguageCodeValues -join ', ')"
+        }
+
+        $osEditionValues = [array]$global:OSDCloudDeploy.OSEditionValues
+        $selectedOSEditionObject = $osEditionValues | Where-Object { $_.Edition -eq $selectedOSEdition } | Select-Object -First 1
+        if (-not $selectedOSEditionObject) {
+            $validOSEditions = $osEditionValues | ForEach-Object { $_.Edition }
+            throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] OSEdition '$selectedOSEdition' is not valid for workflow '$WorkflowName'. Valid values: $($validOSEditions -join ', ')"
+        }
+
+        $workflowTaskValues = [array]($global:OSDCloudDeploy.Flows | Select-Object -ExpandProperty Name)
+        if ($selectedTask -notin $workflowTaskValues) {
+            throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Task '$selectedTask' is not valid for workflow '$WorkflowName'. Valid values: $($workflowTaskValues -join ', ')"
+        }
+
+        $workflowTaskObject = $global:OSDCloudDeploy.Flows | Where-Object { $_.Name -eq $selectedTask } | Select-Object -First 1
+
+        $operatingSystemObject = $global:DeployOSDCloudOperatingSystems |
+            Where-Object { $_.OperatingSystem -eq $selectedOperatingSystem } |
+            Where-Object { $_.OSActivation -eq $selectedOSActivation } |
+            Where-Object { $_.OSLanguageCode -eq $selectedOSLanguageCode } |
+            Select-Object -First 1
+
+        if (-not $operatingSystemObject) {
+            throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] No Operating System object found for OperatingSystem '$selectedOperatingSystem' with OSActivation '$selectedOSActivation' and OSLanguageCode '$selectedOSLanguageCode'."
+        }
+
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OperatingSystem: $selectedOperatingSystem"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSEdition: $selectedOSEdition"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSActivation: $selectedOSActivation"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSLanguageCode: $selectedOSLanguageCode"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Task: $selectedTask"
+
+        $global:OSDCloudDeploy.OperatingSystem = $operatingSystemObject.OperatingSystem
+        $global:OSDCloudDeploy.OperatingSystemObject = $operatingSystemObject
+        $global:OSDCloudDeploy.OSBuild = $operatingSystemObject.OSBuild
+        $global:OSDCloudDeploy.OSBuildVersion = $operatingSystemObject.OSBuildVersion
+        $global:OSDCloudDeploy.OSVersion = $operatingSystemObject.OSVersion
+        $global:OSDCloudDeploy.ImageFileName = $operatingSystemObject.FileName
+        $global:OSDCloudDeploy.ImageFileUrl = $operatingSystemObject.FilePath
+        $global:OSDCloudDeploy.OSEdition = $selectedOSEdition
+        $global:OSDCloudDeploy.OSEditionId = $selectedOSEditionObject.EditionId
+        $global:OSDCloudDeploy.OSActivation = $selectedOSActivation
+        $global:OSDCloudDeploy.OSLanguageCode = $selectedOSLanguageCode
+        $global:OSDCloudDeploy.WorkflowTaskName = $selectedTask
+        $global:OSDCloudDeploy.WorkflowTaskObject = $workflowTaskObject
+
+        $global:OSDCloudDeploy.SkipFirmwareUpdate = $SkipFirmwareUpdate.IsPresent
+        $global:OSDCloudDeploy.Force = $Force.IsPresent
+
         #=================================================
         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Invoke-OSDCloudWorkflowTask"
         $global:OSDCloudDeploy.TimeStart = Get-Date

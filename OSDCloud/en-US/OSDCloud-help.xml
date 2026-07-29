@@ -40,10 +40,123 @@
           </dev:type>
           <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>Force</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="proga">
+          <maml:name>ProgressAction</maml:name>
           <maml:description>
-            <maml:para>Suppresses supported confirmation prompts for destructive workflow steps.</maml:para>
+            <maml:para>{{ Fill ProgressAction Description }}</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">ActionPreference</command:parameterValue>
+          <dev:type>
+            <maml:name>ActionPreference</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName)" position="1" aliases="Name">
+        <maml:name>WorkflowName</maml:name>
+        <maml:description>
+          <maml:para>The name of the OSDCloud workflow to run. Defaults to 'default'. Available workflows are located in the module's workflow folder.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>Default</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>CLI</maml:name>
+        <maml:description>
+          <maml:para>Skips the graphical UX and runs the deployment workflow immediately in the current console session.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="proga">
+        <maml:name>ProgressAction</maml:name>
+        <maml:description>
+          <maml:para>{{ Fill ProgressAction Description }}</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">ActionPreference</command:parameterValue>
+        <dev:type>
+          <maml:name>ActionPreference</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes />
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Void</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para></maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>This command writes deployment status to the host and starts workflow tasks. In GUI mode, workflow execution starts only after the operator clicks Start.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+        <dev:code>Deploy-OSDCloud</dev:code>
+        <dev:remarks>
+          <maml:para>Launches the OSDCloud graphical UX for the default workflow. The deployment starts only after the operator clicks Start in the UI.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+        <dev:code>Deploy-OSDCloud -CLI</dev:code>
+        <dev:remarks>
+          <maml:para>Runs the default OSDCloud workflow immediately without the graphical UX.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+        <dev:code>Deploy-OSDCloud -WorkflowName 'latest'</dev:code>
+        <dev:remarks>
+          <maml:para>Launches the graphical UX for the 'latest' workflow.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>https://github.com/OSDeploy/OSDCloud/blob/main/PRIVACY.md</maml:linkText>
+        <maml:uri>https://github.com/OSDeploy/OSDCloud/blob/main/PRIVACY.md</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <command:details>
+      <command:name>Deploy-OSDCloudCLI</command:name>
+      <command:verb>Deploy</command:verb>
+      <command:noun>OSDCloudCLI</command:noun>
+      <maml:description>
+        <maml:para>Starts an OSDCloud operating system deployment in CLI mode.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Initializes and runs an OSDCloud deployment workflow directly in the current console session without launching the graphical UX. This function is a CLI-only entry point and immediately invokes workflow tasks after initialization.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Deploy-OSDCloudCLI</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>SkipFirmwareUpdate</maml:name>
+          <maml:description>
+            <maml:para>Skips firmware update download and apply steps in the workflow.</maml:para>
           </maml:description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
@@ -52,16 +165,15 @@
           <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>ProfileName</maml:name>
+          <maml:name>Force</maml:name>
           <maml:description>
-            <maml:para>The full OS profile name used to resolve the Env file path. Defaults to 'default'. Ignored in WinPE.</maml:para>
+            <maml:para>Skips confirmation prompts for destructive workflow steps that support force behavior.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
-            <maml:name>String</maml:name>
+            <maml:name>SwitchParameter</maml:name>
             <maml:uri />
           </dev:type>
-          <dev:defaultValue>Default</dev:defaultValue>
+          <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>OperatingSystem</maml:name>
@@ -138,22 +250,10 @@
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName)" position="1" aliases="Name">
-        <maml:name>WorkflowName</maml:name>
-        <maml:description>
-          <maml:para>The name of the OSDCloud workflow to run. Defaults to 'default'. Available workflows are located in the module's workflow folder.</maml:para>
-        </maml:description>
-        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
-        <dev:type>
-          <maml:name>String</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>Default</dev:defaultValue>
-      </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
-        <maml:name>CLI</maml:name>
+        <maml:name>SkipFirmwareUpdate</maml:name>
         <maml:description>
-          <maml:para>Skips the graphical UX and runs the deployment workflow immediately in the current console session.</maml:para>
+          <maml:para>Skips firmware update download and apply steps in the workflow.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -165,7 +265,7 @@
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Force</maml:name>
         <maml:description>
-          <maml:para>Suppresses supported confirmation prompts for destructive workflow steps.</maml:para>
+          <maml:para>Skips confirmation prompts for destructive workflow steps that support force behavior.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -173,18 +273,6 @@
           <maml:uri />
         </dev:type>
         <dev:defaultValue>False</dev:defaultValue>
-      </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
-        <maml:name>ProfileName</maml:name>
-        <maml:description>
-          <maml:para>The full OS profile name used to resolve the Env file path. Defaults to 'default'. Ignored in WinPE.</maml:para>
-        </maml:description>
-        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
-        <dev:type>
-          <maml:name>String</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>Default</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>OperatingSystem</maml:name>
@@ -272,49 +360,56 @@
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para>This command writes deployment status to the host and starts workflow tasks. In GUI mode, workflow execution starts only after the operator clicks Start. Runtime parameters are provided by Get-OSDCloudWorkflowRuntimeParameter.</maml:para>
+        <maml:para>This function does not display the graphical UX. Workflow execution begins immediately after initialization.</maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
       <command:example>
         <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
-        <dev:code>Deploy-OSDCloud</dev:code>
+        <dev:code>Deploy-OSDCloudCLI</dev:code>
         <dev:remarks>
-          <maml:para>Launches the OSDCloud graphical UX for the default workflow. The deployment starts only after the operator clicks Start in the UI.</maml:para>
+          <maml:para>Runs the default OSDCloud workflow immediately in the current console session.</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
         <maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
-        <dev:code>Deploy-OSDCloud -CLI</dev:code>
+        <dev:code>Deploy-OSDCloudCLI -OperatingSystem 'Windows 11 24H2'</dev:code>
         <dev:remarks>
-          <maml:para>Runs the default OSDCloud workflow immediately without the graphical UX.</maml:para>
+          <maml:para>Runs the CLI workflow and overrides the OperatingSystem default.</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
         <maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
-        <dev:code>Deploy-OSDCloud -WorkflowName 'latest'</dev:code>
+        <dev:code>Deploy-OSDCloudCLI -OSEdition 'Enterprise' -OSLanguageCode 'en-gb'</dev:code>
         <dev:remarks>
-          <maml:para>Launches the graphical UX for the 'latest' workflow.</maml:para>
+          <maml:para>Runs the CLI workflow with Enterprise edition and en-gb language.</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
         <maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
-        <dev:code>Deploy-OSDCloud -CLI -OperatingSystem 'Windows 11 24H2' -OSEdition 'Enterprise'</dev:code>
+        <dev:code>Deploy-OSDCloudCLI -Task 'OSDCloud SkipFirmwareUpdate'</dev:code>
         <dev:remarks>
-          <maml:para>Runs in CLI mode using dynamic runtime overrides from the selected workflow.</maml:para>
+          <maml:para>Runs the selected CLI workflow task.</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
         <maml:title>-------------------------- EXAMPLE 5 --------------------------</maml:title>
-        <dev:code>Deploy-OSDCloud -ProfileName 'Lab'</dev:code>
+        <dev:code>Deploy-OSDCloudCLI -SkipFirmwareUpdate</dev:code>
         <dev:remarks>
-          <maml:para>Launches the OSDCloud graphical UX using the 'Lab' profile Env path.</maml:para>
+          <maml:para>Runs the default workflow and skips firmware update steps.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 6 --------------------------</maml:title>
+        <dev:code>Deploy-OSDCloudCLI -Force</dev:code>
+        <dev:remarks>
+          <maml:para>Runs the default workflow and suppresses supported confirmation prompts.</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
     <command:relatedLinks>
       <maml:navigationLink>
-        <maml:linkText>https://github.com/OSDeploy/OSDCloud/blob/main/PRIVACY.md</maml:linkText>
+        <maml:linkText>Online Version:</maml:linkText>
         <maml:uri>https://github.com/OSDeploy/OSDCloud/blob/main/PRIVACY.md</maml:uri>
       </maml:navigationLink>
     </command:relatedLinks>
