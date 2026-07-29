@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 26.7.29.1 - July 29, 2026
+
+### Added
+
+- Added WinPE startup profiles for `Deploy-OSDCloud` and `Show-OSDCloudDeviceInfo`.
+
+### Changed
+
+- Module version bumped to `26.7.29.1`.
+- Updated `Deploy-OSDCloud` help content and module help XML to document CLI usage through `Deploy-OSDCloud -CLI`, profile selection, force support, and workflow runtime parameters.
+- Improved `Invoke-OSDCloudWifi` wireless adapter detection in WinPE by handling `Get-SmbClientNetworkInterface` failures and falling back to CIM-based adapter discovery when SMB networking is not yet initialized.
+- Improved `Show-OSDCloudDeviceInfo` network adapter output filtering when adapter GUID values are missing.
+- Updated the privacy policy with expanded disclosures for analytics payloads, local device data and logs, network operations, and external service interactions.
+
+### Removed
+
+- Removed `Deploy-OSDCloudCLI` from the exported module cmdlet surface; CLI deployments should now use `Deploy-OSDCloud -CLI`.
+- Removed the standalone `Deploy-OSDCloudCLI` help page.
+
 ## 26.7.22.1 - July 22, 2026
 
 ### Added
