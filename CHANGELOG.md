@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 26.8.1.1 - August 1, 2026
+
+### Changed
+
+- Module version bumped to `26.8.1.1`.
+- Updated `step-test-targetdisk` to keep the existing non-boot-disk filter in WinPE and include all local disks when running outside WinPE.
+- Temporarily disabled `step-Save-WindowsDriver-MSUpdate` with a skip message while a Microsoft Update Catalog issue is being addressed.
+
 ## 26.7.29.1 - July 29, 2026
 
 ### Added
