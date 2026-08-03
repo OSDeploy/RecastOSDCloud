@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 26.8.3.1 - August 3, 2026
+
+### Added
+
+- Added Microsoft Surface driver pack catalog entries for Surface Laptop 8 Intel, Surface Laptop 8 Snapdragon, and Surface Laptop 13in 1st Intel.
+- Added the `add-surface-model` Copilot skill, Surface model template, and catalog validation guidance for maintaining `surface.json`.
+
+### Changed
+
+- Module version bumped to `26.8.3.1`.
+- Renamed the Surface Laptop Snapdragon 13-inch catalog entry to Surface Laptop 13in 1st Snapdragon to align with Surface catalog naming.
+
+### Removed
+
+- Removed the legacy `surface.xml` driver pack snapshot now superseded by `surface.json`.
+
 ## 26.8.1.1 - August 1, 2026
 
 ### Changed

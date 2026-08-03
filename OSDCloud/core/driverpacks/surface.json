@@ -400,6 +400,48 @@
     "UpdatePage": "https://www.microsoft.com/download/details.aspx?id=108014"
   },
   {
+    "CatalogVersion": "26.08.03",
+    "ReleaseDate": "26.06.19",
+    "Name": "Surface Laptop 8 Intel [26.06.19]",
+    "Manufacturer": "Microsoft",
+    "Model": "Surface Laptop 8 Intel",
+    "SystemId": [
+      "Surface_Laptop_for_Business_13_8in_8th_Ed_Intel_2107",
+      "Surface_Laptop_for_Business_13_8in_8th_Ed_Intel_2135",
+      "Surface_Laptop_for_Business_15in_8th_Ed_Intel_2108",
+      "Surface_Laptop_for_Business_15in_8th_Ed_Intel_2136"
+    ],
+    "FileName": "SurfaceLaptop8withIntel_Win11_26200_26.052.17609.0.msi",
+    "Url": "https://download.microsoft.com/download/74b2d3cc-d205-41ed-8784-59ceba1411f0/SurfaceLaptop8withIntel_Win11_26200_26.052.17609.0.msi",
+    "OperatingSystem": "Windows 11",
+    "OSArchitecture": "amd64",
+    "HashMD5": null,
+    "UpdatePage": "https://www.microsoft.com/download/details.aspx?id=108669"
+  },
+  {
+    "CatalogVersion": "26.08.03",
+    "ReleaseDate": "26.06.16",
+    "Name": "Surface Laptop 8 Snapdragon [26.06.16]",
+    "Manufacturer": "Microsoft",
+    "Model": "Surface Laptop 8 Snapdragon",
+    "SystemId": [
+      "Surface_Laptop_13_8in_8th_Ed_Snapdragon_2036",
+      "Surface_Laptop_13_8in_8th_Ed_Snapdragon_2138",
+      "Surface_Laptop_15in_8th_Ed_Snapdragon_2037",
+      "Surface_Laptop_15in_8th_Ed_Snapdragon_2139",
+      "Surface_Laptop_for_Business_13_8in_8th_Ed_Snapdragon_2036",
+      "Surface_Laptop_for_Business_13_8in_8th_Ed_Snapdragon_2138",
+      "Surface_Laptop_for_Business_15in_8th_Ed_Snapdragon_2037",
+      "Surface_Laptop_for_Business_15in_8th_Ed_Snapdragon_2139"
+    ],
+    "FileName": "SurfaceLaptop8withSnapdragon_Win11_28000_26.051.8481.0.msi",
+    "Url": "https://download.microsoft.com/download/912431b4-2920-4990-8b62-50b573263fda/SurfaceLaptop8withSnapdragon_Win11_28000_26.051.8481.0.msi",
+    "OperatingSystem": "Windows 11",
+    "OSArchitecture": "arm64",
+    "HashMD5": null,
+    "UpdatePage": "https://www.microsoft.com/download/details.aspx?id=108705"
+  },
+  {
     "CatalogVersion": "26.04.06",
     "ReleaseDate": "24.10.15",
     "Name": "Surface Laptop Go [24.10.15]",
@@ -444,9 +486,9 @@
   {
     "CatalogVersion": "26.07.31",
     "ReleaseDate": "26.02.24",
-    "Name": "Surface Laptop Snapdragon 13-inch [26.02.24]",
+    "Name": "Surface Laptop 13in 1st Snapdragon [26.02.24]",
     "Manufacturer": "Microsoft",
-    "Model": "Surface Laptop Snapdragon 13-inch",
+    "Model": "Surface Laptop 13in 1st Snapdragon",
     "SystemId": [
       "Surface_Laptop_13in_1st_Ed_with_Snapdragon_2095",
       "Surface_Laptop_for_Business_13in_1st_Ed_with_Snapdragon_2095"
@@ -457,6 +499,20 @@
     "OSArchitecture": "arm64",
     "HashMD5": null,
     "UpdatePage": "https://www.microsoft.com/download/details.aspx?id=108198"
+  },
+  {
+    "CatalogVersion": "26.08.03",
+    "ReleaseDate": "26.06.19",
+    "Name": "Surface Laptop 13in 1st Intel [26.06.19]",
+    "Manufacturer": "Microsoft",
+    "Model": "Surface Laptop 13in 1st Intel",
+    "SystemId": "Surface_Laptop_for_Business_13in_1st_Ed_Intel_2156",
+    "FileName": "SurfaceLaptopforBusiness13in1stEdIntel_Win11_26200_26.051.10324.0.msi",
+    "Url": "https://download.microsoft.com/download/30629874-b55d-4c3d-aed7-fbc7cb093cbd/SurfaceLaptopforBusiness13in1stEdIntel_Win11_26200_26.051.10324.0.msi",
+    "OperatingSystem": "Windows 11",
+    "OSArchitecture": "amd64",
+    "HashMD5": null,
+    "UpdatePage": "https://www.microsoft.com/download/details.aspx?id=108670"
   },
   {
     "CatalogVersion": "26.07.31",
