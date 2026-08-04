@@ -153,10 +153,33 @@ function Invoke-OSDCloudWifi {
     # Test Wi-Fi Adapter
     if ($StartOSDCloudWifi) {
         # Do we have a Wireless Interface? We have to search for different names as this will vary depending on the WinPE Language
-        $SmbClientNetworkInterface = Get-SmbClientNetworkInterface | Where-Object { ($_.'FriendlyName' -match 'WiFi|Wi-Fi|Wireless|WLAN') } | Sort-Object -Property InterfaceIndex | Select-Object -First 1
+        $SmbClientNetworkInterface = $null
+        try {
+            $SmbClientNetworkInterface = Get-SmbClientNetworkInterface -ErrorAction Stop |
+                Where-Object { $_.FriendlyName -match 'WiFi|Wi-Fi|Wireless|WLAN' } |
+                Sort-Object -Property InterfaceIndex |
+                Select-Object -First 1
+        }
+        catch {
+            Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] SMB client network interfaces are unavailable: $($_.Exception.Message)"
+        }
 
         # Pair a Wireless Network Adapter based on the InterfaceIndex
-        $WirelessNetworkAdapter = Get-CimInstance -ClassName Win32_NetworkAdapter | Where-Object { $_.InterfaceIndex -eq $SmbClientNetworkInterface.InterfaceIndex }
+        if ($SmbClientNetworkInterface) {
+            $WirelessNetworkAdapter = Get-CimInstance -ClassName Win32_NetworkAdapter |
+                Where-Object { $_.InterfaceIndex -eq $SmbClientNetworkInterface.InterfaceIndex }
+        }
+        else {
+            # Get-SmbClientNetworkInterface can fail with error 1231 in WinPE before
+            # networking is initialized. Identify the adapter directly through CIM.
+            $WirelessNetworkAdapter = Get-CimInstance -ClassName Win32_NetworkAdapter |
+                Where-Object {
+                    $_.PhysicalAdapter -eq $true -and
+                    ($_.AdapterType -match 'Wireless|802\.11' -or $_.Name -match 'WiFi|Wi-Fi|Wireless|WLAN')
+                } |
+                Sort-Object -Property InterfaceIndex |
+                Select-Object -First 1
+        }
 
         if ($WirelessNetworkAdapter) {
             $StartOSDCloudWifi = $true
@@ -300,7 +323,14 @@ function Invoke-OSDCloudWifi {
                 Start-Sleep -Seconds 1
             }
         }
-        Get-SmbClientNetworkInterface | Where-Object { ($_.FriendlyName -match 'WiFi|Wi-Fi|Wireless|WLAN') } | Format-List
+        try {
+            Get-SmbClientNetworkInterface -ErrorAction Stop |
+                Where-Object { $_.FriendlyName -match 'WiFi|Wi-Fi|Wireless|WLAN' } |
+                Format-List
+        }
+        catch {
+            Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Unable to display SMB client network interfaces: $($_.Exception.Message)"
+        }
     }
     $null = Stop-Transcript -ErrorAction Ignore
     if ($StartOSDCloudWifi) {

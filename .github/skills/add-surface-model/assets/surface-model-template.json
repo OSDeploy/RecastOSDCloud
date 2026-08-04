@@ -1,0 +1,14 @@
+{
+  "CatalogVersion": "<yy.MM.dd date added to surface.json>",
+  "ReleaseDate": "<yy.MM.dd DriverPack Date Published>",
+  "Name": "<Model> [<ReleaseDate>]",
+  "Manufacturer": "Microsoft",
+  "Model": "<Surface model display name used by this catalog>",
+  "SystemId": "<System SKU string, or array of System SKU strings>",
+  "FileName": "<direct DriverPack MSI file name>",
+  "Url": "https://download.microsoft.com/download/<path>/<direct DriverPack MSI file name>",
+  "OperatingSystem": "Windows 11",
+  "OSArchitecture": "<amd64 or arm64>",
+  "HashMD5": null,
+  "UpdatePage": "https://www.microsoft.com/download/details.aspx?id=<download-center-id>"
+}

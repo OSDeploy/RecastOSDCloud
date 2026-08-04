@@ -11,6 +11,7 @@
     </command:details>
     <maml:description>
       <maml:para>Initializes and runs an OSDCloud deployment workflow. By default, launches the graphical UI (UX) so the operator can configure deployment settings before starting. Use -CLI to skip the UI and immediately begin the workflow in the current console session.</maml:para>
+      <maml:para>In addition to the static parameters documented here, workflow-specific runtime parameters are added dynamically from the selected workflow definition.</maml:para>
       <maml:para>OSDCloud collects anonymous analytic data about the deployment environment and system configuration to help improve the product. No personally identifiable information (PII) is collected. By using OSDCloud you consent to this collection as described in the privacy policy: https://github.com/OSDeploy/OSDCloud/blob/main/PRIVACY.md</maml:para>
     </maml:description>
     <command:syntax>

@@ -95,8 +95,10 @@ function Show-OSDCloudDeviceInfo {
     # Win32_NetworkAdapter
     $networkAdapters = Get-CimInstance -ClassName Win32_NetworkAdapter | Select-Object -Property *
     $networkAdapters | Out-File -FilePath (Join-Path -Path $logsPath -ChildPath 'Win32_NetworkAdapter.txt') -Width 4096 -Force
-    foreach ($item in $networkAdapters.Where({ $null -ne $_.GUID })) {
-        Write-Host -ForegroundColor DarkGray "NetAdapter: $($item.Name) [$($item.MACAddress)]"
+    foreach ($item in $networkAdapters) {
+        if ($null -ne $item.GUID) {
+            Write-Host -ForegroundColor DarkGray "NetAdapter: $($item.Name) [$($item.MACAddress)]"
+        }
     }
     #=================================================
     Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] End"

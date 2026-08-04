@@ -23,6 +23,10 @@ function step-Save-WindowsDriver-MSUpdate {
         return
     }
     #=================================================
+    # TODO: Resolve issue with Microsoft Update Catalog and re-enable this step
+    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] This function is unavailable due to an issue being worked on. Skip."
+    return
+    #=================================================
     # Is it reachable online?
     $Url = 'https://catalog.update.microsoft.com/Home.aspx'
     try {
@@ -47,10 +51,10 @@ function step-Save-WindowsDriver-MSUpdate {
 
     $DestinationDirectory = "C:\Windows\Temp\osdcloud-drivers-disk"
     Save-MicrosoftUpdateCatalogDriver -DestinationDirectory $DestinationDirectory -PNPClass 'DiskDrive'
-    
+
     $DestinationDirectory = "C:\Windows\Temp\osdcloud-drivers-net"
     Save-MicrosoftUpdateCatalogDriver -DestinationDirectory $DestinationDirectory -PNPClass 'Net'
-    
+
     $DestinationDirectory = "C:\Windows\Temp\osdcloud-drivers-scsi"
     Save-MicrosoftUpdateCatalogDriver -DestinationDirectory $DestinationDirectory -PNPClass 'SCSIAdapter'
     #=================================================

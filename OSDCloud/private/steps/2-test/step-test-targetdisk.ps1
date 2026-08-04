@@ -7,7 +7,13 @@ function step-test-targetdisk {
     $Step = $global:OSDCloudCurrentStep
     #=================================================
     #region Main
-    $global:OSDCloudWorkflowInvoke.GetDiskFixed = Get-DeviceLocalDisk | Where-Object { $_.IsBoot -eq $false } | Sort-Object Number
+    if ($env:SystemDrive -eq 'X:') {
+        $global:OSDCloudWorkflowInvoke.GetDiskFixed = Get-DeviceLocalDisk | Where-Object { $_.IsBoot -eq $false } | Sort-Object Number
+    }
+    else {
+        $global:OSDCloudWorkflowInvoke.GetDiskFixed = Get-DeviceLocalDisk | Sort-Object Number
+    }
+
 
     if ($global:OSDCloudWorkflowInvoke.GetDiskFixed) {
         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Fixed Disk is valid. OK."

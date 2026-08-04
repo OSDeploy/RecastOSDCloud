@@ -13,7 +13,9 @@ Starts an OSDCloud operating system deployment.
 ## SYNTAX
 
 ```
-Deploy-OSDCloud [[-WorkflowName] <String>] [-CLI] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Deploy-OSDCloud [[-WorkflowName] <String>] [-CLI] [-Force] [-ProfileName <String>]
+ [-ProgressAction <ActionPreference>] [-OperatingSystem <String>] [-OSEdition <String>]
+ [-OSActivation <String>] [-OSLanguageCode <String>] [-Task <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -23,6 +25,9 @@ graphical UI (UX) so the operator can configure deployment settings before
 starting.
 Use -CLI to skip the UI and immediately begin the workflow in the
 current console session.
+
+In addition to the static parameters documented here, workflow-specific runtime
+parameters are added dynamically from the selected workflow definition.
 
 OSDCloud collects anonymous analytic data about the deployment environment and
 system configuration to help improve the product.
@@ -56,6 +61,20 @@ Deploy-OSDCloud -WorkflowName 'latest'
 ```
 
 Launches the graphical UX for the 'latest' workflow.
+
+### EXAMPLE 4
+```
+Deploy-OSDCloud -CLI -OperatingSystem 'Windows 11 24H2' -OSEdition 'Enterprise'
+```
+
+Runs in CLI mode using dynamic runtime overrides from the selected workflow.
+
+### EXAMPLE 5
+```
+Deploy-OSDCloud -ProfileName 'Lab'
+```
+
+Launches the OSDCloud graphical UX using the 'Lab' profile Env path.
 
 ## PARAMETERS
 
@@ -92,6 +111,98 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Force
+Suppresses supported confirmation prompts for destructive workflow steps.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProfileName
+The full OS profile name used to resolve the Env file path.
+Defaults to 'default'.
+Ignored in WinPE.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: Default
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -OperatingSystem
+{{ Fill OperatingSystem Description }}
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -OSActivation
+{{ Fill OSActivation Description }}
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -OSEdition
+{{ Fill OSEdition Description }}
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -OSLanguageCode
+{{ Fill OSLanguageCode Description }}
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -ProgressAction
 {{ Fill ProgressAction Description }}
 
@@ -99,6 +210,21 @@ Accept wildcard characters: False
 Type: ActionPreference
 Parameter Sets: (All)
 Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Task
+{{ Fill Task Description }}
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
 
 Required: False
 Position: Named
@@ -118,6 +244,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## NOTES
 This command writes deployment status to the host and starts workflow tasks.
 In GUI mode, workflow execution starts only after the operator clicks Start.
+Runtime parameters are provided by Get-OSDCloudWorkflowRuntimeParameter.
 
 ## RELATED LINKS
 

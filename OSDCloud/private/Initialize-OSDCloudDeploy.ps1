@@ -6,12 +6,29 @@ function Initialize-OSDCloudDeploy {
             ValueFromPipelineByPropertyName = $true)]
         [Alias('Name')]
         [System.String]
-        $WorkflowName = 'default'
+        $WorkflowName = 'default',
+
+        [Parameter(Mandatory = $false)]
+        [System.Collections.IDictionary]
+        $EnvParameters,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [System.String]
+        $ProfileName = 'default'
     )
     $ErrorActionPreference = 'Stop'
     #=================================================
     # Get module details
     $ModuleVersion = $($MyInvocation.MyCommand.Module.Version)
+    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] $ModuleVersion"
+    #=================================================
+    # OSDCloud Env override layer
+    # Assemble $global:OSDCloudEnv early so initial property resolution can consume
+    # values from the selected profile and parameter overrides.
+    if (Get-Command -Name 'Initialize-OSDCloudEnv' -ErrorAction SilentlyContinue) {
+        Initialize-OSDCloudEnv -Parameters $EnvParameters -ProfileName $ProfileName | Out-Null
+    }
     #=================================================
     # Dependencies
     # Make sure curl.exe is present and throw if not
@@ -39,8 +56,56 @@ function Initialize-OSDCloudDeploy {
     $DeploymentDiskObject = $DeploymentDiskObject | Select-Object -First 1
     #=================================================
     # OSDCloudDevice
+    <#
+        PS C:\Users\david> $OSDCloudDevice
+        Name                           Value
+        ----                           -----
+        OSDManufacturer                HP
+        OSDModel                       HP Z2 Mini G9 Workstation Desktop PC
+        OSDProduct                     895E
+        ComputerName                   OSDMAIN
+        BaseBoardProduct               895E
+        BiosReleaseDate                11/02/2025 18:00:00
+        BiosVersion                    U50 Ver. 03.05.02
+        ComputerManufacturer           HP
+        ComputerModel                  HP Z2 Mini G9 Workstation Desktop PC
+        ComputerSystemFamily           103C_53335X HP Workstation
+        ComputerSystemProduct          SBKPF,DWKSBLF,SBKPFV3
+        ComputerSystemSKU              B40ZBUP#ABA
+        ComputerSystemType             Small Form Factor
+        HardwareHash
+        IsAutopilotSpec                True
+        IsDesktop                      False
+        IsLaptop                       False
+        IsOnBattery                    False
+        IsServer                       False
+        IsSFF                          True
+        IsTablet                       False
+        IsTpmSpec                      True
+        IsVM                           False
+        IsUEFI                         True
+        KeyboardLayout                 00000409
+        KeyboardName                   Enhanced (101- or 102-key)
+        NetGateways                    {192.168.0.1, $null}
+        NetIPAddress                   {192.168.0.121, fe80::81d7:1db5:c6cc:e822, fd1a:2b60:6c6d:4ec6:3111:5f06:51a4:c72e, fd1a:2b60:6c6d:4ec6:1236:ad56:5fe8:9d11...}
+        NetMacAddress                  {64:4B:F0:39:11:3A, 10:4A:26:03:04:16}
+        OSArchitecture                 64-bit
+        OSVersion                      10.0.26200
+        ProcessorArchitecture          AMD64
+        SerialNumber                   MXL4414JQT
+        SystemFirmwareHardwareId       EF647623-90B4-44BC-8866-D6FB7F29AB46
+        TimeZone                       Central Standard Time
+        TotalPhysicalMemoryGB          128
+        TpmIsActivated                 True
+        TpmIsEnabled                   True
+        TpmIsOwned                     True
+        TpmManufacturerIdTxt           NTC
+        TpmManufacturerVersion         7.2.3.1
+        TpmSpecVersion                 2.0, 0, 1.59
+        UUID                           048A2C6B-A1D9-488C-8BF0-18D0F9A82D91
+    #>
     if (-not ($global:OSDCloudDevice)) {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Initialize OSDCloud Device $ModuleVersion"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Initialize OSDCloud Device"
         Initialize-OSDCloudDevice
     }
     #=================================================
@@ -69,7 +134,7 @@ function Initialize-OSDCloudDeploy {
     # Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Get OSDCloud OperatingSystems"
 
     # Limit to matching Processor Architecture
-    $ProcessorArchitecture = $env:PROCESSOR_ARCHITECTURE
+    $ProcessorArchitecture = $global:OSDCloudDevice.ProcessorArchitecture
     $global:DeployOSDCloudOperatingSystems = Get-OSDCloudCoreOperatingSystems | Where-Object { $_.OSArchitecture -match "$ProcessorArchitecture" }
 
     # Need to fail if no OS found for Architecture
@@ -111,6 +176,26 @@ function Initialize-OSDCloudDeploy {
     $OSLanguageCodeValues = [array]$global:OSDCloudWorkflowSettingsOS.OSLanguageCode.values
     $OSVersion = ($global:OSDCloudWorkflowSettingsOS.OperatingSystem.default -split ' ')[2]
     #=================================================
+    #   OSDCloudEnv
+    #=================================================
+    # Use OSDCloudEnv to override these properties:
+    #   OperatingSystem, OSEdition, OSActivation, OSLanguageCode
+    if ($global:OSDCloudEnv) {
+        if ($global:OSDCloudEnv.OperatingSystem) {
+            $OperatingSystem = $global:OSDCloudEnv.OperatingSystem
+        }
+        if ($global:OSDCloudEnv.OSEdition) {
+            $OSEdition = $global:OSDCloudEnv.OSEdition
+            $OSEditionId = ($OSEditionValues | Where-Object { $_.Edition -eq $OSEdition }).EditionId
+        }
+        if ($global:OSDCloudEnv.OSActivation) {
+            $OSActivation = $global:OSDCloudEnv.OSActivation
+        }
+        if ($global:OSDCloudEnv.OSLanguageCode) {
+            $OSLanguageCode = $global:OSDCloudEnv.OSLanguageCode
+        }
+    }
+    #=================================================
     # OperatingSystemObject
     $OperatingSystemObject = $global:DeployOSDCloudOperatingSystems | Where-Object { $_.OperatingSystem -match $OperatingSystem } | Where-Object { $_.OSActivation -eq $OSActivation } | Where-Object { $_.OSLanguageCode -eq $OSLanguageCode }
     if (-not $OperatingSystemObject) {
@@ -122,11 +207,11 @@ function Initialize-OSDCloudDeploy {
     $ImageFileName = $OperatingSystemObject.FileName
     $ImageFileUrl = $OperatingSystemObject.FilePath
     #=================================================
-    # DriverPack
+    # DriverPacks
     $OSDManufacturer = $global:OSDCloudDevice.OSDManufacturer
     $OSDModel = $global:OSDCloudDevice.OSDModel
     $OSDProduct = $global:OSDCloudDevice.OSDProduct
-    $DriverPackValues = Get-CoreDriverPacks
+    $DriverPackValues = Get-OSDCloudCoreDriverPacks
     $DriverPackObject = $DriverPackValues | Where-Object { $_.SystemId -match $OSDProduct } | Select-Object -First 1
 
     if ($DriverPackObject) {
@@ -179,6 +264,13 @@ function Initialize-OSDCloudDeploy {
         WorkflowName              = $WorkflowName
         WorkflowTaskName          = $WorkflowTaskName
         WorkflowTaskObject        = $WorkflowTaskObject
+    }
+    #=================================================
+    # OSDCloud Env override layer
+    # Apply the pre-assembled overrides onto $global:OSDCloudDeploy so they take effect
+    # everywhere.
+    if (Get-Command -Name 'Set-OSDCloudEnvOverride' -ErrorAction SilentlyContinue) {
+        Set-OSDCloudEnvOverride -Target $global:OSDCloudDeploy -ResolveOperatingSystem -AddMissingKeys
     }
     #=================================================
 }

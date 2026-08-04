@@ -8,7 +8,7 @@
 @{
     # --- Identity ---
     RootModule        = 'OSDCloud.psm1'
-    ModuleVersion     = '26.6.26.1'
+    ModuleVersion     = '26.8.3.1'
     CompatiblePSEditions = @('Core','Desktop')
     GUID              = '2fbd5c65-79c7-4561-9a2e-c4a4eebc89c7'
 
@@ -23,20 +23,21 @@
 
     # --- Exports ---
     FunctionsToExport = @(
+        # WinOS
         'Deploy-OSDCloud',
-        'Deploy-OSDCloudCLI',
         'Get-OSDCloudCache',
         'Get-OSDCloudModulePath',
         'Get-OSDCloudModuleVersion',
         'Show-OSDCloudDeviceInfo',
+        'Start-OSDCloudExplorer',
+        # WinPE
         'Invoke-WinPEStartup',
         'Invoke-WinPEStartupManager',
-        'Show-WinPEStartupDevices',
         'Show-WinPEStartupDeviceErrors',
+        'Show-WinPEStartupDevices',
         'Show-WinPEStartupIpconfig',
         'Show-WinPEStartupWifi',
-        'Update-WinPEStartupModule',
-        'Start-OSDCloudExplorer'
+        'Update-WinPEStartupModule'
     )
     CmdletsToExport   = @()
     VariablesToExport = @()

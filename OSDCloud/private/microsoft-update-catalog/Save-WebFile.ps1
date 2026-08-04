@@ -45,7 +45,7 @@ function Save-WebFile {
     #	DestinationDirectory
     #=================================================
     if (Test-Path "$DestinationDirectory") {
-        Write-Verbose "[$(Get-Date -format s)] Directory already exists at $DestinationDirectory"
+        Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Directory already exists at $DestinationDirectory"
     }
     else {
         New-Item -Path "$DestinationDirectory" -ItemType Directory -Force -ErrorAction Stop | Out-Null
@@ -57,7 +57,7 @@ function Save-WebFile {
 
     if (Test-Path $DestinationNewItem.FullName) {
         $DestinationDirectory = $DestinationNewItem | Select-Object -ExpandProperty Directory
-        Write-Verbose "[$(Get-Date -format s)] Destination Directory is writable at $DestinationDirectory"
+        Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Destination Directory is writable at $DestinationDirectory"
         Remove-Item -Path $DestinationNewItem.FullName -Force | Out-Null
     }
     else {
@@ -102,7 +102,7 @@ function Save-WebFile {
         elseif (([System.Net.WebRequest]::DefaultWebProxy).Address) {
             $UseWebClient = $true
         }
-        elseif (!(Test-CommandCurlExe)) {
+        elseif (-not (Get-Command -Name 'curl.exe' -ErrorAction SilentlyContinue)) {
             $UseWebClient = $true
         }
 
@@ -117,18 +117,12 @@ function Save-WebFile {
             Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Destination: $DestinationFullName"
 
             Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Requesing HTTP HEAD to get Content-Length and Accept-Ranges header"
-            try {
-                $remote = Invoke-WebRequest -UseBasicParsing -Method Head -Uri $SourceUrl
-            }
-            catch {
-                Write-Warning "$_" # Error Example: Response status code does not indicate success: 404 (Not Found).
-                Return $null
-            }
+            $remote = Invoke-WebRequest -UseBasicParsing -Method Head -Uri $SourceUrl
             $remoteLength = [Int64]($remote.Headers.'Content-Length' | Select-Object -First 1)
             $remoteAcceptsRanges = ($remote.Headers.'Accept-Ranges' | Select-Object -First 1) -eq 'bytes'
 
             $curlCommandExpression = "& curl.exe --insecure --location --output `"$DestinationFullName`" --url `"$SourceUrl`""
-    
+
             if ($host.name -match 'PowerShell ISE Host') {
                 #PowerShell ISE will display a NativeCommandError, so progress will not be displayed
                 $Quiet = Invoke-Expression ($curlCommandExpression + ' 2>&1')
@@ -158,7 +152,7 @@ function Save-WebFile {
                 $RetryDelaySeconds *= 2 # retry with exponential backoff
                 $RetryCount += 1
                 $curlCommandExpression = "& curl.exe --insecure --location --continue-at - --output `"$DestinationFullName`" --url `"$SourceUrl`""
-                
+
                 if ($host.name -match 'PowerShell ISE Host') {
                     #PowerShell ISE will display a NativeCommandError, so progress will not be displayed
                     $Quiet = Invoke-Expression ($curlCommandExpression + ' 2>&1')
@@ -170,7 +164,7 @@ function Save-WebFile {
 
             if ($localExists -and ((Get-Item $DestinationFullName).Length -lt $remoteLength)) {
                 Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Download is incomplete after $RetryCount retries."
-                Write-Warning "Could not download $DestinationFullName"
+                Write-Warning "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Could not download $DestinationFullName"
                 $null
             }
         }
@@ -181,7 +175,7 @@ function Save-WebFile {
             Get-Item $DestinationFullName -Force
         }
         else {
-            Write-Warning "Could not download $DestinationFullName"
+            Write-Warning "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Could not download $DestinationFullName"
             $null
         }
         #=================================================

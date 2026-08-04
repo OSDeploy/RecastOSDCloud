@@ -4,6 +4,83 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 26.8.3.1 - August 3, 2026
+
+### Added
+
+- Added Microsoft Surface driver pack catalog entries for Surface Laptop 8 Intel, Surface Laptop 8 Snapdragon, and Surface Laptop 13in 1st Intel.
+- Added the `add-surface-model` Copilot skill, Surface model template, and catalog validation guidance for maintaining `surface.json`.
+
+### Changed
+
+- Module version bumped to `26.8.3.1`.
+- Renamed the Surface Laptop Snapdragon 13-inch catalog entry to Surface Laptop 13in 1st Snapdragon to align with Surface catalog naming.
+
+### Removed
+
+- Removed the legacy `surface.xml` driver pack snapshot now superseded by `surface.json`.
+
+## 26.8.1.1 - August 1, 2026
+
+### Changed
+
+- Module version bumped to `26.8.1.1`.
+- Updated `step-test-targetdisk` to keep the existing non-boot-disk filter in WinPE and include all local disks when running outside WinPE.
+- Temporarily disabled `step-Save-WindowsDriver-MSUpdate` with a skip message while a Microsoft Update Catalog issue is being addressed.
+
+## 26.7.29.1 - July 29, 2026
+
+### Added
+
+- Added WinPE startup profiles for `Deploy-OSDCloud` and `Show-OSDCloudDeviceInfo`.
+
+### Changed
+
+- Module version bumped to `26.7.29.1`.
+- Updated `Deploy-OSDCloud` help content and module help XML to document CLI usage through `Deploy-OSDCloud -CLI`, profile selection, force support, and workflow runtime parameters.
+- Improved `Invoke-OSDCloudWifi` wireless adapter detection in WinPE by handling `Get-SmbClientNetworkInterface` failures and falling back to CIM-based adapter discovery when SMB networking is not yet initialized.
+- Improved `Show-OSDCloudDeviceInfo` network adapter output filtering when adapter GUID values are missing.
+- Updated the privacy policy with expanded disclosures for analytics payloads, local device data and logs, network operations, and external service interactions.
+
+### Removed
+
+- Removed `Deploy-OSDCloudCLI` from the exported module cmdlet surface; CLI deployments should now use `Deploy-OSDCloud -CLI`.
+- Removed the standalone `Deploy-OSDCloudCLI` help page.
+
+## 26.7.22.1 - July 22, 2026
+
+### Added
+
+- Added module-level `osdcloud.env` defaults for organization and deployment branch values.
+- Added environment and profile support for pre-seeding deployment settings and overriding device and operating system selections.
+- Added dynamic workflow runtime parameters generated from workflow operating system and task definitions.
+- Added centralized download handling with curl validation, error handling, and improved warnings.
+- Added `Sync-OSDCloudDateTime` error handling for internet time synchronization.
+- Added `Get-DeploymentDiskObject` and reorganized disk-management helpers for deployment disk filtering and partition operations.
+- Added Windows 11 25H2 operating system catalog build `26200.8873`.
+- Added detailed documentation for disk-management and device-initialization functions, plus an ENV files guide.
+
+### Changed
+
+- Module version bumped to `26.7.22.1`.
+- Updated `Deploy-OSDCloud` and `Deploy-OSDCloudCLI` to share workflow parameter discovery, support profile selection, and handle dynamic operating system, edition, activation, language, and task parameters.
+- Updated deployment and device initialization to apply environment overrides for manufacturer, model, product, architecture, operating system, edition, activation, and language settings.
+- Updated driver pack catalog retrieval to use the core driver pack function and module-relative catalog paths.
+- Improved module path resolution, workflow parameter handling, download diagnostics, catalog loading messages, date/time synchronization, and deployment logging.
+- Improved device initialization documentation and retained deployment architecture detection from collected device information.
+- Updated the privacy policy with detailed deployment analytics, local device data and log handling, external service disclosures, and user choices.
+
+### Removed
+
+- Removed the superseded disk-management helper layout in favor of the reorganized disk implementation.
+
+## 26.6.29.1 - June 29, 2026
+
+### Changed
+
+- Module version bumped to `26.6.29.1`.
+- Refactored `Get-OSDCloudCatalogLenovo` by commenting out the redundant `HashMD5` grouping/sort pass when filtering the latest driver packs per model.
+
 ## 26.6.26.1 - June 26, 2026
 
 ### Changed

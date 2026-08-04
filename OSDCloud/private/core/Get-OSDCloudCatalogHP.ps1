@@ -41,7 +41,7 @@ function Get-OSDCloudCatalogHp {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Start"
         #=================================================
         # Catalogs
-        $localDriverPackCatalog = Join-Path (Get-OSDCloudModulePath) $OSDCloudModule.hp.driverpackcataloglocal
+        $localDriverPackCatalog = Join-Path $($MyInvocation.MyCommand.Module.ModuleBase) $OSDCloudModule.hp.driverpackcataloglocal
         $oemDriverPackCatalog = $OSDCloudModule.hp.driverpackcatalogoem
         $tempCatalogPackagePath = "$($env:TEMP)\HPClientDriverPackCatalog.cab"
         $tempCatalogPath = "$($env:TEMP)\osdcloud-driverpack-hp.xml"

@@ -1,3 +1,31 @@
+<#
+.SYNOPSIS
+Collects local hardware, firmware, TPM, and network details for OSDCloud.
+
+.DESCRIPTION
+Initialize-OSDCloudDevice gathers device information from CIM classes, firmware,
+and environment data, then normalizes manufacturer/model/product values for
+workflow use. It writes diagnostic logs to $env:TEMP\osdcloud-logs, attempts to
+copy logs to an available OSDCloudLogs path, and populates
+$global:OSDCloudDevice with an ordered property set used by downstream OSDCloud
+deployment logic.
+
+.EXAMPLE
+Initialize-OSDCloudDevice
+
+Collects current device metadata, creates or updates
+$global:OSDCloudDevice, and writes log artifacts for troubleshooting.
+
+.OUTPUTS
+None. This function does not emit pipeline output.
+
+.NOTES
+Side effects:
+- Clears the current PowerShell error collection.
+- Updates date/time in WinPE when needed.
+- Writes logs to $env:TEMP\osdcloud-logs.
+- Sets $global:OSDCloudDevice.
+#>
 function Initialize-OSDCloudDevice {
     [CmdletBinding()]
     param ()
@@ -16,8 +44,14 @@ function Initialize-OSDCloudDevice {
     }
     #=================================================
     $Error.Clear()
+    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)]"
     #=================================================
-    Sync-WinpeInternetDateTime -ThresholdMinutes 5 -Force
+    try {
+        Sync-OSDCloudDateTime -ThresholdMinutes 5 -Force -ErrorAction Stop
+    }
+    catch {
+        Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Unable to sync date/time: $($_.Exception.Message)"
+    }
     #=================================================
     # Set the osdcloud-logs Path
     $LogsPath = "$env:TEMP\osdcloud-logs"
@@ -118,6 +152,7 @@ function Initialize-OSDCloudDevice {
     # Win32_OperatingSystem
     $classWin32OperatingSystem = Get-CimInstance -ClassName Win32_OperatingSystem | Select-Object -Property *
     $classWin32OperatingSystem | Out-File (Join-Path -Path $LogsPath -ChildPath 'Win32_OperatingSystem.txt') -Width 4096 -Force
+    $OSArchitecture = $classWin32OperatingSystem.OSArchitecture | ConvertTo-TrimmedString
     #=================================================
     # Win32_PnPEntity
     $classWin32PnPEntity = Get-CimInstance -ClassName Win32_PnPEntity | Select-Object -Property *
@@ -230,7 +265,7 @@ function Initialize-OSDCloudDevice {
                         [System.Text.EncoderFallback]::ReplacementFallback,
                         [System.Text.DecoderFallback]::ReplacementFallback
                     )
-                    
+
                     $dbText = $utf8Encoding.GetString($dbBytes)
                     if ([string]::IsNullOrWhiteSpace($dbText)) {
                         $dbText = [System.Text.Encoding]::ASCII.GetString($dbBytes)
@@ -467,6 +502,32 @@ function Initialize-OSDCloudDevice {
         $OSDProduct = 'Unknown'
     }
     #=================================================
+    #   OSDCloudEnv
+    #=================================================
+    # Use OSDCloudEnv to override these properties:
+    # OSDManufacturer
+    # OSDModel
+    # OSDProduct
+    # OSArchitecture
+    $ProcessorArchitecture = $env:PROCESSOR_ARCHITECTURE
+    if ($global:OSDCloudEnv) {
+        if ($global:OSDCloudEnv.OSDManufacturer) {
+            $OSDManufacturer = $global:OSDCloudEnv.OSDManufacturer
+        }
+        if ($global:OSDCloudEnv.OSDModel) {
+            $OSDModel = $global:OSDCloudEnv.OSDModel
+        }
+        if ($global:OSDCloudEnv.OSDProduct) {
+            $OSDProduct = $global:OSDCloudEnv.OSDProduct
+        }
+        if ($global:OSDCloudEnv.OSArchitecture) {
+            $OSArchitecture = $global:OSDCloudEnv.OSArchitecture
+        }
+        if ($global:OSDCloudEnv.ProcessorArchitecture) {
+            $ProcessorArchitecture = $global:OSDCloudEnv.ProcessorArchitecture
+        }
+    }
+    #=================================================
     #   Pass Variables to OSDCloudDevice
     #=================================================
     $global:OSDCloudDevice = $null
@@ -500,9 +561,9 @@ function Initialize-OSDCloudDevice {
         NetGateways               = $NetGateways
         NetIPAddress              = $NetIPAddress
         NetMacAddress             = $NetMacAddress
-        OSArchitecture            = $classWin32OperatingSystem.OSArchitecture
+        OSArchitecture            = $OSArchitecture
         OSVersion                 = $classWin32OperatingSystem.Version
-        ProcessorArchitecture     = $env:PROCESSOR_ARCHITECTURE
+        ProcessorArchitecture     = $ProcessorArchitecture
         SerialNumber              = $SerialNumber
         SystemFirmwareHardwareId  = $SystemFirmwareHardwareId
         TimeZone                  = $classWin32TimeZone.StandardName
