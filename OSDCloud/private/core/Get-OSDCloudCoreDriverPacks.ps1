@@ -8,11 +8,11 @@ manufacturer-specific catalogs are loaded. For ARM64 and other architectures, th
 Supports Dell, HP, Lenovo, Microsoft (Surface), and generic devices.
 
 .PARAMETER Manufacturer
-The device manufacturer name. Defaults to the value from $global:OSDCloudDevice.OSDManufacturer.
+The device manufacturer name. Defaults to the value from $global:OSDCoreDevice.OSDManufacturer.
 Supported values: Dell, HP, Lenovo, Microsoft, or any other value will use the Default catalog.
 
 .PARAMETER ProcessorArchitecture
-The operating system architecture. Defaults to the value from $global:OSDCloudDevice.ProcessorArchitecture.
+The operating system architecture. Defaults to the value from $global:OSDCoreDevice.ProcessorArchitecture.
 Typically 'amd64' or 'arm64'.
 
 .OUTPUTS
@@ -34,9 +34,9 @@ function Get-OSDCloudCoreDriverPacks {
     [CmdletBinding()]
     param (
         [System.String]
-        $Manufacturer = $global:OSDCloudDevice.OSDManufacturer,
+        $Manufacturer = $global:OSDCoreDevice.OSDManufacturer,
         [System.String]
-        $ProcessorArchitecture = $global:OSDCloudDevice.ProcessorArchitecture
+        $ProcessorArchitecture = $global:OSDCoreDevice.ProcessorArchitecture
     )
 
     # Load default catalog once

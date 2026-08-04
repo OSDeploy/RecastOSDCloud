@@ -15,9 +15,9 @@ function Invoke-OSDCloudWorkflowTask {
     Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] ModuleVersion: $ModuleVersion"
     #=================================================
     # Set global variables
-    [System.String]$global:Architecture = $OSDCloudDevice.ProcessorArchitecture
-    [System.Boolean]$global:IsOnBattery = $OSDCloudDevice.IsOnBattery
-    [System.Boolean]$global:IsVM = $OSDCloudDevice.IsVM
+    [System.String]$global:Architecture = $OSDCoreDevice.ProcessorArchitecture
+    [System.Boolean]$global:IsOnBattery = $OSDCoreDevice.IsOnBattery
+    [System.Boolean]$global:IsVM = $OSDCoreDevice.IsVM
     [System.Boolean]$global:IsWinPE = $($env:SystemDrive -eq 'X:')
     #=================================================
     # Re-apply the OSDCloud Property override layer to $global:OSDCloudDeploy so authoritative
@@ -30,9 +30,9 @@ function Invoke-OSDCloudWorkflowTask {
     $global:OSDCloudWorkflowInvoke = $null
     $global:OSDCloudWorkflowInvoke = [ordered]@{
         Architecture              = $global:Architecture
-        OSDManufacturer           = $OSDCloudDevice.OSDManufacturer
-        OSDModel                  = $OSDCloudDevice.OSDModel
-        OSDProduct                = $OSDCloudDevice.OSDProduct
+        OSDManufacturer           = $OSDCoreDevice.OSDManufacturer
+        OSDModel                  = $OSDCoreDevice.OSDModel
+        OSDProduct                = $OSDCoreDevice.OSDProduct
         DriverPackName            = $global:OSDCloudDeploy.DriverPackName
         DriverPackObject          = $global:OSDCloudDeploy.DriverPackObject
         DriverFolderName          = $global:OSDCloudDeploy.DriverFolderName
@@ -90,7 +90,7 @@ function Invoke-OSDCloudWorkflowTask {
         }
     }
     # UUID
-    $deviceUUID = $global:OSDCloudDevice.UUID
+    $deviceUUID = $global:OSDCoreDevice.UUID
     # Convert the UUID to a hash value to protect user privacyand ensure a consistent identifier across events
     $deviceUUIDHash = [System.BitConverter]::ToString([System.Security.Cryptography.SHA256]::Create().ComputeHash([System.Text.Encoding]::UTF8.GetBytes($deviceUUID))).Replace("-", "")
     [string]$distinctId = $deviceUUIDHash
@@ -109,19 +109,19 @@ function Invoke-OSDCloudWorkflowTask {
     }
     $eventProperties = @{
         deploymentPhase            = [string]$deploymentPhase
-        osdManufacturer            = $OSDCloudDevice.OSDManufacturer
-        osdModel                   = $OSDCloudDevice.OSDModel
-        osdProduct                 = $OSDCloudDevice.OSDProduct
-        deviceManufacturer         = $OSDCloudDevice.ComputerManufacturer
-        deviceModel                = $OSDCloudDevice.ComputerModel
-        deviceSystemFamily         = $OSDCloudDevice.ComputerSystemFamily
-        deviceSystemProduct        = $OSDCloudDevice.ComputerSystemProduct
-        deviceSystemSKU            = $OSDCloudDevice.ComputerSystemSKU
-        deviceSystemType           = $OSDCloudDevice.ComputerSystemType
-        biosReleaseDate            = $OSDCloudDevice.BiosReleaseDate
-        biosSMBIOSBIOSVersion      = $OSDCloudDevice.BiosSMBIOSBIOSVersion
-        keyboardName               = $OSDCloudDevice.KeyboardName
-        keyboardLayout             = $OSDCloudDevice.KeyboardLayout
+        osdManufacturer            = $OSDCoreDevice.OSDManufacturer
+        osdModel                   = $OSDCoreDevice.OSDModel
+        osdProduct                 = $OSDCoreDevice.OSDProduct
+        deviceManufacturer         = $OSDCoreDevice.ComputerManufacturer
+        deviceModel                = $OSDCoreDevice.ComputerModel
+        deviceSystemFamily         = $OSDCoreDevice.ComputerSystemFamily
+        deviceSystemProduct        = $OSDCoreDevice.ComputerSystemProduct
+        deviceSystemSKU            = $OSDCoreDevice.ComputerSystemSKU
+        deviceSystemType           = $OSDCoreDevice.ComputerSystemType
+        biosReleaseDate            = $OSDCoreDevice.BiosReleaseDate
+        biosSMBIOSBIOSVersion      = $OSDCoreDevice.BiosSMBIOSBIOSVersion
+        keyboardName               = $OSDCoreDevice.KeyboardName
+        keyboardLayout             = $OSDCoreDevice.KeyboardLayout
         winArchitecture            = [string]$env:PROCESSOR_ARCHITECTURE
         winBuildLabEx              = [string]$computerInfo.WindowsBuildLabEx
         winBuildNumber             = [string]$computerInfo.OsBuildNumber

@@ -21,17 +21,17 @@ try {
 }
 #================================================
 # Variables
-$deviceBiosReleaseDate       = $global:OSDCloudDevice.BiosReleaseDate
-$deviceBiosVersion           = $global:OSDCloudDevice.BiosVersion
-$deviceOSDManufacturer       = $global:OSDCloudDevice.OSDManufacturer
-$deviceOSDModel              = $global:OSDCloudDevice.OSDModel
-$deviceOSDProduct            = $global:OSDCloudDevice.OSDProduct
-$deviceComputerSystemSKU     = $global:OSDCloudDevice.ComputerSystemSKU
-$deviceIsAutopilotSpec       = $global:OSDCloudDevice.IsAutopilotSpec
-$deviceIsTpmSpec             = $global:OSDCloudDevice.IsTpmSpec
-$deviceSerialNumber          = $global:OSDCloudDevice.SerialNumber
-$deviceUUID                  = $global:OSDCloudDevice.UUID
-$deviceHardwareHash          = $global:OSDCloudDevice.HardwareHash
+$deviceBiosReleaseDate       = $global:OSDCoreDevice.BiosReleaseDate
+$deviceBiosVersion           = $global:OSDCoreDevice.BiosVersion
+$deviceOSDManufacturer       = $global:OSDCoreDevice.OSDManufacturer
+$deviceOSDModel              = $global:OSDCoreDevice.OSDModel
+$deviceOSDProduct            = $global:OSDCoreDevice.OSDProduct
+$deviceComputerSystemSKU     = $global:OSDCoreDevice.ComputerSystemSKU
+$deviceIsAutopilotSpec       = $global:OSDCoreDevice.IsAutopilotSpec
+$deviceIsTpmSpec             = $global:OSDCoreDevice.IsTpmSpec
+$deviceSerialNumber          = $global:OSDCoreDevice.SerialNumber
+$deviceUUID                  = $global:OSDCoreDevice.UUID
+$deviceHardwareHash          = $global:OSDCoreDevice.HardwareHash
 $getOSDCloudModuleVersion    = Get-OSDCloudModuleVersion
 #================================================
 # WPFUI Fluent theme initialization
@@ -1017,9 +1017,9 @@ if (-not [string]::IsNullOrWhiteSpace([string]$deviceHardwareHash)) {
     })
 }
 
-$OSDCloudDeviceGrid = $window.FindName('OSDCloudDeviceGrid')
+$OSDCoreDeviceGrid = $window.FindName('OSDCoreDeviceGrid')
 
-function Convert-OSDCloudDeviceValueToString {
+function Convert-OSDCoreDeviceValueToString {
     param($Value)
 
     if ($null -eq $Value) {
@@ -1041,8 +1041,8 @@ function Convert-OSDCloudDeviceValueToString {
     return [string]$Value
 }
 
-function Get-OSDCloudDeviceItems {
-    $deviceObject = $global:OSDCloudDevice
+function Get-OSDCoreDeviceItems {
+    $deviceObject = $global:OSDCoreDevice
     if (-not $deviceObject) {
         return @()
     }
@@ -1054,7 +1054,7 @@ function Get-OSDCloudDeviceItems {
                 ForEach-Object {
                     [PSCustomObject]@{
                         Key   = [string]$_.Key
-                        Value = Convert-OSDCloudDeviceValueToString -Value $_.Value
+                        Value = Convert-OSDCoreDeviceValueToString -Value $_.Value
                     }
                 }
         )
@@ -1071,14 +1071,14 @@ function Get-OSDCloudDeviceItems {
             ForEach-Object {
                 [PSCustomObject]@{
                     Key   = [string]$_.Name
-                    Value = Convert-OSDCloudDeviceValueToString -Value $_.Value
+                    Value = Convert-OSDCoreDeviceValueToString -Value $_.Value
                 }
             }
     )
 }
 
-if ($OSDCloudDeviceGrid) {
-    $OSDCloudDeviceGrid.ItemsSource = Get-OSDCloudDeviceItems
+if ($OSDCoreDeviceGrid) {
+    $OSDCoreDeviceGrid.ItemsSource = Get-OSDCoreDeviceItems
 }
 #================================================
 # Summary / Selected detail text blocks

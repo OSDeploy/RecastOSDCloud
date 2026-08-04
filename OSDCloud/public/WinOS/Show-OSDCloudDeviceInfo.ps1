@@ -41,7 +41,7 @@ Log Files Created:
 
 Functions Called:
 - Get-OSDCloudModuleVersion: Retrieves current OSDCloud module version
-- Initialize-OSDCloudDevice: Populates $global:OSDCloudDevice with hardware details
+- Initialize-OSDCoreDevice: Populates $global:OSDCoreDevice with hardware details
 
 The function updates the window title to '[OSDCloud] - WinPE and Device Information' to indicate the current operation status.
 #>
@@ -55,7 +55,7 @@ function Show-OSDCloudDeviceInfo {
     #=================================================
     $OSDCloudModuleVersion = (Get-OSDCloudModuleVersion).ToString()
     Write-Host -ForegroundColor DarkCyan "[$(Get-Date -format s)] OSDCloud PowerShell Module $OSDCloudModuleVersion"
-    Initialize-OSDCloudDevice
+    Initialize-OSDCoreDevice
     #=================================================
     # Create the log path if it does not already exist
     $logsPath = Join-Path -Path $env:TEMP -ChildPath 'osdcloud-logs'
@@ -70,10 +70,10 @@ function Show-OSDCloudDeviceInfo {
     #=================================================
     # Device Details
     Write-Host -ForegroundColor DarkGray "WinPE $($operatingSystem.Version) $($operatingSystem.OSArchitecture) $($computerSystem.Name)"
-    Write-Host -ForegroundColor DarkGray "Manufacturer: $($global:OSDCloudDevice.OSDManufacturer)"
-    Write-Host -ForegroundColor DarkGray "Model: $($global:OSDCloudDevice.OSDModel)"
-    Write-Host -ForegroundColor DarkGray "BIOS: $($global:OSDCloudDevice.BiosVersion)"
-    Write-Host -ForegroundColor DarkGray "BIOS Release Date: $($global:OSDCloudDevice.BiosReleaseDate)"
+    Write-Host -ForegroundColor DarkGray "Manufacturer: $($global:OSDCoreDevice.OSDManufacturer)"
+    Write-Host -ForegroundColor DarkGray "Model: $($global:OSDCoreDevice.OSDModel)"
+    Write-Host -ForegroundColor DarkGray "BIOS: $($global:OSDCoreDevice.BiosVersion)"
+    Write-Host -ForegroundColor DarkGray "BIOS Release Date: $($global:OSDCoreDevice.BiosReleaseDate)"
 
     foreach ($item in $processors) {
         Write-Host -ForegroundColor DarkGray "Processor: $($item.Name) [$($item.NumberOfLogicalProcessors) Logical]"

@@ -21,17 +21,17 @@ try {
 }
 #================================================
 # Variables
-$deviceBiosReleaseDate       = $global:OSDCloudDevice.BiosReleaseDate
-$deviceBiosVersion           = $global:OSDCloudDevice.BiosVersion
-$deviceOSDManufacturer       = $global:OSDCloudDevice.OSDManufacturer
-$deviceOSDModel              = $global:OSDCloudDevice.OSDModel
-$deviceOSDProduct            = $global:OSDCloudDevice.OSDProduct
-$deviceComputerSystemSKU     = $global:OSDCloudDevice.ComputerSystemSKU
-$deviceIsAutopilotSpec       = $global:OSDCloudDevice.IsAutopilotSpec
-$deviceIsTpmSpec             = $global:OSDCloudDevice.IsTpmSpec
-$deviceSerialNumber          = $global:OSDCloudDevice.SerialNumber
-$deviceUUID                  = $global:OSDCloudDevice.UUID
-$deviceHardwareHash          = $global:OSDCloudDevice.HardwareHash
+$deviceBiosReleaseDate       = $global:OSDCoreDevice.BiosReleaseDate
+$deviceBiosVersion           = $global:OSDCoreDevice.BiosVersion
+$deviceOSDManufacturer       = $global:OSDCoreDevice.OSDManufacturer
+$deviceOSDModel              = $global:OSDCoreDevice.OSDModel
+$deviceOSDProduct            = $global:OSDCoreDevice.OSDProduct
+$deviceComputerSystemSKU     = $global:OSDCoreDevice.ComputerSystemSKU
+$deviceIsAutopilotSpec       = $global:OSDCoreDevice.IsAutopilotSpec
+$deviceIsTpmSpec             = $global:OSDCoreDevice.IsTpmSpec
+$deviceSerialNumber          = $global:OSDCoreDevice.SerialNumber
+$deviceUUID                  = $global:OSDCoreDevice.UUID
+$deviceHardwareHash          = $global:OSDCoreDevice.HardwareHash
 $getOSDCloudModuleVersion    = Get-OSDCloudModuleVersion
 #================================================
 # WPFUI Fluent theme initialization

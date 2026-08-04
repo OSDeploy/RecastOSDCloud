@@ -135,7 +135,7 @@ function step-phase-action {
     # Implementation here.
     # Read context from $global:OSDCloudWorkflowInvoke (architecture, paths, OS object, etc.)
     # Read deployment config from $global:OSDCloudDeploy
-    # Read device info from $global:OSDCloudDevice
+    # Read device info from $global:OSDCoreDevice
 
     #endregion
     #=================================================

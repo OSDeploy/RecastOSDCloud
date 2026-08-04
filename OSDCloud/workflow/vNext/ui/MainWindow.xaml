@@ -283,11 +283,11 @@
                         <ui:Card Padding="0" Margin="0,12,0,0">
                             <Expander IsExpanded="False" Margin="16,12,16,12">
                                 <Expander.Header>
-                                    <TextBlock Text="GLOBAL VARIABLE: OSDCloudDevice" FontSize="11" FontWeight="SemiBold"
+                                    <TextBlock Text="GLOBAL VARIABLE: OSDCoreDevice" FontSize="11" FontWeight="SemiBold"
                                                Foreground="#A19F9D" />
                                 </Expander.Header>
                                 <Border BorderBrush="#EDEBE9" BorderThickness="1" CornerRadius="4" Margin="0,10,0,0">
-                                    <DataGrid x:Name="OSDCloudDeviceGrid"
+                                    <DataGrid x:Name="OSDCoreDeviceGrid"
                                               AutoGenerateColumns="False"
                                               CanUserAddRows="False"
                                               CanUserDeleteRows="False"
@@ -321,7 +321,7 @@
                     </StackPanel>
 
                     <!-- ─── OSDCLOUD DEVICE PANEL ─── -->
-                    <StackPanel x:Name="OSDCloudDevicePanel" Visibility="Collapsed" />
+                    <StackPanel x:Name="OSDCoreDevicePanel" Visibility="Collapsed" />
 
                     <!-- ─── DRIVERS PANEL ─── -->
                     <StackPanel x:Name="DriversPanel" Visibility="Collapsed">

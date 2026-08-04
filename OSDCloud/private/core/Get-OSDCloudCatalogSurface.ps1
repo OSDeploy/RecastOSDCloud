@@ -84,7 +84,7 @@ function Get-OSDCloudCatalogSurface {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Building Surface driver pack catalog (CatalogVersion: $CatalogVersion)"
 
         # If a device OSDProduct is known, limit live UpdatePage checks to the matching entry only
-        $osdProduct = if ($global:OSDCloudDevice -and $global:OSDCloudDevice.OSDProduct) { $global:OSDCloudDevice.OSDProduct } else { $null }
+        $osdProduct = if ($global:OSDCoreDevice -and $global:OSDCoreDevice.OSDProduct) { $global:OSDCoreDevice.OSDProduct } else { $null }
         if ($osdProduct) {
             Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] OSDProduct filter active: only fetching live data for SystemId matching '$osdProduct'"
         }

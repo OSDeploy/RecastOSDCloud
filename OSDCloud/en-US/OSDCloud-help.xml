@@ -775,7 +775,7 @@
         <maml:para>- Win32_NetworkAdapter.txt: Complete network adapter information</maml:para>
         <maml:para></maml:para>
         <maml:para>Functions Called: - Get-OSDCloudModuleVersion: Retrieves current OSDCloud module version</maml:para>
-        <maml:para>- Initialize-OSDCloudDevice: Populates $global:OSDCloudDevice with hardware details</maml:para>
+        <maml:para>- Initialize-OSDCoreDevice: Populates $global:OSDCoreDevice with hardware details</maml:para>
         <maml:para></maml:para>
         <maml:para>The function updates the window title to '[OSDCloud] - WinPE and Device Information' to indicate the current operation status.</maml:para>
       </maml:alert>

@@ -9,9 +9,9 @@ function step-Add-WindowsDriver-OSDFolder {
     $LogPath = "C:\Windows\Temp\osdcloud-logs"
     $OfflinePath = "C:\"
 
-    $osdManufacturer = $global:OSDCloudDevice.OSDManufacturer
-    $osdModel        = $global:OSDCloudDevice.OSDModel
-    $osdProduct      = $global:OSDCloudDevice.OSDProduct
+    $osdManufacturer = $global:OSDCoreDevice.OSDManufacturer
+    $osdModel        = $global:OSDCoreDevice.OSDModel
+    $osdProduct      = $global:OSDCoreDevice.OSDProduct
 
     if (-not (Test-Path -Path $LogPath)) {
         New-Item -ItemType Directory -Path $LogPath -Force | Out-Null

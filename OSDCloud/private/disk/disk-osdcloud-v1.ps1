@@ -76,7 +76,7 @@ function New-OSDPartitionSystem {
     Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Starting system partition workflow for disk $DiskNumber"
     if (-NOT ($PartitionStyle)) {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] PartitionStyle was not supplied; inferring from current boot mode"
-        if ($global:OSDCloudDevice.IsUEFI -eq $true) {
+        if ($global:OSDCoreDevice.IsUEFI -eq $true) {
             $PartitionStyle = 'GPT'
         } else {
             $PartitionStyle = 'MBR'

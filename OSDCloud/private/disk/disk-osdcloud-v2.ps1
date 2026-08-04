@@ -76,7 +76,7 @@ function New-OSDCloudPartitionSystem {
     Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Starting system partition workflow for disk $DiskNumber"
     if (-NOT ($PartitionStyle)) {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] PartitionStyle was not supplied; inferring from current boot mode"
-        if ($global:OSDCloudDevice.IsUEFI -eq $true) {
+        if ($global:OSDCoreDevice.IsUEFI -eq $true) {
             $PartitionStyle = 'GPT'
         } else {
             $PartitionStyle = 'MBR'
@@ -217,7 +217,7 @@ function New-OSDCloudPartitionWindows {
     #=================================================
     if (-NOT ($PartitionStyle)) {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] PartitionStyle was not supplied; inferring from current boot mode"
-        if ($global:OSDCloudDevice.IsUEFI -eq $true) {
+        if ($global:OSDCoreDevice.IsUEFI -eq $true) {
             $PartitionStyle = 'GPT'
         } else {
             $PartitionStyle = 'MBR'
@@ -429,7 +429,7 @@ function Clear-DeviceLocalDisk {
     #	-PartitionStyle
     #=================================================
     if (-NOT ($PSBoundParameters.ContainsKey('PartitionStyle'))) {
-        if ($global:OSDCloudDevice.IsUEFI -eq $true) {
+        if ($global:OSDCoreDevice.IsUEFI -eq $true) {
             Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] IsUEFI = $true"
             $PartitionStyle = 'GPT'
         } else {
@@ -1372,7 +1372,7 @@ function New-OSDCloudDisk {
     #	-PartitionStyle
     #=================================================
     if (-NOT ($PSBoundParameters.ContainsKey('PartitionStyle'))) {
-        if ($global:OSDCloudDevice.IsUEFI -eq $true) {
+        if ($global:OSDCoreDevice.IsUEFI -eq $true) {
             Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] IsUEFI = $true"
             $PartitionStyle = 'GPT'
         } else {
