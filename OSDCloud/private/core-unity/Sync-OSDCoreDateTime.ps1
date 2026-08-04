@@ -1,4 +1,4 @@
-function Sync-OSDCloudDateTime {
+function Sync-OSDCoreDateTime {
     <#
     .SYNOPSIS
         Synchronizes the system clock with internet time from Google.
@@ -24,17 +24,17 @@ function Sync-OSDCloudDateTime {
         time difference, and whether the clock was updated.
 
     .EXAMPLE
-        Sync-OSDCloudDateTime
+        Sync-OSDCoreDateTime
 
         Checks the system time against internet time and reports any differences (in WinPE environment).
 
     .EXAMPLE
-        Sync-OSDCloudDateTime -Force
+        Sync-OSDCoreDateTime -Force
 
         Checks and actually updates the system clock if the time difference exceeds the threshold.
 
     .EXAMPLE
-        Sync-OSDCloudDateTime -ThresholdMinutes 30 -Force -PassThru
+        Sync-OSDCoreDateTime -ThresholdMinutes 30 -Force -PassThru
 
         Uses a 30-minute threshold, updates the clock if needed, and returns detailed synchronization results.
 
