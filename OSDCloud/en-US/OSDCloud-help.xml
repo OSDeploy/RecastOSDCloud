@@ -416,9 +416,9 @@
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
     <command:details>
-      <command:name>Get-OSDCloudCache</command:name>
+      <command:name>Get-OSDCoreCacheContent</command:name>
       <command:verb>Get</command:verb>
-      <command:noun>OSDCloudCache</command:noun>
+      <command:noun>OSDCoreCacheContent</command:noun>
       <maml:description>
         <maml:para>Returns OSDCloud cache paths or cached content found on local file system drives.</maml:para>
       </maml:description>
@@ -434,7 +434,7 @@
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
-        <maml:name>Get-OSDCloudCache</maml:name>
+        <maml:name>Get-OSDCoreCacheContent</maml:name>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
           <maml:name>Type</maml:name>
           <maml:description>
@@ -516,28 +516,28 @@
     <command:examples>
       <command:example>
         <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
-        <dev:code>Get-OSDCloudCache</dev:code>
+        <dev:code>Get-OSDCoreCacheContent</dev:code>
         <dev:remarks>
           <maml:para>Returns paths such as 'C:\OSDCloud' and 'D:\OSDCloud' when present.</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
         <maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
-        <dev:code>Get-OSDCloudCache -Type ESD</dev:code>
+        <dev:code>Get-OSDCoreCacheContent -Type ESD</dev:code>
         <dev:remarks>
           <maml:para>Returns all .esd files under each discovered cache OS folder.</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
         <maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
-        <dev:code>Get-OSDCloudCache -Type ESD,DriverPacks</dev:code>
+        <dev:code>Get-OSDCoreCacheContent -Type ESD,DriverPacks</dev:code>
         <dev:remarks>
           <maml:para>Returns all .esd files and driver pack files from each discovered cache.</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
         <maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
-        <dev:code>Get-OSDCloudCache -Type *</dev:code>
+        <dev:code>Get-OSDCoreCacheContent -Type *</dev:code>
         <dev:remarks>
           <maml:para>Returns all supported cache content types.</maml:para>
         </dev:remarks>

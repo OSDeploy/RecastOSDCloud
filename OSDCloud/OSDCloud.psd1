@@ -25,7 +25,6 @@
     FunctionsToExport = @(
         # WinOS
         'Deploy-OSDCloud',
-        'Get-OSDCloudCache',
         'Get-OSDCloudModulePath',
         'Get-OSDCloudModuleVersion',
         'Show-OSDCloudDeviceInfo',

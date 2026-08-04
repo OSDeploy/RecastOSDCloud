@@ -5,7 +5,7 @@ online version: https://github.com/OSDeploy/OSDCloud/blob/main/PRIVACY.md
 schema: 2.0.0
 ---
 
-# Get-OSDCloudCache
+# Get-OSDCoreCacheContent
 
 ## SYNOPSIS
 Returns OSDCloud cache paths or cached content found on local file system drives.
@@ -13,7 +13,7 @@ Returns OSDCloud cache paths or cached content found on local file system drives
 ## SYNTAX
 
 ```
-Get-OSDCloudCache [[-Type] <String[]>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Get-OSDCoreCacheContent [[-Type] <String[]>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -39,28 +39,28 @@ Type values:
 
 ### EXAMPLE 1
 ```
-Get-OSDCloudCache
+Get-OSDCoreCacheContent
 ```
 
 Returns paths such as 'C:\OSDCloud' and 'D:\OSDCloud' when present.
 
 ### EXAMPLE 2
 ```
-Get-OSDCloudCache -Type ESD
+Get-OSDCoreCacheContent -Type ESD
 ```
 
 Returns all .esd files under each discovered cache OS folder.
 
 ### EXAMPLE 3
 ```
-Get-OSDCloudCache -Type ESD,DriverPacks
+Get-OSDCoreCacheContent -Type ESD,DriverPacks
 ```
 
 Returns all .esd files and driver pack files from each discovered cache.
 
 ### EXAMPLE 4
 ```
-Get-OSDCloudCache -Type *
+Get-OSDCoreCacheContent -Type *
 ```
 
 Returns all supported cache content types.

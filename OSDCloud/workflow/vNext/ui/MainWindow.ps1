@@ -422,7 +422,7 @@ Update-TaskSequenceSteps
 # Local ISO Values
 function Get-LocalIsoFile {
     $localIsoFiles = @(
-        Get-OSDCloudCache -Type ISO -ErrorAction SilentlyContinue |
+        Get-OSDCoreCacheContent -Type ISO -ErrorAction SilentlyContinue |
             Where-Object { $_.Type -eq 'ISO' -and -not [string]::IsNullOrWhiteSpace([string]$_.FullName) }
     )
 
@@ -487,7 +487,7 @@ function Get-DriverPackCacheFile {
 
 function Get-DriverPackCacheItems {
     return @(
-        Get-OSDCloudCache -Type DriverPacks -ErrorAction SilentlyContinue |
+        Get-OSDCoreCacheContent -Type DriverPacks -ErrorAction SilentlyContinue |
             Where-Object { $_.Type -eq 'DriverPacks' -and -not [string]::IsNullOrWhiteSpace([string]$_.FullName) }
     )
 }
@@ -533,7 +533,7 @@ function Get-DriverPackUsbCacheTarget {
     )
 
     $cacheRoots = @(
-        Get-OSDCloudCache -ErrorAction SilentlyContinue |
+        Get-OSDCoreCacheContent -ErrorAction SilentlyContinue |
             Where-Object { $_.Type -eq 'Cache' -and -not [string]::IsNullOrWhiteSpace([string]$_.DriveRoot) }
     )
 
@@ -657,7 +657,7 @@ function Get-CloudOperatingSystemFileName {
 
 function Get-CloudOperatingSystemCacheItems {
     return @(
-        Get-OSDCloudCache -Type ESD, WIM -ErrorAction SilentlyContinue |
+        Get-OSDCoreCacheContent -Type ESD, WIM -ErrorAction SilentlyContinue |
             Where-Object { $_.Type -in @('ESD', 'WIM') -and -not [string]::IsNullOrWhiteSpace([string]$_.FullName) }
     )
 }
@@ -744,7 +744,7 @@ function Get-DriveVolumeMetadata {
 }
 
 function Get-DriverFolderItem {
-    $driverFolders = Get-OSDCloudCache -Type Drivers -ErrorAction SilentlyContinue |
+    $driverFolders = Get-OSDCoreCacheContent -Type Drivers -ErrorAction SilentlyContinue |
         Where-Object { $_.Type -eq 'Drivers' -and -not [string]::IsNullOrWhiteSpace([string]$_.FullName) } |
         ForEach-Object {
             $folderPath = [string]$_.FullName
