@@ -105,7 +105,6 @@ function Initialize-OSDCloudDeploy {
         UUID                           048A2C6B-A1D9-488C-8BF0-18D0F9A82D91
     #>
     if (-not ($global:OSDCoreDevice)) {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Initialize OSDCloud Device"
         Initialize-OSDCoreDevice
     }
     #=================================================
@@ -211,7 +210,7 @@ function Initialize-OSDCloudDeploy {
     $OSDManufacturer = $global:OSDCoreDevice.OSDManufacturer
     $OSDModel = $global:OSDCoreDevice.OSDModel
     $OSDProduct = $global:OSDCoreDevice.OSDProduct
-    $DriverPackValues = Get-OSDCloudCoreDriverPacks
+    $DriverPackValues = Get-OSDCoreDriverPacks
     $DriverPackObject = $DriverPackValues | Where-Object { $_.SystemId -match $OSDProduct } | Select-Object -First 1
 
     if ($DriverPackObject) {

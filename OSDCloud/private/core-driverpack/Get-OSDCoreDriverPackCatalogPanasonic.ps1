@@ -1,30 +1,45 @@
-function Get-OSDCloudCatalogPanasonic {
+function Get-OSDCoreDriverPackCatalogPanasonic {
     [CmdletBinding()]
-    param ()
+    param (
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$LocalDriverPackCatalog = (Join-Path $($MyInvocation.MyCommand.Module.ModuleBase) 'core\driverpacks\panasonic.json'),
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$OemDriverPackCatalog = 'https://pna-b2b-storage-mkt.s3.amazonaws.com/computer/software/apps/Panasonic.json',
+
+        [Parameter(Mandatory = $false)]
+        [switch]$Force,
+
+        [Parameter(Mandatory = $false)]
+        [switch]$LocalOnly
+    )
 
     begin {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Start"
         #=================================================
         # Catalogs
-        $localDriverPackCatalog = Join-Path $($MyInvocation.MyCommand.Module.ModuleBase) $OSDCloudModule.panasonic.driverpackcataloglocal
-        $oemDriverPackCatalog = $OSDCloudModule.panasonic.driverpackcatalogoem
         $tempCatalogPath = "$($env:TEMP)\osdcloud-driverpack-panasonic.json"
         #=================================================
         # Build realtime catalog from online source, if fails fallback to offline catalog
         try {
-            if (-not (Test-Path $tempCatalogPath)) {
-                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Downloading $oemDriverPackCatalog"
-                $sourceContent = Invoke-RestMethod -Uri $oemDriverPackCatalog -UseBasicParsing -ErrorAction Stop
+            if ($LocalOnly) {
+                Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] LocalOnly requested; skipping online catalog download"
+            }
+            elseif ($Force -or -not (Test-Path $tempCatalogPath)) {
+                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Downloading $OemDriverPackCatalog"
+                $sourceContent = Invoke-RestMethod -Uri $OemDriverPackCatalog -UseBasicParsing -ErrorAction Stop
 
                 if ($sourceContent) {
-                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $tempCatalogPath"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Indexing $tempCatalogPath"
                     $sourceContent | Out-File -FilePath $tempCatalogPath -Encoding utf8 -Force
                     $JsonCatalogContent = $sourceContent
                 }
             } else {
                 Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Using temp Panasonic driver pack catalog"
                 if (Test-Path $tempCatalogPath) {
-                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $tempCatalogPath"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Indexing $tempCatalogPath"
                     $JsonCatalogContent = Get-Content -Path $tempCatalogPath -Raw | ConvertFrom-Json
                 }
             }
@@ -34,9 +49,13 @@ function Get-OSDCloudCatalogPanasonic {
         }
 
         # Load offline catalog if online catalog failed
-        if (-not $JsonCatalogContent) {
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $localDriverPackCatalog"
-            $JsonCatalogContent = Get-Content -Path $localDriverPackCatalog -Raw | ConvertFrom-Json
+        if ($LocalOnly) {
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Indexing $LocalDriverPackCatalog"
+            $JsonCatalogContent = Get-Content -Path $LocalDriverPackCatalog -Raw | ConvertFrom-Json
+        }
+        elseif (-not $JsonCatalogContent) {
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Indexing $LocalDriverPackCatalog"
+            $JsonCatalogContent = Get-Content -Path $LocalDriverPackCatalog -Raw | ConvertFrom-Json
         }
 
         # Validate catalog content

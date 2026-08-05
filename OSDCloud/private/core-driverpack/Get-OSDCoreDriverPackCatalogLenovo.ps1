@@ -1,4 +1,4 @@
-function Get-OSDCloudCatalogLenovo {
+function Get-OSDCoreDriverPackCatalogLenovo {
     <#
     .SYNOPSIS
         Downloads and parses the Lenovo driver pack catalog for Windows 11.
@@ -8,10 +8,33 @@ function Get-OSDCloudCatalogLenovo {
         parses the XML to create a catalog of available Windows 11 driver packs.
         Falls back to offline catalog if download fails.
 
+    .PARAMETER LocalDriverPackCatalog
+        Path to the local fallback Lenovo catalog XML file.
+
+    .PARAMETER OemDriverPackCatalog
+        URL to the online Lenovo driver pack catalog XML file.
+
+    .PARAMETER Force
+        Forces download and rebuild of the temporary online catalog even when a
+        cached temp catalog file already exists.
+
+    .PARAMETER LocalOnly
+        Uses only local catalog values and skips online catalog download.
+
     .EXAMPLE
-        Get-OSDCloudCatalogLenovo
+        Get-OSDCoreDriverPackCatalogLenovo
 
         Retrieves the Lenovo driver pack catalog for Windows 11.
+
+    .EXAMPLE
+        Get-OSDCoreDriverPackCatalogLenovo -Force
+
+        Forces a fresh online download of the Lenovo catalog before parsing.
+
+    .EXAMPLE
+        Get-OSDCoreDriverPackCatalogLenovo -LocalOnly
+
+        Processes only local catalog values without any online download checks.
 
     .OUTPUTS
         PSCustomObject[]
@@ -22,24 +45,39 @@ function Get-OSDCloudCatalogLenovo {
         Catalog is downloaded from https://download.lenovo.com/cdrt/td/catalogv2.xml
     #>
     [CmdletBinding()]
-    param ()
+    param (
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$LocalDriverPackCatalog = (Join-Path $($MyInvocation.MyCommand.Module.ModuleBase) 'core\driverpacks\lenovo.xml'),
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$OemDriverPackCatalog = 'https://download.lenovo.com/cdrt/td/catalogv2.xml',
+
+        [Parameter(Mandatory = $false)]
+        [switch]$Force,
+
+        [Parameter(Mandatory = $false)]
+        [switch]$LocalOnly
+    )
 
     begin {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Start"
         #=================================================
         # Catalogs
-        $localDriverPackCatalog = Join-Path $($MyInvocation.MyCommand.Module.ModuleBase) $OSDCloudModule.lenovo.driverpackcataloglocal
-        $oemDriverPackCatalog = $OSDCloudModule.lenovo.driverpackcatalogoem
         $tempCatalogPath = "$($env:TEMP)\osdcloud-driverpack-lenovo.xml"
         #=================================================
         # Build realtime catalog from online source, if fails fallback to offline catalog
         try {
-            if (-not (Test-Path $tempCatalogPath)) {
-                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Downloading $oemDriverPackCatalog"
-                $sourceContent = Invoke-RestMethod -Uri $oemDriverPackCatalog -UseBasicParsing -ErrorAction Stop
+            if ($LocalOnly) {
+                Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] LocalOnly requested; skipping online catalog download"
+            }
+            elseif ($Force -or -not (Test-Path $tempCatalogPath)) {
+                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Downloading $OemDriverPackCatalog"
+                $sourceContent = Invoke-RestMethod -Uri $OemDriverPackCatalog -UseBasicParsing -ErrorAction Stop
 
                 if ($sourceContent) {
-                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $tempCatalogPath"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Indexing $tempCatalogPath"
                     # Remove BOM (Byte Order Mark) from the beginning of the content
                     $catalogContent = $sourceContent.Substring(3)
                     $catalogContent | Out-File -FilePath $tempCatalogPath -Encoding utf8 -Force
@@ -48,7 +86,7 @@ function Get-OSDCloudCatalogLenovo {
             } else {
                 Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Using temp catalog"
                 if (Test-Path $tempCatalogPath) {
-                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $tempCatalogPath"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Indexing $tempCatalogPath"
                     [xml]$XmlCatalogContent = Get-Content -Path $tempCatalogPath -Raw
                 }
             }
@@ -58,9 +96,13 @@ function Get-OSDCloudCatalogLenovo {
         }
 
         # Load offline catalog if online catalog failed
-        if (-not $XmlCatalogContent) {
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $localDriverPackCatalog"
-            [xml]$XmlCatalogContent = Get-Content -Path $localDriverPackCatalog -Raw
+        if ($LocalOnly) {
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Indexing $LocalDriverPackCatalog"
+            [xml]$XmlCatalogContent = Get-Content -Path $LocalDriverPackCatalog -Raw
+        }
+        elseif (-not $XmlCatalogContent) {
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Indexing $LocalDriverPackCatalog"
+            [xml]$XmlCatalogContent = Get-Content -Path $LocalDriverPackCatalog -Raw
         }
 
         # Validate catalog content
