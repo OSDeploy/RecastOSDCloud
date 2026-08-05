@@ -210,7 +210,7 @@ function Initialize-OSDCloudDeploy {
     $OSDManufacturer = $global:OSDCoreDevice.OSDManufacturer
     $OSDModel = $global:OSDCoreDevice.OSDModel
     $OSDProduct = $global:OSDCoreDevice.OSDProduct
-    $DriverPackValues = Get-OSDCoreDriverPacks
+    $DriverPackValues = Get-ModuleCoreDriverPacks
     $DriverPackObject = $DriverPackValues | Where-Object { $_.SystemId -match $OSDProduct } | Select-Object -First 1
 
     if ($DriverPackObject) {
