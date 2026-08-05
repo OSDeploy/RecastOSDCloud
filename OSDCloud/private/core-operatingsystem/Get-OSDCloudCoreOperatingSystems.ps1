@@ -1,58 +1,61 @@
-<#=================================================================================
-    Get-OSDCloudCoreOperatingSystems
-    ================================================================================
-    - Retrieves all operating system records from Microsoft catalogs
-        - Uses Get-CoreOperatingSystems records and extracts OS build, version,
-            architecture, language, and activation information
-    - Returns sorted array of operating system objects
-    ================================================================================
+function Get-OSDCloudCoreOperatingSystems {
+    <#
     .SYNOPSIS
-        Retrieves all operating system records from the OSDCloud catalog
+    Gets parsed operating system records for OSDCloud selection workflows.
 
     .DESCRIPTION
-        Imports operating system metadata from Get-CoreOperatingSystems,
-        then parses file names and catalog properties to extract OS build
-        numbers, versions, architecture, language codes, and download
-        information.
-
-    .PARAMETER None
-        This function does not accept parameters.
+    Converts raw module catalog records from Get-ModuleCoreOperatingSystems into
+    normalized OSDCloud operating system objects. The function maps build numbers
+    to known Windows releases, derives build versions, normalizes architecture,
+    identifies activation channel, and emits sorted records with media metadata
+    such as language, size, file name, path, and hashes.
 
     .EXAMPLE
-        PS C:\> Get-OSDCloudCoreOperatingSystems
-        Returns all available operating system records
+    Get-OSDCloudCoreOperatingSystems
+
+    Returns all available OSDCloud operating system records.
 
     .EXAMPLE
-        PS C:\> Get-OSDCloudCoreOperatingSystems | Where-Object { $_.OSName -eq 'Windows 11' }
-        Returns only Windows 11 operating systems
+    Get-OSDCloudCoreOperatingSystems | Where-Object { $_.OSName -eq 'Windows 11' }
+
+    Returns only Windows 11 operating system records.
 
     .EXAMPLE
-        PS C:\> Get-OSDCloudCoreOperatingSystems | Group-Object OperatingSystem
-        Groups operating systems by major version
+    Get-OSDCloudCoreOperatingSystems | Group-Object OSArchitecture
 
-    .NOTES
-        Author: OSDeploy
-        Version: 1.0
-        GitHub: https://github.com/OSDeploy
+    Groups results by normalized architecture.
+
+    .INPUTS
+    None
+    You cannot pipe input to this function.
+
+    .OUTPUTS
+    PSCustomObject[]
+    Parsed operating system records for OSDCloud catalog operations.
 
     .LINK
-        https://www.osdeploy.com/
-=================================================================================#>
-function Get-OSDCloudCoreOperatingSystems {
+    https://www.osdeploy.com/
+
+    .NOTES
+    Author: OSDeploy
+    2026-08-05 - Standardized and expanded comment-based help
+    #>
     [CmdletBinding()]
     [OutputType([pscustomobject[]])]
     param ()
+
     $ErrorActionPreference = 'Stop'
     $records = @()
+    $mctRecords = @()
 
-    $mctRecords = Get-CoreOperatingSystems
+    $mctRecords = Get-ModuleCoreOperatingSystems
 
     if (-not $mctRecords) {
         return $records
     }
 
     foreach ($node in ($mctRecords | Sort-Object FileName, LanguageCode, Architecture)) {
-        Write-Verbose "[$(Get-Date -Format s)] [$($MyInvocation.MyCommand.Name)] Processing $($node.FileName)"
+        Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Processing $($node.FileName)"
 
         if ([string]::IsNullOrWhiteSpace($node.FileName) -or $node.FileName.Length -lt 5) {
             continue

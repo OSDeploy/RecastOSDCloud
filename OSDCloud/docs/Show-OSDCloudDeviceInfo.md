@@ -80,7 +80,7 @@ Log Files Created:
 
 Functions Called:
 - Get-OSDCloudModuleVersion: Retrieves current OSDCloud module version
-- Initialize-OSDCloudDevice: Populates $global:OSDCloudDevice with hardware details
+- Initialize-OSDCoreDevice: Populates $global:OSDCoreDevice with hardware details
 
 The function updates the window title to '\[OSDCloud\] - WinPE and Device Information' to indicate the current operation status.
 

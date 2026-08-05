@@ -249,7 +249,7 @@ function Show-PowershellWindow() {
 #endregion
 #=================================================
 # Tpm
-if ($global:OSDCloudDevice.IsTpmSpec -eq $true) {
+if ($global:OSDCoreDevice.IsTpmSpec -eq $true) {
     $formMainWindowControlIsTpmSpec.Foreground = 'Green'
 }
 else {
@@ -257,7 +257,7 @@ else {
 }
 
 # Autopilot
-if ($global:OSDCloudDevice.IsAutopilotSpec -eq $true) {
+if ($global:OSDCoreDevice.IsAutopilotSpec -eq $true) {
     $formMainWindowControlIsAutopilotSpec.Foreground = 'Green'
 }
 else {
@@ -536,7 +536,7 @@ $formMainWindowControlStartButton.add_Click(
 #region Customizations
 #TODO fix the Version since this is not a Module function it doesn't give a version
 $ModuleVersion = $($MyInvocation.MyCommand.Module.Version)
-$formMainWindow.Title = "OSDCloud on $($global:OSDCloudDevice.OSDManufacturer) $($global:OSDCloudDevice.OSDModel)"
+$formMainWindow.Title = "OSDCloud on $($global:OSDCoreDevice.OSDManufacturer) $($global:OSDCoreDevice.OSDModel)"
 #endregion
 #================================================
 #region Branding

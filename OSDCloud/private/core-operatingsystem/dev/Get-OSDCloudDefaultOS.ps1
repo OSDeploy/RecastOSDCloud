@@ -1,45 +1,53 @@
-<#=================================================================================
-    Get-OSDCloudDefaultOS
-    ================================================================================
-    - Gets a single operating system record based on system architecture and
-      language preferences
-    - Filters from available OS records using a priority order for language codes
-    ================================================================================
+function Get-OSDCloudDefaultOS {
+    <#
     .SYNOPSIS
-        Gets a single operating system record from the OSDCloud catalog
+    Gets the default OSDCloud operating system record for the current context.
 
     .DESCRIPTION
-        Retrieves operating system metadata from Microsoft catalogs and filters
-        based on processor architecture and language preferences. The function
-        evaluates language codes in a specific priority order and returns the
-        first matching operating system record.
+    Retrieves operating system records from Get-OSDCloudCoreOperatingSystems and
+    applies architecture and language preference filters to select a single default
+    record. Language preference order is:
+    1) $global:OSDCLOUD_OSLANGUAGECODE
+    2) $env:OSDCLOUD_OSLANGUAGECODE
+    3) Get-Culture Name
 
-    .PARAMETER None
-        This function does not accept parameters. Filtering is done through
-        environment variables and global variables.
-
-    .EXAMPLE
-        PS C:\> Get-OSDCloudDefaultOS
-        Returns the first matching operating system based on current culture
+    Architecture selection uses $env:PROCESSOR_ARCHITECTURE when available.
+    The first matching record is returned after filters are applied.
 
     .EXAMPLE
-        PS C:\> Get-OSDCloudDefaultOS | Format-List *
-        Displays all properties of the selected operating system
+    Get-OSDCloudDefaultOS
+
+    Returns the first matching operating system based on the current architecture
+    and language preference inputs.
 
     .EXAMPLE
-        PS C:\> $os = Get-OSDCloudDefaultOS
-        PS C:\> $os.FileName
-        Returns the download filename for the selected operating system
+    $env:OSDCLOUD_OSLANGUAGECODE = 'en-us'
+    Get-OSDCloudDefaultOS
 
-    .NOTES
-        Author: OSDeploy
-        Version: 1.0
-        GitHub: https://github.com/OSDeploy
+    Returns an en-us operating system record when one exists for the selected
+    architecture.
+
+    .EXAMPLE
+    $record = Get-OSDCloudDefaultOS
+    $record.FileName
+
+    Returns the media filename for the selected default record.
+
+    .INPUTS
+    None
+    You cannot pipe input to this function.
+
+    .OUTPUTS
+    PSCustomObject
+    A single operating system catalog record.
 
     .LINK
-        https://www.osdeploy.com/
-=================================================================================#>
-function Get-OSDCloudDefaultOS {
+    https://www.osdeploy.com/
+
+    .NOTES
+    Author: OSDeploy
+    2026-08-05 - Standardized and expanded comment-based help
+    #>
     [CmdletBinding()]
     [OutputType([pscustomobject])]
     param ()

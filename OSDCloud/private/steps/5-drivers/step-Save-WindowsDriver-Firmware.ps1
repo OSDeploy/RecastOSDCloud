@@ -18,7 +18,7 @@ function step-Save-WindowsDriver-Firmware {
         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Microsoft Update Firmware is not enabled for Virtual Machines. Skip."
         return
     }
-    if ($global:OSDCloudDevice.IsOnBattery -eq $true) {
+    if ($global:OSDCoreDevice.IsOnBattery -eq $true) {
         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Microsoft Update Firmware is not enabled for devices on battery power"
         return
     }
@@ -56,7 +56,7 @@ function step-Save-WindowsDriver-Firmware {
     Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Not all systems support a driver Firmware Update"
     Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] BIOS or Firmware Settings may need to be enabled for Firmware Updates"
 
-    $SystemFirmwareHardwareId = $global:OSDCloudDevice.SystemFirmwareHardwareId
+    $SystemFirmwareHardwareId = $global:OSDCoreDevice.SystemFirmwareHardwareId
     Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] System Firmware Hardware ID: $SystemFirmwareHardwareId"
 
     Save-MicrosoftUpdateCatalogDriver -DestinationDirectory $DestinationDirectory -HardwareID $SystemFirmwareHardwareId

@@ -55,9 +55,9 @@ function Initialize-OSDCloudDeploy {
     # Limit to the first disk found
     $DeploymentDiskObject = $DeploymentDiskObject | Select-Object -First 1
     #=================================================
-    # OSDCloudDevice
+    # OSDCoreDevice
     <#
-        PS C:\Users\david> $OSDCloudDevice
+        PS C:\Users\david> $OSDCoreDevice
         Name                           Value
         ----                           -----
         OSDManufacturer                HP
@@ -104,9 +104,8 @@ function Initialize-OSDCloudDeploy {
         TpmSpecVersion                 2.0, 0, 1.59
         UUID                           048A2C6B-A1D9-488C-8BF0-18D0F9A82D91
     #>
-    if (-not ($global:OSDCloudDevice)) {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Initialize OSDCloud Device"
-        Initialize-OSDCloudDevice
+    if (-not ($global:OSDCoreDevice)) {
+        Initialize-OSDCoreDevice
     }
     #=================================================
     # OSDCloudWorkflowTasks
@@ -134,7 +133,7 @@ function Initialize-OSDCloudDeploy {
     # Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Get OSDCloud OperatingSystems"
 
     # Limit to matching Processor Architecture
-    $ProcessorArchitecture = $global:OSDCloudDevice.ProcessorArchitecture
+    $ProcessorArchitecture = $global:OSDCoreDevice.ProcessorArchitecture
     $global:DeployOSDCloudOperatingSystems = Get-OSDCloudCoreOperatingSystems | Where-Object { $_.OSArchitecture -match "$ProcessorArchitecture" }
 
     # Need to fail if no OS found for Architecture
@@ -208,10 +207,10 @@ function Initialize-OSDCloudDeploy {
     $ImageFileUrl = $OperatingSystemObject.FilePath
     #=================================================
     # DriverPacks
-    $OSDManufacturer = $global:OSDCloudDevice.OSDManufacturer
-    $OSDModel = $global:OSDCloudDevice.OSDModel
-    $OSDProduct = $global:OSDCloudDevice.OSDProduct
-    $DriverPackValues = Get-OSDCloudCoreDriverPacks
+    $OSDManufacturer = $global:OSDCoreDevice.OSDManufacturer
+    $OSDModel = $global:OSDCoreDevice.OSDModel
+    $OSDProduct = $global:OSDCoreDevice.OSDProduct
+    $DriverPackValues = Get-ModuleCoreDriverPacks
     $DriverPackObject = $DriverPackValues | Where-Object { $_.SystemId -match $OSDProduct } | Select-Object -First 1
 
     if ($DriverPackObject) {

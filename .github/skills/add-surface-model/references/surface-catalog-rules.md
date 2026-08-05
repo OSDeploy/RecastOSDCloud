@@ -2,7 +2,7 @@
 
 ## Field Resolution
 
-Use the current `surface.json` object order for every entry:
+Use the current `OSDCloud/core/driverpacks/surface.json` object order for every entry:
 
 1. `CatalogVersion` is the date the entry is added or manually changed in the catalog, formatted as `yy.MM.dd`.
 2. `ReleaseDate` is the DriverPack release date from the Microsoft Download Center page Date Published value, formatted as `yy.MM.dd`. If the page does not expose Date Published but the direct MSI is verified, use the MSI response `Last-Modified` date and note that fallback in validation.
@@ -21,7 +21,7 @@ Use the current `surface.json` object order for every entry:
 
 Start at `https://learn.microsoft.com/en-us/surface/manage-surface-driver-and-firmware-updates`. If the table does not expose the direct Download Center details URL clearly, follow the support page for the Surface family and choose the row that best matches the model and processor family.
 
-After adding or updating `UpdatePage`, run `.\.github\scripts\Update-MicrosoftCatalog.ps1 -JsonPath 'OSDCloud\core\driverpacks\surface.json'`. The script is the source of truth for picking the direct MSI:
+After adding or updating `UpdatePage`, run `./.github/scripts/Update-MicrosoftCatalog.ps1 -JsonPath 'OSDCloud/core/driverpacks/surface.json'`. The script is the source of truth for picking the direct MSI:
 
 - Scrape `UpdatePage` for `https://download.microsoft.com/download/.../*.msi` links.
 - If none are present on the details page, try `https://www.microsoft.com/en-us/download/confirmation.aspx?id=<id>`.
@@ -31,7 +31,7 @@ After adding or updating `UpdatePage`, run `.\.github\scripts\Update-MicrosoftCa
 
 ## Validation Checklist
 
-- `surface.json` parses with `ConvertFrom-Json`.
+- `OSDCloud/core/driverpacks/surface.json` parses with `ConvertFrom-Json`.
 - The entry contains all template fields in order.
 - `Name` uses the same `ReleaseDate` as the object.
 - `Manufacturer` is `Microsoft`.
@@ -43,4 +43,4 @@ After adding or updating `UpdatePage`, run `.\.github\scripts\Update-MicrosoftCa
 
 ## Runtime Notes
 
-`Get-OSDCloudCatalogSurface` reads `surface.json`, enriches entries with live data from `UpdatePage`, and caches results in `$env:TEMP\osdcloud-driverpack-surface.json`. During deployment, Surface matching depends on `SystemId`, so incorrect System SKU values prevent the correct driver pack from being selected.
+`Get-OSDCoreDriverPackCatalogSurface` reads `OSDCloud/core/driverpacks/surface.json`, enriches entries with live data from `UpdatePage`, and caches results in `$env:TEMP\osdcloud-driverpack-surface.json`. During deployment, Surface matching depends on `SystemId`, so incorrect System SKU values prevent the correct driver pack from being selected.

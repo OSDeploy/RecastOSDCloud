@@ -8,16 +8,16 @@ param()
 Add-Type -AssemblyName PresentationCore, PresentationFramework, WindowsBase
 #================================================
 # Variables
-$deviceBiosReleaseDate = $global:OSDCloudDevice.BiosReleaseDate
-$deviceBiosVersion = $global:OSDCloudDevice.BiosVersion
-$deviceOSDManufacturer = $global:OSDCloudDevice.OSDManufacturer
-$deviceOSDModel = $global:OSDCloudDevice.OSDModel
-$deviceOSDProduct = $global:OSDCloudDevice.OSDProduct
-$deviceComputerSystemSKU = $global:OSDCloudDevice.ComputerSystemSKU
-$deviceIsAutopilotSpec = $global:OSDCloudDevice.IsAutopilotSpec
-$deviceIsTpmSpec = $global:OSDCloudDevice.IsTpmSpec
-$deviceSerialNumber = $global:OSDCloudDevice.SerialNumber
-$deviceUUID = $global:OSDCloudDevice.UUID
+$deviceBiosReleaseDate = $global:OSDCoreDevice.BiosReleaseDate
+$deviceBiosVersion = $global:OSDCoreDevice.BiosVersion
+$deviceOSDManufacturer = $global:OSDCoreDevice.OSDManufacturer
+$deviceOSDModel = $global:OSDCoreDevice.OSDModel
+$deviceOSDProduct = $global:OSDCoreDevice.OSDProduct
+$deviceComputerSystemSKU = $global:OSDCoreDevice.ComputerSystemSKU
+$deviceIsAutopilotSpec = $global:OSDCoreDevice.IsAutopilotSpec
+$deviceIsTpmSpec = $global:OSDCoreDevice.IsTpmSpec
+$deviceSerialNumber = $global:OSDCoreDevice.SerialNumber
+$deviceUUID = $global:OSDCoreDevice.UUID
 $getOSDCloudModuleVersion = Get-OSDCloudModuleVersion
 #================================================
 # XAML
@@ -375,8 +375,8 @@ $deviceUUIDText.Text = $deviceUUID
 
 <#
 $deviceTotalMemoryText = $window.FindName("deviceTotalMemoryText")
-$deviceTotalMemoryText.Text = if ($global:OSDCloudDevice.TotalPhysicalMemoryGB) {
-	"$($global:OSDCloudDevice.TotalPhysicalMemoryGB) GB"
+$deviceTotalMemoryText.Text = if ($global:OSDCoreDevice.TotalPhysicalMemoryGB) {
+	"$($global:OSDCoreDevice.TotalPhysicalMemoryGB) GB"
 } else {
 	'Unknown'
 }

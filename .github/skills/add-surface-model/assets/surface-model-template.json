@@ -1,5 +1,5 @@
 {
-  "CatalogVersion": "<yy.MM.dd date added to surface.json>",
+  "CatalogVersion": "<yy.MM.dd date added to OSDCloud/core/driverpacks/surface.json>",
   "ReleaseDate": "<yy.MM.dd DriverPack Date Published>",
   "Name": "<Model> [<ReleaseDate>]",
   "Manufacturer": "Microsoft",

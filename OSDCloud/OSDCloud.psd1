@@ -8,7 +8,7 @@
 @{
     # --- Identity ---
     RootModule        = 'OSDCloud.psm1'
-    ModuleVersion     = '26.8.3.1'
+    ModuleVersion     = '26.8.5.1'
     CompatiblePSEditions = @('Core','Desktop')
     GUID              = '2fbd5c65-79c7-4561-9a2e-c4a4eebc89c7'
 
@@ -16,7 +16,10 @@
     Author            = 'David Segura'
     CompanyName       = 'Recast Software'
     Copyright         = '(c) 2026 Recast Software. All rights reserved.'
-    Description       = 'OSDCloud PowerShell Module for OS Deployment in the Cloud.'
+    Description          = @'
+PowerShell module for OSDCloud v2 deployment automation and WinPE Startup from recastsoftware.com.
+Includes operating system, driver pack, and device provisioning workflows.
+'@
 
     # --- Requirements ---
     PowerShellVersion    = '5.1'
@@ -25,7 +28,6 @@
     FunctionsToExport = @(
         # WinOS
         'Deploy-OSDCloud',
-        'Get-OSDCloudCache',
         'Get-OSDCloudModulePath',
         'Get-OSDCloudModuleVersion',
         'Show-OSDCloudDeviceInfo',

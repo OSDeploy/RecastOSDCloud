@@ -1,53 +1,40 @@
-<#
-.SYNOPSIS
-Collects local hardware, firmware, TPM, and network details for OSDCloud.
+function Initialize-OSDCoreDevice {
+    <#
+    .SYNOPSIS
+    Collects local hardware, firmware, TPM, and network details for OSDCloud.
 
-.DESCRIPTION
-Initialize-OSDCloudDevice gathers device information from CIM classes, firmware,
-and environment data, then normalizes manufacturer/model/product values for
-workflow use. It writes diagnostic logs to $env:TEMP\osdcloud-logs, attempts to
-copy logs to an available OSDCloudLogs path, and populates
-$global:OSDCloudDevice with an ordered property set used by downstream OSDCloud
-deployment logic.
+    .DESCRIPTION
+    Initialize-OSDCoreDevice gathers device information from CIM classes, firmware,
+    and environment data, then normalizes manufacturer/model/product values for
+    workflow use. It writes diagnostic logs to $env:TEMP\osdcloud-logs, attempts to
+    copy logs to an available OSDCloudLogs path, and populates
+    $global:OSDCoreDevice with an ordered property set used by downstream OSDCloud
+    deployment logic.
 
-.EXAMPLE
-Initialize-OSDCloudDevice
+    .EXAMPLE
+    Initialize-OSDCoreDevice
 
-Collects current device metadata, creates or updates
-$global:OSDCloudDevice, and writes log artifacts for troubleshooting.
+    Collects current device metadata, creates or updates
+    $global:OSDCoreDevice, and writes log artifacts for troubleshooting.
 
-.OUTPUTS
-None. This function does not emit pipeline output.
+    .OUTPUTS
+    None. This function does not emit pipeline output.
 
-.NOTES
-Side effects:
-- Clears the current PowerShell error collection.
-- Updates date/time in WinPE when needed.
-- Writes logs to $env:TEMP\osdcloud-logs.
-- Sets $global:OSDCloudDevice.
-#>
-function Initialize-OSDCloudDevice {
+    .NOTES
+    Side effects:
+    - Clears the current PowerShell error collection.
+    - Updates date/time in WinPE when needed.
+    - Writes logs to $env:TEMP\osdcloud-logs.
+    - Sets $global:OSDCoreDevice.
+    #>
     [CmdletBinding()]
     param ()
-    function ConvertTo-TrimmedString {
-        param(
-            [Parameter(ValueFromPipeline = $true)]
-            $Value
-        )
-
-        process {
-            if ($null -eq $Value) {
-                return $null
-            }
-            return $Value.ToString().Trim()
-        }
-    }
     #=================================================
     $Error.Clear()
     Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)]"
     #=================================================
     try {
-        Sync-OSDCloudDateTime -ThresholdMinutes 5 -Force -ErrorAction Stop
+        Sync-OSDCoreDateTime -ThresholdMinutes 5 -Force -ErrorAction Stop
     }
     catch {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Unable to sync date/time: $($_.Exception.Message)"
@@ -58,6 +45,9 @@ function Initialize-OSDCloudDevice {
     if (-not (Test-Path -Path $LogsPath)) {
         New-Item -Path $LogsPath -ItemType Directory -Force | Out-Null
     }
+    #=================================================
+    # Real Architecture
+    $ProcessorArchitecture = $env:PROCESSOR_ARCHITECTURE
     #=================================================
     # ipconfig
     ipconfig | Out-File (Join-Path -Path $LogsPath -ChildPath 'Network_IPConfig.txt') -Width 4096 -Force
@@ -113,8 +103,30 @@ function Initialize-OSDCloudDevice {
     try {
         $classWin32Keyboard = Get-CimInstance -ClassName Win32_Keyboard -ErrorAction Stop | Select-Object -Property *
         $classWin32Keyboard | Out-File (Join-Path -Path $LogsPath -ChildPath 'Win32_Keyboard.txt') -Width 4096 -Force
-        $KeyboardLayout = [System.String]$classWin32Keyboard.Layout
-        $KeyboardName = [System.String]$classWin32Keyboard.Name
+
+        # A device can expose multiple keyboard endpoints. Prefer entries with
+        # a populated layout and stable ordering, then use the first candidate.
+        $keyboardCandidates = @($classWin32Keyboard) | Where-Object {
+            -not [string]::IsNullOrWhiteSpace($_.Layout) -or -not [string]::IsNullOrWhiteSpace($_.Name)
+        } | Sort-Object -Property @(
+            @{ Expression = { [string]::IsNullOrWhiteSpace($_.Layout) } ; Descending = $false },
+            @{ Expression = { [string]$_.Name } ; Descending = $false },
+            @{ Expression = { [string]$_.DeviceID } ; Descending = $false }
+        )
+
+        $primaryKeyboard = $keyboardCandidates | Select-Object -First 1
+        if ($primaryKeyboard) {
+            $KeyboardLayout = [System.String]$primaryKeyboard.Layout
+            $KeyboardName = [System.String]$primaryKeyboard.Name
+
+            if ($keyboardCandidates.Count -gt 1) {
+                Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Multiple keyboards detected ($($keyboardCandidates.Count)). Using '$KeyboardName' with layout '$KeyboardLayout'."
+            }
+        }
+        else {
+            $KeyboardLayout = $null
+            $KeyboardName = $null
+        }
     }
     catch {
         $classWin32Keyboard = $null
@@ -237,7 +249,6 @@ function Initialize-OSDCloudDevice {
     #=================================================
     # Secure Boot Information
     # https://github.com/richardhicks/uefi/blob/main/Get-UEFICertificate.ps1
-
     try {
         $SecureBootStatus = Confirm-SecureBootUEFI
     }
@@ -502,6 +513,49 @@ function Initialize-OSDCloudDevice {
         $OSDProduct = 'Unknown'
     }
     #=================================================
+    # Disk Information
+    # Include only USB disks that are online and available.
+    $GetDisk = Get-Disk |
+        Where-Object {
+            $_.BusType -eq 'USB' -and
+            $_.IsOffline -eq $false -and
+            $_.OperationalStatus -eq 'Online'
+        } |
+        Sort-Object DiskNumber |
+        Select-Object -Property *
+
+    $usbDiskNumbers = [System.Collections.Generic.HashSet[int]]::new()
+    foreach ($disk in $GetDisk) {
+        [void]$usbDiskNumbers.Add([int]$disk.DiskNumber)
+    }
+
+    # Partition Information
+    $GetPartition = Get-Partition |
+        Sort-Object DiskNumber, PartitionNumber |
+        Select-Object -Property *, @{
+            Name       = 'IsUSB'
+            Expression = { $usbDiskNumbers.Contains([int]$_.DiskNumber) }
+        }
+    # USB Partitions
+    $USBPartitions = $GetPartition | Where-Object { $_.IsUSB -eq $true }
+
+    # USBVolumes
+    $usbDriveLetters = $USBPartitions |
+        ForEach-Object { $_.AccessPaths } |
+        Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
+        ForEach-Object {
+            if ($_ -match '^(?<DriveLetter>[A-Z]):\\$') {
+                $Matches.DriveLetter
+            }
+        } |
+        Sort-Object -Unique
+
+    $USBVolumes = @()
+    if ($usbDriveLetters) {
+        $USBVolumes = Get-Volume -DriveLetter $usbDriveLetters -ErrorAction SilentlyContinue |
+            Sort-Object DriveLetter -Unique
+    }
+    #=================================================
     #   OSDCloudEnv
     #=================================================
     # Use OSDCloudEnv to override these properties:
@@ -509,7 +563,6 @@ function Initialize-OSDCloudDevice {
     # OSDModel
     # OSDProduct
     # OSArchitecture
-    $ProcessorArchitecture = $env:PROCESSOR_ARCHITECTURE
     if ($global:OSDCloudEnv) {
         if ($global:OSDCloudEnv.OSDManufacturer) {
             $OSDManufacturer = $global:OSDCloudEnv.OSDManufacturer
@@ -528,10 +581,10 @@ function Initialize-OSDCloudDevice {
         }
     }
     #=================================================
-    #   Pass Variables to OSDCloudDevice
+    #   Pass Variables to OSDCoreDevice
     #=================================================
-    $global:OSDCloudDevice = $null
-    $global:OSDCloudDevice = [ordered]@{
+    $global:OSDCoreDevice = $null
+    $global:OSDCoreDevice = [ordered]@{
         OSDManufacturer           = [System.String]$OSDManufacturer
         OSDModel                  = [System.String]$OSDModel
         OSDProduct                = [System.String]$OSDProduct
@@ -574,9 +627,22 @@ function Initialize-OSDCloudDevice {
         TpmManufacturerIdTxt      = $DeviceTpmManufacturerIdTxt
         TpmManufacturerVersion    = $DeviceTpmManufacturerVersion
         TpmSpecVersion            = $DeviceTpmSpecVersion
+        USBPartitions             = $USBPartitions
+        USBVolumes                = $USBVolumes
         UUID                      = $classWin32ComputerSystemProduct.UUID
     }
-    $global:OSDCloudDevice | ConvertTo-Json -Depth 10 | Out-File "$LogsPath\OSDCloudDevice.json" -Force -Encoding utf8
+    $global:OSDCoreDevice | ConvertTo-Json -Depth 10 | Out-File "$LogsPath\OSDCoreDevice.json" -Force -Encoding utf8
+    #=================================================
+    # OSDCoreCacheContent
+    $global:OSDCoreCacheContent = Get-OSDCoreCacheContent
+    #=================================================
+    # OSDCoreOperatingSystems
+    $global:OSDCoreOperatingSystems = Get-OSDCoreOperatingSystems | Where-Object { $_.Architecture -match "$ProcessorArchitecture" }
+    $null = Set-OSDCoreOperatingSystemCloudObject -OSArchitecture $ProcessorArchitecture
+    #=================================================
+    # OSDCoreDriverPacks
+    $global:OSDCoreDriverPacks = Get-ModuleCoreDriverPacks -OSDManufacturer $OSDManufacturer
+    $global:OSDCoreDriverPackCloudObject = $global:OSDCoreDriverPacks | Where-Object { $_.SystemId -match $OSDProduct } | Select-Object -First 1
     #=================================================
     # OSDCloudLogs
     # Look for available drives (USB, mapped network drives, and local drives) with at least 1 GB of free space and write permissions for the current user to copy logs.
@@ -616,7 +682,6 @@ function Initialize-OSDCloudDevice {
         }
     }
     #=================================================
-    $Message = "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] End"
-    Write-Verbose -Message $Message; Write-Debug -Message $Message
+    Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] End"
     #=================================================
 }

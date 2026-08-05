@@ -1,14 +1,14 @@
 ---
-description: "Use when adding a new Windows OS build to catalogs/operatingsystem/, updating driver pack snapshots in core/driverpacks/, adding a new Surface model to surface.json, or adding a new Panasonic model to panasonic.json. Covers file naming, XML/JSON schemas, the build-number switch statement, and required workflow config changes."
+description: "Use when adding a new Windows OS build to OSDCloud/core/operatingsystems/, updating driver pack snapshots in OSDCloud/core/driverpacks/, adding a new Surface model to OSDCloud/core/driverpacks/surface.json, or adding a new Panasonic model to OSDCloud/core/driverpacks/panasonic.json. Covers file naming, XML/JSON schemas, the build-number switch statement, and required workflow config changes."
 ---
 
 # Catalog Update Guidelines
 
-All catalog files live in `catalogs/`. They are committed snapshots used as offline fallbacks or as the primary data source. Do not edit them for content that is fetched dynamically at runtime from OEM sources.
+Catalog snapshots live under the repository's OSDCloud/core tree. OS metadata is stored in `OSDCloud/core/operatingsystems/`, and driver-pack snapshots live in `OSDCloud/core/driverpacks/`. These files are committed fallbacks and should not be edited for content that is fetched dynamically at runtime from OEM sources.
 
 ---
 
-## OS catalogs (`catalogs/operatingsystem/`)
+## OS catalogs (`OSDCloud/core/operatingsystems/`)
 
 ### File naming
 
@@ -51,9 +51,9 @@ Each `<File>` element contains:
 
 ### Adding a new OS build — checklist
 
-1. **Add the XML file** to `catalogs/operatingsystem/` following the naming convention above.
+1. **Add the XML file** to `OSDCloud/core/operatingsystems/` following the naming convention above.
 
-2. **Register the build number** in `private/Get-OSDCloudCoreOperatingSystems.ps1`.
+2. **Register the build number** in `OSDCloud/private/core/Get-OSDCloudCoreOperatingSystems.ps1`.
    Locate the `switch ($OSBuild)` block and add a new case:
 
    ```powershell
@@ -72,7 +72,7 @@ Each `<File>` element contains:
 
    Without this entry, the build's ESD entries are silently skipped.
 
-3. **Update workflow OS configs** — for every channel that should offer the new build, add the version string to `os-amd64.json` and `os-arm64.json`:
+3. **Update workflow OS configs** — for every channel that should offer the new build, add the version string to `OSDCloud/workflow/<channel>/os-amd64.json` and `OSDCloud/workflow/<channel>/os-arm64.json`:
 
    ```json
    {
@@ -90,27 +90,27 @@ Each `<File>` element contains:
 
 ---
 
-## Driver pack catalogs (`core/driverpacks/`)
+## Driver pack catalogs (`OSDCloud/core/driverpacks/`)
 
 ### Overview of catalog files
 
 | File | Format | Manufacturer | Updated by |
 |---|---|---|---|
-| `dell.xml` | OEM XML snapshot | Dell | Download + replace |
-| `hp.xml` | OEM XML snapshot | HP | Download + replace |
-| `lenovo.xml` | OEM XML snapshot | Lenovo | Download + replace |
-| `surface.json` | JSON array | Microsoft (Surface) | Manual edit / `Update-MicrosoftCatalog.ps1` |
-| `panasonic.json` | Nested JSON | Panasonic | Manual edit |
-| `generic.json` | JSON array | ARM64 / multi-OEM | Manual edit |
+| `OSDCloud/core/driverpacks/dell.xml` | OEM XML snapshot | Dell | Download + replace |
+| `OSDCloud/core/driverpacks/hp.xml` | OEM XML snapshot | HP | Download + replace |
+| `OSDCloud/core/driverpacks/lenovo.xml` | OEM XML snapshot | Lenovo | Download + replace |
+| `OSDCloud/core/driverpacks/surface.json` | JSON array | Microsoft (Surface) | Manual edit / `.github/scripts/Update-MicrosoftCatalog.ps1` |
+| `OSDCloud/core/driverpacks/panasonic.json` | Nested JSON | Panasonic | Manual edit |
+| `OSDCloud/core/driverpacks/generic.json` | JSON array | ARM64 / multi-OEM | Manual edit |
 
-OEM source URLs are defined in `module.json` under each manufacturer key (`driverpackcatalogoem`).
-Dell, HP, and Lenovo catalogs are fetched at runtime by their respective `Get-OSDCloudCatalog*` functions; local files are fallback only.
+OEM source URLs are defined in `OSDCloud/core/module.json` under each manufacturer key (`driverpackcatalogoem`).
+Dell, HP, and Lenovo catalogs are fetched at runtime by their respective `Get-OSDCoreDriverPackCatalog*` functions; local files are fallback only.
 
 ---
 
 ### Updating Dell, HP, or Lenovo snapshots
 
-At runtime, `Get-OSDCloudCatalogDell/Hp/Lenovo` downloads the OEM CAB/XML to `$env:TEMP`, parses it, and falls back to the local snapshot on failure. To refresh the committed snapshot:
+At runtime, `Get-OSDCoreDriverPackCatalogDell/Hp/Lenovo` downloads the OEM CAB/XML to `$env:TEMP`, parses it, and falls back to the local snapshot on failure. To refresh the committed snapshot:
 
 1. Download the OEM catalog CAB from the URL in `module.json`:
    - Dell: `https://downloads.dell.com/catalog/DriverPackCatalog.cab`
@@ -123,9 +123,9 @@ At runtime, `Get-OSDCloudCatalogDell/Hp/Lenovo` downloads the OEM CAB/XML to `$e
    ```
 
 3. Replace the local file:
-   - `core/driverpacks/dell.xml`
-   - `core/driverpacks/hp.xml`
-   - `core/driverpacks/lenovo.xml`
+   - `OSDCloud/core/driverpacks/dell.xml`
+   - `OSDCloud/core/driverpacks/hp.xml`
+   - `OSDCloud/core/driverpacks/lenovo.xml`
 
 4. Do not edit the OEM XML content manually — it is consumed as-is by the catalog parser.
 
@@ -134,9 +134,9 @@ At runtime, `Get-OSDCloudCatalogDell/Hp/Lenovo` downloads the OEM CAB/XML to `$e
 ### surface.json (Surface driver packs — amd64 and arm64)
 
 Used for `Manufacturer == 'Microsoft'` on both AMD64 and ARM64 devices.
-Read directly by `Get-OSDCloudCatalogSurface`, which enriches entries with live MSI URLs from each entry's `UpdatePage` at runtime. **There is no `surface.xml` to regenerate.**
+Read directly by `Get-OSDCoreDriverPackCatalogSurface`, which enriches entries with live MSI URLs from each entry's `UpdatePage` at runtime. **There is no `surface.xml` to regenerate.**
 
-`Update-MicrosoftCatalog.ps1` (run by the `update-catalog-microsoft.yaml` GitHub Actions workflow) scrapes all `UpdatePage` URLs and commits any changed MSI filenames, URLs, or release dates automatically each week.
+The `.github/scripts/Update-MicrosoftCatalog.ps1` helper (run by the `.github/workflows/update-catalog-microsoft.yaml` workflow) scrapes all `UpdatePage` URLs and updates the JSON file when MSI filenames, URLs, or release dates change.
 
 #### JSON object schema
 
@@ -168,7 +168,7 @@ Read directly by `Get-OSDCloudCatalogSurface`, which enriches entries with live 
 
 ### panasonic.json (Panasonic driver packs)
 
-This file uses a different nested schema compared to other driver pack catalogs. It is read by `Get-OSDCloudCatalogPanasonic`, which flattens the nested structure at runtime and excludes Windows 10 entries.
+This file uses a different nested schema compared to other driver pack catalogs. It is read by `Get-OSDCoreDriverPackCatalogPanasonic`, which flattens the nested structure at runtime and excludes Windows 10 entries.
 
 #### JSON structure
 
@@ -217,6 +217,6 @@ Key differences:
 ## Common mistakes
 
 - **Omitting the build switch case** — a new OS XML will load without errors but produce zero OS options in the UX because every `<File>` hits the `default { continue }` branch.
-- **Stale `surface.json` driver URLs** — `Get-OSDCloudCatalogSurface` serves MSI URLs from `surface.json`; if `UpdatePage` links change and the automated workflow has not run, deployed drivers may point to outdated or removed files. Run `Update-MicrosoftCatalog.ps1` manually to refresh.
+- **Stale `surface.json` driver URLs** — `Get-OSDCoreDriverPackCatalogSurface` serves MSI URLs from `OSDCloud/core/driverpacks/surface.json`; if `UpdatePage` links change and the automated workflow has not run, deployed drivers may point to outdated or removed files. Run `.github/scripts/Update-MicrosoftCatalog.ps1` manually to refresh.
 - **Editing OEM XML snapshots manually** — Dell/HP/Lenovo XML is replaced wholesale from upstream; manual edits will be lost on the next snapshot refresh.
 - **Adding a Windows version string to workflow configs without the catalog XML** — the UX will offer the version but `Get-OSDCloudCoreOperatingSystems` will return no matching ESD entries, causing `Initialize-OSDCloudDeploy` to throw.

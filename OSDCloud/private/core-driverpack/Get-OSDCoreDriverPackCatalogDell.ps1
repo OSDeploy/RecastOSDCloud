@@ -1,4 +1,4 @@
-function Get-OSDCloudCatalogDell {
+function Get-OSDCoreDriverPackCatalogDell {
     <#
     .SYNOPSIS
         Downloads and parses the Dell driver pack catalog for Windows 11.
@@ -6,12 +6,41 @@ function Get-OSDCloudCatalogDell {
     .DESCRIPTION
         Retrieves the latest Dell DriverPackCatalog.cab from Dell's download site,
         extracts and parses it to create a catalog of available Windows 11 driver packs.
-        Falls back to offline catalog if download fails.
+        If online retrieval fails, the function falls back to the bundled local catalog.
+
+    .PARAMETER LocalDriverPackCatalog
+        Path to the local fallback Dell catalog XML file. This file is used when the
+        online catalog cannot be downloaded or extracted.
+
+    .PARAMETER OemDriverPackCatalog
+        URL to the online Dell DriverPack catalog CAB file.
+
+    .PARAMETER Force
+        Forces download and rebuild of the temporary online catalog even when a
+        cached temp catalog file already exists.
+
+    .PARAMETER LocalOnly
+        Uses only local catalog values and skips online catalog download/extraction.
 
     .EXAMPLE
-        Get-OSDCloudCatalogDell
+        Get-OSDCoreDriverPackCatalogDell
 
         Retrieves the Dell driver pack catalog for Windows 11.
+
+    .EXAMPLE
+        Get-OSDCoreDriverPackCatalogDell -Force
+
+        Forces a fresh online download of the Dell catalog before parsing.
+
+    .EXAMPLE
+        Get-OSDCoreDriverPackCatalogDell -LocalDriverPackCatalog 'C:\Catalogs\dell.xml'
+
+        Uses a custom local fallback catalog path.
+
+    .EXAMPLE
+        Get-OSDCoreDriverPackCatalogDell -LocalOnly
+
+        Processes only local catalog values without any online download checks.
 
     .OUTPUTS
         PSCustomObject[]
@@ -22,22 +51,37 @@ function Get-OSDCloudCatalogDell {
         Catalog is downloaded from https://downloads.dell.com/catalog/DriverPackCatalog.cab
     #>
     [CmdletBinding()]
-    param ()
+    param (
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$LocalDriverPackCatalog = (Join-Path $($MyInvocation.MyCommand.Module.ModuleBase) 'core\driverpacks\dell.xml'),
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$OemDriverPackCatalog = 'https://downloads.dell.com/catalog/DriverPackCatalog.cab',
+
+        [Parameter(Mandatory = $false)]
+        [switch]$Force,
+
+        [Parameter(Mandatory = $false)]
+        [switch]$LocalOnly
+    )
 
     begin {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Start"
         #=================================================
         # Catalogs
-        $localDriverPackCatalog = Join-Path $($MyInvocation.MyCommand.Module.ModuleBase) $OSDCloudModule.dell.driverpackcataloglocal
-        $oemDriverPackCatalog = $OSDCloudModule.dell.driverpackcatalogoem
         $tempCatalogPackagePath = "$($env:TEMP)\DriverPackCatalog.cab"
         $tempCatalogPath = "$($env:TEMP)\osdcloud-driverpack-dell.xml"
         #=================================================
         # Build realtime catalog from online source, if fails fallback to offline catalog
         try {
-            if ($Force -or -not (Test-Path $tempCatalogPath)) {
-                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Downloading $oemDriverPackCatalog"
-                $null = Invoke-WebRequest -Uri $oemDriverPackCatalog -OutFile $tempCatalogPackagePath -ErrorAction Stop
+            if ($LocalOnly) {
+                Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] LocalOnly requested; skipping online catalog download"
+            }
+            elseif ($Force -or -not (Test-Path $tempCatalogPath)) {
+                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Downloading $OemDriverPackCatalog"
+                $null = Invoke-WebRequest -Uri $OemDriverPackCatalog -OutFile $tempCatalogPackagePath -ErrorAction Stop
 
                 if (Test-Path $tempCatalogPackagePath) {
                     Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Extracting $tempCatalogPath"
@@ -56,12 +100,16 @@ function Get-OSDCloudCatalogDell {
         }
 
         # Load catalog content
-        if (Test-Path $tempCatalogPath) {
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $tempCatalogPath"
+        if ($LocalOnly) {
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Indexing $LocalDriverPackCatalog"
+            [xml]$XmlCatalogContent = Get-Content -Path $LocalDriverPackCatalog -Raw
+        }
+        elseif (Test-Path $tempCatalogPath) {
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Indexing $tempCatalogPath"
             [xml]$XmlCatalogContent = Get-Content -Path $tempCatalogPath -Raw
         } else {
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $localDriverPackCatalog"
-            [xml]$XmlCatalogContent = Get-Content -Path $localDriverPackCatalog -Raw
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Indexing $LocalDriverPackCatalog"
+            [xml]$XmlCatalogContent = Get-Content -Path $LocalDriverPackCatalog -Raw
         }
 
         # Validate catalog content

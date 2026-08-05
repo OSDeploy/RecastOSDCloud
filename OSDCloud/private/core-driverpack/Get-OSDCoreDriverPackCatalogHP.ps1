@@ -1,4 +1,4 @@
-function Get-OSDCloudCatalogHp {
+function Get-OSDCoreDriverPackCatalogHP {
     <#
     .SYNOPSIS
         Downloads and parses the HP driver pack catalog for Windows 11.
@@ -8,20 +8,34 @@ function Get-OSDCloudCatalogHp {
         extracts and parses it to create a catalog of available Windows 11 driver packs.
         Falls back to offline catalog if download fails.
 
+    .PARAMETER LocalDriverPackCatalog
+        Path to the local fallback HP catalog XML file.
+
+    .PARAMETER OemDriverPackCatalog
+        URL to the online HP driver pack catalog CAB file.
+
+    .PARAMETER Force
+        Forces download and rebuild of the temporary online catalog even when a
+        cached temp catalog file already exists.
+
+    .PARAMETER LocalOnly
+        Uses only local catalog values and skips online catalog download/extraction.
+
     .EXAMPLE
-        Get-OSDCloudCatalogHp
+        Get-OSDCoreDriverPackCatalogHP
 
         Retrieves the HP driver pack catalog for Windows 11.
 
     .EXAMPLE
-        Get-OSDCloudCatalogHp -Force
+        Get-OSDCoreDriverPackCatalogHP -Force
 
         Forces a refresh of the HP driver pack catalog by downloading the latest version
         from HP's server, bypassing any cached copies.
 
-    .PARAMETER Force
-        If specified, forces a download of the latest catalog from HP's server.
-        By default, if a cached catalog exists, it will be used.
+    .EXAMPLE
+        Get-OSDCoreDriverPackCatalogHP -LocalOnly
+
+        Processes only local catalog values without any online download checks.
 
     .OUTPUTS
         PSCustomObject[]
@@ -34,24 +48,36 @@ function Get-OSDCloudCatalogHp {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $false)]
-        [switch]$Force
+        [ValidateNotNullOrEmpty()]
+        [string]$LocalDriverPackCatalog = (Join-Path $($MyInvocation.MyCommand.Module.ModuleBase) 'core\driverpacks\hp.xml'),
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$OemDriverPackCatalog = 'https://hpia.hpcloud.hp.com/downloads/driverpackcatalog/HPClientDriverPackCatalog.cab',
+
+        [Parameter(Mandatory = $false)]
+        [switch]$Force,
+
+        [Parameter(Mandatory = $false)]
+        [switch]$LocalOnly
     )
 
     begin {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Start"
         #=================================================
         # Catalogs
-        $localDriverPackCatalog = Join-Path $($MyInvocation.MyCommand.Module.ModuleBase) $OSDCloudModule.hp.driverpackcataloglocal
-        $oemDriverPackCatalog = $OSDCloudModule.hp.driverpackcatalogoem
         $tempCatalogPackagePath = "$($env:TEMP)\HPClientDriverPackCatalog.cab"
         $tempCatalogPath = "$($env:TEMP)\osdcloud-driverpack-hp.xml"
         #=================================================
         # Build realtime catalog from online source, if fails fallback to offline catalog
         try {
-            if ($Force -or -not (Test-Path $tempCatalogPath)) {
+            if ($LocalOnly) {
+                Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] LocalOnly requested; skipping online catalog download"
+            }
+            elseif ($Force -or -not (Test-Path $tempCatalogPath)) {
 
-                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Downloading $oemDriverPackCatalog"
-                $null = Invoke-WebRequest -Uri $oemDriverPackCatalog -OutFile $tempCatalogPackagePath -ErrorAction Stop
+                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Downloading $OemDriverPackCatalog"
+                $null = Invoke-WebRequest -Uri $OemDriverPackCatalog -OutFile $tempCatalogPackagePath -ErrorAction Stop
 
                 if (Test-Path $tempCatalogPackagePath) {
                     Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Validating $tempCatalogPackagePath"
@@ -81,12 +107,16 @@ function Get-OSDCloudCatalogHp {
         }
 
         # Load catalog content
-        if (Test-Path $tempCatalogPath) {
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $tempCatalogPath"
+        if ($LocalOnly) {
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Indexing $LocalDriverPackCatalog"
+            [xml]$XmlCatalogContent = Get-Content -Path $LocalDriverPackCatalog -Raw
+        }
+        elseif (Test-Path $tempCatalogPath) {
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Indexing $tempCatalogPath"
             [xml]$XmlCatalogContent = Get-Content -Path $tempCatalogPath -Raw
         } else {
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Loading $localDriverPackCatalog"
-            [xml]$XmlCatalogContent = Get-Content -Path $localDriverPackCatalog -Raw
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Indexing $LocalDriverPackCatalog"
+            [xml]$XmlCatalogContent = Get-Content -Path $LocalDriverPackCatalog -Raw
         }
 
         # Validate catalog content

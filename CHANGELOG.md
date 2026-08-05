@@ -2,7 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 26.8.5.1 - August 5, 2026
+
+### Added
+
+- Added core device cache helpers: `Get-OSDCoreCacheContent`, `Get-OSDCoreCacheDrive`, `Get-OSDCoreCacheUSBPath`, and `Test-OSDCoreCacheUSB`.
+- Added `Update-RecastOSDCloudUSBCache` for USB cache refresh and maintenance workflows.
+- Added `ConvertTo-TrimmedString` private helper for normalized string handling.
+- Added `Get-ModuleCoreDriverPacks` and `Get-OSDCoreDriverPackCatalogSurface` to the reorganized core driver pack pipeline.
+- Added `Get-OSDCoreOperatingSystems` and `Set-OSDCoreOperatingSystemCloudObject` for core operating system catalog selection.
+
+### Changed
+
+- Module version bumped to `26.8.5.1`.
+- Refactored core device initialization into `Initialize-OSDCoreDevice` and updated deployment flow wiring.
+- Reorganized core helper layout by moving driver pack and operating system catalog functions out of `private/core/` into `private/core-driverpack/` and `private/core-operatingsystem/`.
+- Updated `Initialize-OSDCloudDeploy` to consume `Get-ModuleCoreDriverPacks`.
+- Renamed and relocated date/time sync helper from `Sync-OSDCloudDateTime` to `Sync-OSDCoreDateTime`.
+- Updated `Show-OSDCloudDeviceInfo` implementation and related help output.
+- Refreshed workflow and UX assets across classic, default, dev, insiders, and vNext channels, including `MainWindow.xaml` updates.
+- Updated disk, workflow task, and driver step scripts for alignment with the reorganized core helper model.
+- Updated repository documentation and guidance including `README.md`, Copilot instructions, workflow task instructions, and Surface catalog maintenance skill assets.
+
+### Removed
+
+- Removed legacy `Get-OSDCloudCoreDriverPacks` and legacy `Get-OSDCloudCatalogSurface` private core helpers.
+- Removed legacy `Sync-InternetDateTime` helper.
+- Removed standalone `Get-OSDCloudCache` markdown help page and aligned module help XML.
 
 ## 26.8.3.1 - August 3, 2026
 
