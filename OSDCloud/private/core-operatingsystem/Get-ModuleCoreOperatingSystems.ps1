@@ -1,36 +1,53 @@
-<#=================================================================================
-    Get-CoreOperatingSystems
-    ================================================================================
-    - Returns XML content entries from core\operatingsystems as objects
-    ================================================================================
+function Get-ModuleCoreOperatingSystems {
+    <#
     .SYNOPSIS
-        Gets Microsoft catalog operating system entries from XML files.
+    Gets normalized module core operating system catalog records.
 
     .DESCRIPTION
-        Enumerates all XML files under the module path core\operatingsystems,
-        parses each File node, and returns the node properties as
-        PowerShell objects.
+    Reads operating system catalog XML files from core\operatingsystems under the module root,
+    converts each PublishedMedia file node into a PowerShell object, removes excluded metadata
+    properties, and normalizes duplicate properties. Duplicate catalog rows are grouped by
+    FilePath, FileName, LanguageCode, and Architecture, then the preferred row is selected
+    by hash availability.
 
     .EXAMPLE
-        PS C:\> Get-CoreOperatingSystems
-        Returns all operating system entries from the XML catalogs.
+    Get-ModuleCoreOperatingSystems
+
+    Returns all normalized catalog records discovered in the module core operating systems cache.
+
+    .EXAMPLE
+    Get-ModuleCoreOperatingSystems | Where-Object { $_.LanguageCode -eq 'en-us' }
+
+    Returns only catalog records for en-us language media.
+
+    .INPUTS
+    None
+    You cannot pipe input to this function.
+
+    .OUTPUTS
+    PSCustomObject[]
+    Normalized raw catalog records imported from module XML metadata.
+
+    .LINK
+    https://github.com/OSDeploy/OSD/tree/master/docs
 
     .NOTES
-        Author: OSDeploy
-        Version: 1.0
-=================================================================================#>
-function Get-CoreOperatingSystems {
+    Author: David Segura - Recast Software
+    2026-07-22 - Initial help block created
+    2026-08-05 - Expanded help content and examples
+    #>
     [CmdletBinding()]
     [OutputType([pscustomobject[]])]
     param ()
 
     $ErrorActionPreference = 'Stop'
     $records = @()
+    $mctRecords = @()
 
     $srcRoot = Join-Path $($MyInvocation.MyCommand.Module.ModuleBase) 'core\operatingsystems'
 
     foreach ($file in (Get-ChildItem -Path $srcRoot -Filter '*.xml' -Recurse -File | Sort-Object FullName)) {
-        Write-Verbose "[$(Get-Date -Format s)] [$($MyInvocation.MyCommand.Name)] Importing $($file.FullName)"
+        Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Importing $($file.FullName)"
 
         $xml = [xml](Get-Content -Path $file.FullName -Raw)
         $fileNodes = $xml.MCT.Catalogs.Catalog.PublishedMedia.Files.File
@@ -83,11 +100,11 @@ function Get-CoreOperatingSystems {
                 }
             }
 
-            $records += [pscustomobject]$properties
+            $mctRecords += [pscustomobject]$properties
         }
     }
 
-    $records = $records |
+    $mctRecords = $mctRecords |
         Group-Object -Property FilePath, FileName, LanguageCode, Architecture |
         ForEach-Object {
             $_.Group |
@@ -96,5 +113,9 @@ function Get-CoreOperatingSystems {
         } |
         Sort-Object -Property FilePath, FileName, LanguageCode, Architecture
 
-    return $records
+    if (-not $mctRecords) {
+        return $records
+    }
+
+    return $mctRecords
 }
