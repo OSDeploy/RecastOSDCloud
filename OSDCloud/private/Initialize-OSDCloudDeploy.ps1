@@ -56,60 +56,19 @@ function Initialize-OSDCloudDeploy {
     $DeploymentDiskObject = $DeploymentDiskObject | Select-Object -First 1
     #=================================================
     # OSDCoreDevice
-    <#
-        PS C:\Users\david> $OSDCoreDevice
-        Name                           Value
-        ----                           -----
-        OSDManufacturer                HP
-        OSDModel                       HP Z2 Mini G9 Workstation Desktop PC
-        OSDProduct                     895E
-        ComputerName                   OSDMAIN
-        BaseBoardProduct               895E
-        BiosReleaseDate                11/02/2025 18:00:00
-        BiosVersion                    U50 Ver. 03.05.02
-        ComputerManufacturer           HP
-        ComputerModel                  HP Z2 Mini G9 Workstation Desktop PC
-        ComputerSystemFamily           103C_53335X HP Workstation
-        ComputerSystemProduct          SBKPF,DWKSBLF,SBKPFV3
-        ComputerSystemSKU              B40ZBUP#ABA
-        ComputerSystemType             Small Form Factor
-        HardwareHash
-        IsAutopilotSpec                True
-        IsDesktop                      False
-        IsLaptop                       False
-        IsOnBattery                    False
-        IsServer                       False
-        IsSFF                          True
-        IsTablet                       False
-        IsTpmSpec                      True
-        IsVM                           False
-        IsUEFI                         True
-        KeyboardLayout                 00000409
-        KeyboardName                   Enhanced (101- or 102-key)
-        NetGateways                    {192.168.0.1, $null}
-        NetIPAddress                   {192.168.0.121, fe80::81d7:1db5:c6cc:e822, fd1a:2b60:6c6d:4ec6:3111:5f06:51a4:c72e, fd1a:2b60:6c6d:4ec6:1236:ad56:5fe8:9d11...}
-        NetMacAddress                  {64:4B:F0:39:11:3A, 10:4A:26:03:04:16}
-        OSArchitecture                 64-bit
-        OSVersion                      10.0.26200
-        ProcessorArchitecture          AMD64
-        SerialNumber                   MXL4414JQT
-        SystemFirmwareHardwareId       EF647623-90B4-44BC-8866-D6FB7F29AB46
-        TimeZone                       Central Standard Time
-        TotalPhysicalMemoryGB          128
-        TpmIsActivated                 True
-        TpmIsEnabled                   True
-        TpmIsOwned                     True
-        TpmManufacturerIdTxt           NTC
-        TpmManufacturerVersion         7.2.3.1
-        TpmSpecVersion                 2.0, 0, 1.59
-        UUID                           048A2C6B-A1D9-488C-8BF0-18D0F9A82D91
-    #>
     if (-not ($global:OSDCoreDevice)) {
         Initialize-OSDCoreDevice
     }
     #=================================================
+    # ModuleCoreDriverPacks
+    # These are handled in Initialize-OSDCoreDevice, so we don't need to initialize them here.
+    <#
+    if (-not ($global:ModuleCoreDriverPacks)) {
+        $global:ModuleCoreDriverPacks = Initialize-ModuleCoreDriverPacks
+    }
+    #>
+    #=================================================
     # OSDCloudWorkflowTasks
-    # Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Initialize OSDCloud Tasks"
     # If $WorkflowName is not default, display a message that this Workflow is for Beta or Testing purposes only
     if ($WorkflowName -ne 'default') {
         Write-Warning "[$(Get-Date -format s)] The workflow '$WorkflowName' is for Beta testing purposes only."
@@ -124,21 +83,14 @@ function Initialize-OSDCloudDeploy {
     $WorkflowTaskObject = $global:OSDCloudWorkflowTasks | Select-Object -First 1
     $WorkflowTaskName = $WorkflowTaskObject.name
     #=================================================
-    # OSDCloudWorkflowSettingsUser
-    #TODO : Remove dependency on User Settings for future releases
-    # Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Initialize OSDCloud Settings User"
-    # Initialize-OSDCloudWorkflowSettingsUser -WorkflowName $WorkflowName
-    #=================================================
     # OSDCloud Operating Systems
-    # Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Get OSDCloud OperatingSystems"
-
-    # Limit to matching Processor Architecture
+    # Always resolve catalog entries for the effective architecture value.
     $ProcessorArchitecture = $global:OSDCoreDevice.ProcessorArchitecture
     $global:DeployOSDCloudOperatingSystems = Get-OSDCloudCoreOperatingSystems | Where-Object { $_.OSArchitecture -match "$ProcessorArchitecture" }
 
-    # Need to fail if no OS found for Architecture
+    # Validate that the OS catalog was preloaded for this architecture.
     if (-not $global:DeployOSDCloudOperatingSystems) {
-        throw "No Operating Systems found for Architecture: $ProcessorArchitecture. Please check your OSDCloud OperatingSystems."
+        throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Unable to load OSDCloud Operating Systems."
     }
     #=================================================
     # OSDCloudWorkflowSettingsOS
@@ -210,7 +162,7 @@ function Initialize-OSDCloudDeploy {
     $OSDManufacturer = $global:OSDCoreDevice.OSDManufacturer
     $OSDModel = $global:OSDCoreDevice.OSDModel
     $OSDProduct = $global:OSDCoreDevice.OSDProduct
-    $DriverPackValues = Get-ModuleCoreDriverPacks
+    $DriverPackValues = Initialize-ModuleCoreDriverPacks
     $DriverPackObject = $DriverPackValues | Where-Object { $_.SystemId -match $OSDProduct } | Select-Object -First 1
 
     if ($DriverPackObject) {

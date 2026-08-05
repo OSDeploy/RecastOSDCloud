@@ -213,7 +213,7 @@ function Update-RecastOSDCloudUSBCache {
     # Resolve driver pack metadata for the detected device, with optional manufacturer overrides supplied by the caller.
     if ($PSBoundParameters.ContainsKey('OSDManufacturer')) {
         $global:OSDCoreDevice.OSDManufacturer = $OSDManufacturer
-        $global:OSDCoreDriverPacks = Get-ModuleCoreDriverPacks -OSDManufacturer $OSDManufacturer
+        $global:ModuleCoreDriverPacks = Initialize-ModuleCoreDriverPacks -OSDManufacturer $OSDManufacturer
     }
 
     # Resolve driver pack metadata for the detected device, with optional model overrides supplied by the caller.
@@ -225,7 +225,7 @@ function Update-RecastOSDCloudUSBCache {
     if ($PSBoundParameters.ContainsKey('OSDProduct')) {
         $global:OSDCoreDevice.OSDProduct = $OSDProduct
     }
-    $global:OSDCoreDriverPackCloudObject = $global:OSDCoreDriverPacks | Where-Object { $_.SystemId -match $global:OSDCoreDevice.OSDProduct } | Select-Object -First 1
+    $global:OSDCoreDriverPackCloudObject = $global:ModuleCoreDriverPacks | Where-Object { $_.SystemId -match $global:OSDCoreDevice.OSDProduct } | Select-Object -First 1
     #================================================
     # OSDCoreOperatingSystemCloudObject
     if ($global:OSDCoreOperatingSystemCloudObject) {
