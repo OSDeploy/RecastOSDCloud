@@ -1,10 +1,10 @@
 ---
-description: "Step-by-step guide for updating OSDCloud driver pack catalogs: refresh Dell/HP/Lenovo XML snapshots, add or update Surface models in surface.json, update panasonic.json, or add ARM64 entries to generic.json."
+description: "Step-by-step guide for updating OSDCloud driver pack catalogs: refresh Dell/HP/Lenovo XML snapshots, add or update Surface models in OSDCloud/core/driverpacks/surface.json, update OSDCloud/core/driverpacks/panasonic.json, or add ARM64 entries to OSDCloud/core/driverpacks/generic.json."
 argument-hint: "dell | hp | lenovo | microsoft | panasonic | generic | all"
 agent: "agent"
 ---
 
-Perform a driver pack catalog update for OSDCloud following the rules in [catalog-update.instructions.md](../instructions/catalog-update.instructions.md).
+Perform a driver pack catalog update for OSDCloud following the rules in [osdcloud-catalog-update.instructions.md](../instructions/osdcloud-catalog-update.instructions.md).
 
 ## Step 1 -- Determine scope
 
@@ -12,12 +12,12 @@ If the user provided an argument, use it to determine which catalogs to update:
 
 | Argument | Catalog file(s) |
 |---|---|
-| `dell` | `core/driverpacks/dell.xml` |
-| `hp` | `core/driverpacks/hp.xml` |
-| `lenovo` | `core/driverpacks/lenovo.xml` |
-| `microsoft` | `core/driverpacks/surface.json` |
-| `panasonic` | `core/driverpacks/panasonic.json` |
-| `generic` | `core/driverpacks/generic.json` |
+| `dell` | `OSDCloud/core/driverpacks/dell.xml` |
+| `hp` | `OSDCloud/core/driverpacks/hp.xml` |
+| `lenovo` | `OSDCloud/core/driverpacks/lenovo.xml` |
+| `microsoft` | `OSDCloud/core/driverpacks/surface.json` |
+| `panasonic` | `OSDCloud/core/driverpacks/panasonic.json` |
+| `generic` | `OSDCloud/core/driverpacks/generic.json` |
 | `all` | All of the above |
 
 If no argument was provided, ask: **Which catalog(s) need updating?** (list the options above).
@@ -28,7 +28,7 @@ If no argument was provided, ask: **Which catalog(s) need updating?** (list the 
 
 For each OEM XML catalog being refreshed:
 
-1. **Confirm the source URL** from `module.json`:
+1. **Confirm the source URL** from `OSDCloud/core/module.json`:
    - Dell: `https://downloads.dell.com/catalog/DriverPackCatalog.cab`
    - HP: `https://hpia.hpcloud.hp.com/downloads/driverpackcatalog/HPClientDriverPackCatalog.cab`
    - Lenovo: `https://download.lenovo.com/cdrt/td/catalogv2.xml` (direct XML -- no CAB extraction needed)
@@ -42,7 +42,7 @@ For each OEM XML catalog being refreshed:
 
 3. **Replace the local snapshot**:
    ```powershell
-   Copy-Item "$env:TEMP\DriverPackCatalog.xml" 'core\driverpacks\dell.xml' -Force
+   Copy-Item "$env:TEMP\DriverPackCatalog.xml" 'OSDCloud\core\driverpacks\dell.xml' -Force
    ```
 
 4. **Do not edit the XML content** -- it is consumed as-is.
@@ -53,7 +53,7 @@ For each OEM XML catalog being refreshed:
 
 ## Microsoft (Surface) -- surface.json
 
-`surface.json` is the sole source of truth for Surface driver packs. `Get-OSDCloudCatalogSurface` reads it directly at runtime and enriches entries from live download pages for models that have an `UpdatePage` URL. **There is no `surface.xml` to regenerate.**
+`surface.json` is the sole source of truth for Surface driver packs. `Get-OSDCoreDriverPackCatalogSurface` reads it directly at runtime and enriches entries from live download pages for models that have an `UpdatePage` URL. **There is no `surface.xml` to regenerate.**
 
 ### If adding or updating a model entry manually
 
@@ -74,12 +74,12 @@ Then:
 
 1. Set `CatalogVersion` and `ReleaseDate` to today's date in `YY.MM.DD` format.
 2. Set `Name` to `"Surface <Model> [<ReleaseDate>]"` (no "Microsoft" prefix in the Name field).
-3. Edit `core/driverpacks/surface.json` -- insert the new entry in the correct position (sort by Model name).
+3. Edit `OSDCloud/core/driverpacks/surface.json` -- insert the new entry in the correct position (sort by Model name).
 4. Confirm the file is saved.
 
 ### Automated update via GitHub Actions
 
-The `update-catalog-microsoft.yaml` workflow runs `.github/scripts/Update-MicrosoftCatalog.ps1` every 4 hours and on demand. It scrapes every `UpdatePage` URL in `surface.json`, selects the best available MSI, and commits any changes automatically. Run `workflow_dispatch` to trigger an immediate update.
+The `.github/workflows/update-catalog-microsoft.yaml` workflow runs `.github/scripts/Update-MicrosoftCatalog.ps1` every 4 hours and on demand. It scrapes every `UpdatePage` URL in `OSDCloud/core/driverpacks/surface.json`, selects the best available MSI, and updates the JSON file when changes are detected. Trigger the workflow manually with `workflow_dispatch` to run it immediately.
 
 ---
 
@@ -125,9 +125,9 @@ Rules:
 After all edits, confirm each item:
 
 - [ ] OEM XML snapshots replaced (Dell/HP/Lenovo as applicable)
-- [ ] `surface.json` edited (if applicable)
-- [ ] `panasonic.json` updated with new `LastDateModified` (if applicable)
-- [ ] `generic.json` updated (if applicable)
+- [ ] `OSDCloud/core/driverpacks/surface.json` edited (if applicable)
+- [ ] `OSDCloud/core/driverpacks/panasonic.json` updated with new `LastDateModified` (if applicable)
+- [ ] `OSDCloud/core/driverpacks/generic.json` updated (if applicable)
 - [ ] No manual edits made to Dell/HP/Lenovo XML content
 
 Report a one-line summary of each file changed and what was updated.
