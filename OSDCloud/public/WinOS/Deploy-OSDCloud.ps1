@@ -110,7 +110,28 @@ function Deploy-OSDCloud {
         })]
         [ValidateNotNullOrEmpty()]
         [System.String]
-        $ProfileName = 'default'
+        $ProfileName = 'default',
+
+        [Parameter(Mandatory = $false, HelpMessage = 'Optional manufacturer override used for driver pack selection.')]
+        [ValidateNotNullOrEmpty()]
+        [System.String]
+        $OSDManufacturer,
+
+        [Parameter(Mandatory = $false, HelpMessage = 'Optional model override used for driver pack selection.')]
+        [ValidateNotNullOrEmpty()]
+        [System.String]
+        $OSDModel,
+
+        [Parameter(Mandatory = $false, HelpMessage = 'Optional product/system ID override used for driver pack selection.')]
+        [ValidateNotNullOrEmpty()]
+        [System.String]
+        $OSDProduct,
+
+        [Parameter(Mandatory = $false, HelpMessage = 'Operating system architecture for deployment selection.')]
+        [ValidateNotNullOrEmpty()]
+        [ValidateSet('amd64','arm64')]
+        [System.String]
+        $OSArchitecture = $env:PROCESSOR_ARCHITECTURE
     )
 
     dynamicparam {
@@ -130,13 +151,33 @@ function Deploy-OSDCloud {
         Write-Host -ForegroundColor DarkCyan 'By using OSDCloud, you consent to the collection of analytic data as outlined in the privacy policy:'
         Write-Host -ForegroundColor DarkGray 'https://github.com/OSDeploy/OSDCloud/blob/main/PRIVACY.md'
         Write-Host
+        #=================================================
+        # Initialize Device and Deployment Objects
+        Initialize-OSDCoreDevice
 
+        # Populate variables from environment and profile settings, and apply any parameter overrides.
         $envParameters = @{}
         if (Get-Command -Name 'ConvertTo-OSDCloudEnvParameter' -ErrorAction SilentlyContinue) {
-            # $envParameters = ConvertTo-OSDCloudEnvParameter -BoundParameters $PSBoundParameters
+            $envParameters = ConvertTo-OSDCloudEnvParameter -BoundParameters $PSBoundParameters
         }
-        Initialize-OSDCloudDeploy -WorkflowName $WorkflowName -EnvParameters $envParameters -ProfileName $ProfileName
 
+        # Values should be set by parameter, and fallback to $OSDCoreDevice if not provided
+        # These superscede the values in the Env file, which are used for default selection only.
+        if (-not $OSDManufacturer) {
+            $OSDManufacturer = $global:OSDCoreDevice.OSDManufacturer
+        }
+        if (-not $OSDModel) {
+            $OSDModel = $global:OSDCoreDevice.OSDModel
+        }
+        if (-not $OSDProduct) {
+            $OSDProduct = $global:OSDCoreDevice.OSDProduct
+        }
+        $reportedOSDManufacturer = if ([string]::IsNullOrWhiteSpace($OSDManufacturer)) { 'Unknown' } else { [System.String]$OSDManufacturer }
+        $reportedOSDModel = if ([string]::IsNullOrWhiteSpace($OSDModel)) { 'Unknown' } else { [System.String]$OSDModel }
+        $reportedOSDProduct = if ([string]::IsNullOrWhiteSpace($OSDProduct)) { 'Unknown' } else { [System.String]$OSDProduct }
+        Initialize-OSDCloudDeploy -WorkflowName $WorkflowName -EnvParameters $envParameters -ProfileName $ProfileName -OSArchitecture $OSArchitecture -OSDManufacturer $reportedOSDManufacturer -OSDModel $reportedOSDModel -OSDProduct $reportedOSDProduct
+        #=================================================
+        # Start Deployment Workflow
         if ($CLI.IsPresent) {
             Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Invoke-OSDCloudWorkflowTask"
             $global:OSDCloudDeploy.TimeStart = Get-Date
