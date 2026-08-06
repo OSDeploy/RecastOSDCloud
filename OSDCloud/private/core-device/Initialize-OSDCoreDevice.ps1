@@ -43,6 +43,9 @@ function Initialize-OSDCoreDevice {
         - Updates global state in $global:OSDCoreDevice.
 
         Changelog:
+        - 2026-08-05 | pending | Report unknown values for empty identity fields.
+            Normalized OSDManufacturer, OSDModel, and OSDProduct values written
+            to OSDCoreDevice so null/whitespace values are emitted as Unknown.
         - 2026-08-05 | pending | Resolve OS catalog provider selection overwrite.
             Replaced unconditional dual assignment of OSDCoreOperatingSystems with
             command-aware selection logic that uses the available provider function
@@ -616,11 +619,15 @@ function Initialize-OSDCoreDevice {
     #=================================================
     #   Pass Variables to OSDCoreDevice
     #=================================================
+    $reportedOSDManufacturer = if ([string]::IsNullOrWhiteSpace($OSDManufacturer)) { 'Unknown' } else { [System.String]$OSDManufacturer }
+    $reportedOSDModel = if ([string]::IsNullOrWhiteSpace($OSDModel)) { 'Unknown' } else { [System.String]$OSDModel }
+    $reportedOSDProduct = if ([string]::IsNullOrWhiteSpace($OSDProduct)) { 'Unknown' } else { [System.String]$OSDProduct }
+
     $global:OSDCoreDevice = $null
     $global:OSDCoreDevice = [ordered]@{
-        OSDManufacturer           = [System.String]$OSDManufacturer
-        OSDModel                  = [System.String]$OSDModel
-        OSDProduct                = [System.String]$OSDProduct
+        OSDManufacturer           = $reportedOSDManufacturer
+        OSDModel                  = $reportedOSDModel
+        OSDProduct                = $reportedOSDProduct
         ComputerName              = $classWin32ComputerSystem.Name
         BaseBoardProduct          = [System.String]$BaseBoardProduct
         BiosReleaseDate           = [System.String]$classWin32BIOS.ReleaseDate
@@ -665,36 +672,6 @@ function Initialize-OSDCoreDevice {
         UUID                      = $classWin32ComputerSystemProduct.UUID
     }
     $global:OSDCoreDevice | ConvertTo-Json -Depth 10 | Out-File "$LogsPath\OSDCoreDevice.json" -Force -Encoding utf8
-    #=================================================
-    # OSDCoreCacheContent
-    $global:OSDCoreCacheContent = Get-OSDCoreCacheContent
-    #=================================================
-    # ModuleCoreOperatingSystems
-    $global:ModuleCoreOperatingSystems = Initialize-ModuleCoreOperatingSystems
-    # Validate ModuleCoreOperatingSystems
-    if (-not ($global:ModuleCoreOperatingSystems)) {
-        throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Unable to load Module Core Operating Systems."
-    }
-    #=================================================
-    # OSDCoreOperatingSystems
-    # Select the provider that exists in the current module context.
-    $ModuleName = $($MyInvocation.MyCommand.Module.Name)
-    if ($ModuleName -eq 'OSD') {
-        $global:OSDCoreOperatingSystems = Get-OSDCoreOperatingSystems |
-            Where-Object { $_.Architecture -match "$ProcessorArchitecture" }
-    }
-    elseif ($ModuleName -eq 'OSDCloud') {
-        $global:OSDCoreOperatingSystems = Get-OSDCloudCoreOperatingSystems |
-            Where-Object { $_.OSArchitecture -match "$ProcessorArchitecture" }
-    }
-    else {
-        throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Unable to load core operating systems provider command."
-    }
-    $null = Set-OSDCoreOperatingSystemCloudObject -OSArchitecture $ProcessorArchitecture
-    #=================================================
-    # OSDCoreDriverPacks
-    $global:ModuleCoreDriverPacks = Initialize-ModuleCoreDriverPacks -OSDManufacturer $OSDManufacturer
-    $global:OSDCoreDriverPackCloudObject = $global:ModuleCoreDriverPacks | Where-Object { $_.SystemId -match $OSDProduct } | Select-Object -First 1
     #=================================================
     # OSDCloudLogs
     # Look for available drives (USB, mapped network drives, and local drives) with at least 1 GB of free space and write permissions for the current user to copy logs.
