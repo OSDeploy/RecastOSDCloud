@@ -39,7 +39,9 @@ function Initialize-ModuleCoreOperatingSystems {
     [CmdletBinding()]
     [OutputType([pscustomobject[]])]
     param ()
-
+    #=================================================
+    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)]"
+    #=================================================
     $ErrorActionPreference = 'Stop'
     $records = @()
     $mctRecords = @()
@@ -114,8 +116,11 @@ function Initialize-ModuleCoreOperatingSystems {
         Sort-Object -Property FilePath, FileName, LanguageCode, Architecture
 
     if (-not $mctRecords) {
-        return $records
+        $global:ModuleCoreOperatingSystems = $records
+        # return $records
     }
-
-    return $mctRecords
+    else {
+        # return $mctRecords
+        $global:ModuleCoreOperatingSystems = $mctRecords
+    }
 }

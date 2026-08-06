@@ -41,6 +41,9 @@ function Initialize-ModuleCoreDriverPacks {
 
         [System.String]$ProcessorArchitecture = $env:PROCESSOR_ARCHITECTURE
     )
+    #=================================================
+    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] $OSDManufacturer $ProcessorArchitecture"
+    #=================================================
 
     # Load Generic driver pack catalog for fallback
     $GenericCatalog = Get-Content -Path $GenericDriverPackJson -Raw | ConvertFrom-Json
@@ -61,5 +64,6 @@ function Initialize-ModuleCoreDriverPacks {
         }
     }
 
-    $DriverPackValues | Where-Object { $_.OSArchitecture -eq $ProcessorArchitecture }
+    #$DriverPackValues | Where-Object { $_.OSArchitecture -eq $ProcessorArchitecture }
+    $global:ModuleCoreDriverPacks = $DriverPackValues | Where-Object { $_.OSArchitecture -eq $ProcessorArchitecture }
 }
