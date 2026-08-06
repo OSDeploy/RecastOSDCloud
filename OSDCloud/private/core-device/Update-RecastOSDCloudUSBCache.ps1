@@ -300,7 +300,7 @@ function Update-RecastOSDCloudUSBCache {
                         else {
                             Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OperatingSystem already exists at $osdCoreOperatingSystemDestinationFullName. No hash property was available to verify."
                         }
-                        $global:OSDCoreCacheContent = Get-OSDCoreCacheContent
+                        Initialize-OSDCoreCache
                         $downloadOperatingSystem = $false
                     }
 
@@ -323,7 +323,7 @@ function Update-RecastOSDCloudUSBCache {
                             Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSDCoreOperatingSystemCloudObject $expectedOperatingSystemHashAlgorithm hash verified. OK."
                         }
                         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSDCoreOperatingSystemCloudObject downloaded to $($savedOperatingSystem.FullName)"
-                        $global:OSDCoreCacheContent = Get-OSDCoreCacheContent
+                        Initialize-OSDCoreCache
                     }
                 }
                 else {
@@ -407,7 +407,7 @@ function Update-RecastOSDCloudUSBCache {
                         else {
                             Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] DriverPack already exists at $osdCoreDriverPackDestinationFullName. No MD5 hash property was available to verify."
                         }
-                        $global:OSDCoreCacheContent = Get-OSDCoreCacheContent
+                        Initialize-OSDCoreCache
                         $downloadDriverPack = $false
                     }
 
@@ -430,7 +430,7 @@ function Update-RecastOSDCloudUSBCache {
                             Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] DriverPack MD5 hash verified. OK."
                         }
                         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] DriverPack downloaded to $($savedDriverPack.FullName)"
-                        $global:OSDCoreCacheContent = Get-OSDCoreCacheContent
+                        Initialize-OSDCoreCache
                     }
                 }
                 else {
