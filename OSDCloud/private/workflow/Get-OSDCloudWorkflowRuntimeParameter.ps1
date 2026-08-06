@@ -48,8 +48,8 @@ function Get-OSDCloudWorkflowRuntimeParameter {
     $workflowPath = Join-Path -Path $workflowRootPath -ChildPath $WorkflowName
     $tasksPath = Join-Path -Path $workflowPath -ChildPath 'tasks'
 
-    $osJsonFileName = if ($env:PROCESSOR_ARCHITECTURE -eq 'ARM64') { 'os-arm64.json' } else { 'os-amd64.json' }
-    $osJsonPath = Join-Path -Path $workflowPath -ChildPath $osJsonFileName
+    $osSettingsFileObject = Get-OSDCloudWorkflowSettingsOSFile -WorkflowName $WorkflowName -Architecture $env:PROCESSOR_ARCHITECTURE -Path $workflowRootPath
+    $osJsonPath = $osSettingsFileObject.FullName
 
     $operatingSystemValues = @()
     $osActivationValues = @()
@@ -57,19 +57,18 @@ function Get-OSDCloudWorkflowRuntimeParameter {
     $osEditionValues = @()
     $taskValues = @()
 
-    if (Test-Path -Path $osJsonPath) {
-        $rawJsonContent = Get-Content -Path $osJsonPath -Raw
-        $jsonContent = $rawJsonContent -replace '(?m)(?<=^([^"]|"[^"]*")*)//.*' -replace '(?ms)/\*.*?\*/'
-        $osSettings = ConvertFrom-Json -InputObject $jsonContent
-        $operatingSystemValues = [string[]]$osSettings.OperatingSystem.values
-        $osActivationValues = [string[]]$osSettings.OSActivation.values
-        $osLanguageCodeValues = [string[]]$osSettings.OSLanguageCode.values
-        $osEditionValues = [string[]]($osSettings.OSEdition.values | ForEach-Object { $_.Edition })
-    }
+    $rawJsonContent = Get-Content -Path $osJsonPath -Raw
+    $jsonContent = $rawJsonContent -replace '(?m)(?<=^([^"]|"[^"]*")*)//.*' -replace '(?ms)/\*.*?\*/'
+    $osSettings = ConvertFrom-Json -InputObject $jsonContent
+    $null = Test-OSDCloudWorkflowSettingsOS -Settings $osSettings -WorkflowName $WorkflowName -Path $osJsonPath
+    $operatingSystemValues = [string[]]$osSettings.OperatingSystem.values
+    $osActivationValues = [string[]]$osSettings.OSActivation.values
+    $osLanguageCodeValues = [string[]]$osSettings.OSLanguageCode.values
+    $osEditionValues = [string[]]($osSettings.OSEdition.values | ForEach-Object { $_.Edition })
 
     if (Test-Path -Path $tasksPath) {
         $taskJsonFiles = Get-ChildItem -Path $tasksPath -Filter '*.json' -File
-        if ($env:PROCESSOR_ARCHITECTURE -eq 'ARM64') {
+        if ($osSettingsFileObject.Architecture -eq 'arm64') {
             $taskValues = [string[]]($taskJsonFiles |
                 ForEach-Object { Get-Content -Path $_.FullName -Raw | ConvertFrom-Json } |
                 Where-Object { $_.arm64 -eq $true } |
@@ -88,6 +87,7 @@ function Get-OSDCloudWorkflowRuntimeParameter {
             [Parameter(Mandatory = $true)]
             [string]$Name,
             [Parameter(Mandatory = $true)]
+            [AllowEmptyCollection()]
             [string[]]$ValidateSetValues
         )
 
