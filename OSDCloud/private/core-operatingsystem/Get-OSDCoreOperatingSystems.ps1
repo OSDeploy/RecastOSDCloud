@@ -49,7 +49,11 @@ function Get-OSDCoreOperatingSystems {
     $records = @()
     $mctRecords = @()
 
-    $mctRecords = Initialize-ModuleCoreOperatingSystems
+    Initialize-ModuleCoreOperatingSystems
+    if (-not ($global:ModuleCoreOperatingSystems)) {
+        throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Unable to load Module Core Operating Systems."
+    }
+    $mctRecords = $global:ModuleCoreOperatingSystems
 
     if (-not $mctRecords) {
         return $records
