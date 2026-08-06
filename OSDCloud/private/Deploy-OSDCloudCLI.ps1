@@ -151,17 +151,10 @@ function Deploy-OSDCloudCLI {
         $selectedOSActivation = if ($null -ne $OSActivation) { $OSActivation } else { [System.String]$global:OSDCloudDeploy.OSActivation }
         $selectedOSLanguageCode = if ($null -ne $OSLanguageCode) { $OSLanguageCode } else { [System.String]$global:OSDCloudDeploy.OSLanguageCode }
 
-        if ($selectedOSEdition -in @('Enterprise', 'Enterprise N')) {
-            if ($selectedOSActivation -ne 'Volume') {
-                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSEdition '$selectedOSEdition' requires OSActivation 'Volume'."
-            }
-            $selectedOSActivation = 'Volume'
-        }
-        elseif ($selectedOSEdition -in @('Home', 'Home N')) {
-            if ($selectedOSActivation -ne 'Retail') {
-                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSEdition '$selectedOSEdition' requires OSActivation 'Retail'."
-            }
-            $selectedOSActivation = 'Retail'
+        $resolvedOSActivation = Resolve-OSDCloudWorkflowOSActivation -OSEdition $selectedOSEdition -OSActivation $selectedOSActivation
+        if ($resolvedOSActivation -ne $selectedOSActivation) {
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] OSEdition '$selectedOSEdition' requires OSActivation '$resolvedOSActivation'."
+            $selectedOSActivation = $resolvedOSActivation
         }
 
         $operatingSystemValues = [array]$global:OSDCloudDeploy.OperatingSystemValues
@@ -203,11 +196,11 @@ function Deploy-OSDCloudCLI {
             throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] No Operating System object found for OperatingSystem '$selectedOperatingSystem' with OSActivation '$selectedOSActivation' and OSLanguageCode '$selectedOSLanguageCode'."
         }
 
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OperatingSystem: $selectedOperatingSystem"
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSEdition: $selectedOSEdition"
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSActivation: $selectedOSActivation"
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSLanguageCode: $selectedOSLanguageCode"
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Task: $selectedTask"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] OperatingSystem: $selectedOperatingSystem"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] OSEdition: $selectedOSEdition"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] OSActivation: $selectedOSActivation"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] OSLanguageCode: $selectedOSLanguageCode"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Task: $selectedTask"
 
         $global:OSDCloudDeploy.OperatingSystem = $operatingSystemObject.OperatingSystem
         $global:OSDCloudDeploy.OperatingSystemObject = $operatingSystemObject
@@ -227,7 +220,7 @@ function Deploy-OSDCloudCLI {
         $global:OSDCloudDeploy.Force = $Force.IsPresent
 
         #=================================================
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Invoke-OSDCloudWorkflowTask"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Invoke-OSDCloudWorkflowTask"
         $global:OSDCloudDeploy.TimeStart = Get-Date
         $global:OSDCloudDeploy | Out-Host
         Invoke-OSDCloudWorkflowTask

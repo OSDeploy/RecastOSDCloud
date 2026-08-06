@@ -143,7 +143,7 @@ function Deploy-OSDCloud {
     end {
         #=================================================
         $ModuleVersion = $($MyInvocation.MyCommand.Module.Version)
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] $ModuleVersion"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] [$($MyInvocation.MyCommand.Name)] $ModuleVersion"
 
         Write-Host -ForegroundColor DarkCyan 'OSDCloud collects analytic data during the deployment process to help improve the product and user experience.'
         Write-Host -ForegroundColor DarkCyan 'No personally identifiable information (PII) is collected, and all data is anonymized to protect user privacy.'
@@ -187,12 +187,53 @@ function Deploy-OSDCloud {
             ProfileName     = $ProfileName
             WorkflowName    = $WorkflowName
         }
+        $initializeOSDCloudDeployCommand = Get-Command -Name 'Initialize-OSDCloudDeploy' -ErrorAction SilentlyContinue
+        if ($initializeOSDCloudDeployCommand) {
+            $excludedCommonParameterNames = @(
+                'Verbose',
+                'Debug',
+                'ErrorAction',
+                'WarningAction',
+                'InformationAction',
+                'ErrorVariable',
+                'WarningVariable',
+                'InformationVariable',
+                'OutVariable',
+                'OutBuffer',
+                'PipelineVariable',
+                'WhatIf',
+                'Confirm'
+            )
+
+            $initializeEligibleParameterNames = @(
+                $initializeOSDCloudDeployCommand.Parameters.Keys |
+                    Where-Object {
+                        (-not $initializeOSDCloudDeployParameters.ContainsKey($_)) -and
+                        ($_ -notin $excludedCommonParameterNames)
+                    }
+            )
+
+            foreach ($parameterName in $initializeEligibleParameterNames) {
+                if (-not $PSBoundParameters.ContainsKey($parameterName)) {
+                    continue
+                }
+                $parameterValue = $PSBoundParameters[$parameterName]
+                if ($null -eq $parameterValue) {
+                    continue
+                }
+                if ($parameterValue -is [System.String] -and [string]::IsNullOrWhiteSpace($parameterValue)) {
+                    continue
+                }
+
+                $initializeOSDCloudDeployParameters[$parameterName] = $parameterValue
+            }
+        }
         Initialize-OSDCloudDeploy @initializeOSDCloudDeployParameters
         Break
         #=================================================
         # Start Deployment Workflow
         if ($CLI.IsPresent) {
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Invoke-OSDCloudWorkflowTask"
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO]Invoke-OSDCloudWorkflowTask"
             $global:OSDCloudDeploy.TimeStart = Get-Date
             $global:OSDCloudDeploy | Out-Host
             Invoke-OSDCloudWorkflowTask
@@ -204,7 +245,7 @@ function Deploy-OSDCloud {
             Invoke-OSDCloudWorkflowUI -WorkflowName $WorkflowName
 
             if ($null -ne $global:OSDCloudDeploy.TimeStart) {
-                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Invoke-OSDCloudWorkflowTask $WorkflowName"
+                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Invoke-OSDCloudWorkflowTask $WorkflowName"
                 $global:OSDCloudDeploy | Out-Host
                 try {
                     Invoke-OSDCloudWorkflowTask
@@ -214,7 +255,7 @@ function Deploy-OSDCloud {
                 }
             }
             else {
-                Write-Host -ForegroundColor DarkCyan "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] OSDCloud Workflow '$WorkflowName' was not started."
+                Write-Host -ForegroundColor DarkYellow "[$(Get-Date -format s)] [WARN] OSDCloud Workflow '$WorkflowName' was not started."
             }
         }
     }
