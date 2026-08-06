@@ -14,12 +14,12 @@ function step-install-bcdboot {
 
     Push-Location -Path "C:\Windows\System32"
     if ($global:OSDCloudDeploy.OSBuild -lt 26200) {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] C:\Windows\System32\bcdboot.exe C:\Windows /c /v"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] C:\Windows\System32\bcdboot.exe C:\Windows /c /v"
         $BCDBootOutput = & C:\Windows\System32\bcdboot.exe C:\Windows /c /v
         $BCDBootOutput | Out-File -FilePath "$LogPath\bcdboot.txt" -Force
     }
     else {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] C:\Windows\System32\bcdboot.exe C:\Windows /c /bootex"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] C:\Windows\System32\bcdboot.exe C:\Windows /c /bootex"
         $BCDBootOutput = & C:\Windows\System32\bcdboot.exe C:\Windows /c /bootex
         $BCDBootOutput | Out-File -FilePath "$LogPath\bcdboot.txt" -Force
     }

@@ -9,7 +9,7 @@ function step-postaction-restartcomputer {
     #region Main
     if ($global:OSDCloudWorkflowInvoke.WinpeRestart) {
         Write-Host -ForegroundColor Yellow "[$(Get-Date -format s)] Device will restart in 30 seconds"
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Press CTRL + C to cancel"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Press CTRL + C to cancel"
         #TODO EJECT ISO
         # (New-Object -ComObject 'Shell.Application').Namespace(17).Items() | Where-Object { $_.Type -eq 'CD Drive' } | ForEach-Object { $_.InvokeVerb('Eject') }
         Start-Sleep -Seconds 30

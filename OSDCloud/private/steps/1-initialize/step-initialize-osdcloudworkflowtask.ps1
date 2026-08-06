@@ -13,9 +13,9 @@ function step-initialize-osdcloudworkflowtask {
     $Step = $global:OSDCloudCurrentStep
     #=================================================
     #region Main
-    
+
     # Display delay message to user
-    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Starting $WorkflowTaskName in 5 seconds..."
+    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Starting $WorkflowTaskName in 5 seconds..."
     Write-Host -ForegroundColor DarkGray "Press Ctrl+C to exit OSDCloud"
     Start-Sleep -Seconds 5
     

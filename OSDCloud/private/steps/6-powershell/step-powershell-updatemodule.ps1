@@ -10,11 +10,11 @@ function step-powershell-updatemodule {
     try {
         $WebRequest = Invoke-WebRequest -Uri 'https://www.powershellgallery.com' -UseBasicParsing -Method Head
         if ($WebRequest.StatusCode -eq 200) {
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] PowerShell Gallery returned a 200 status code. OK."
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] PowerShell Gallery returned a 200 status code. OK."
         }
     }
     catch {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] PowerShell Gallery is not reachable."
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] PowerShell Gallery is not reachable."
         return
     }
     #=================================================
@@ -36,12 +36,12 @@ function step-powershell-updatemodule {
     foreach ($Name in $ExistingModules) {
         $FindModule = Find-Module -Name $Name -ErrorAction SilentlyContinue
         if ($null -eq $FindModule) {
-            # Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Unable to update $Name"
+            # Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Unable to update $Name"
             continue
         }
 
         try {
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] $Name"
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] $Name"
             Save-Module -Name $Name -Path "$PowerShellSavePath\Modules" -Force -ErrorAction Stop
         }
         catch {

@@ -32,7 +32,7 @@ function step-install-downloadwindowsimage {
         if ($LocalImageFileInfo.Extension -ieq '.iso') {
             $DiskImage = Get-DiskImage -ImagePath $LocalImageFileInfo.FullName -ErrorAction SilentlyContinue
             if ($DiskImage -and -not $DiskImage.Attached) {
-                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Mounting ISO: $($LocalImageFileInfo.FullName)"
+                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Mounting ISO: $($LocalImageFileInfo.FullName)"
                 $DiskImage = Mount-DiskImage -ImagePath $LocalImageFileInfo.FullName -PassThru -ErrorAction Stop
             }
 
@@ -59,7 +59,7 @@ function step-install-downloadwindowsimage {
         if ($LocalImageFileInfo -and (Test-Path -LiteralPath $LocalImageFileInfo.FullName)) {
             $global:OSDCloudWorkflowInvoke.FileInfoWindowsImage = $LocalImageFileInfo
             $global:OSDCloudWorkflowInvoke.WindowsImagePath = $global:OSDCloudWorkflowInvoke.FileInfoWindowsImage.FullName
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] WindowsImagePath:  $($global:OSDCloudWorkflowInvoke.WindowsImagePath)"
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] WindowsImagePath:  $($global:OSDCloudWorkflowInvoke.WindowsImagePath)"
             return
         }
     }
@@ -69,12 +69,12 @@ function step-install-downloadwindowsimage {
     try {
         $WebRequest = Invoke-WebRequest -Uri $OperatingSystemObject.FilePath -UseBasicParsing -Method Head
         if ($WebRequest.StatusCode -eq 200) {
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OperatingSystemObject FilePath returned a 200 status code. OK."
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] OperatingSystemObject FilePath returned a 200 status code. OK."
             $IsOnline = $true
         }
     }
     catch {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OperatingSystemObject FilePath is not reachable."
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] OperatingSystemObject FilePath is not reachable."
     }
     #=================================================
     # Does the file exist on a Drive?
@@ -86,11 +86,11 @@ function step-install-downloadwindowsimage {
     }
     
     if ($MatchingFiles) {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OperatingSystemObject is available offline. OK."
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] OperatingSystemObject is available offline. OK."
         $IsOffline = $true
     }
     else {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OperatingSystemObject is not available offline."
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] OperatingSystemObject is not available offline."
     }
     #=================================================
     # Nothing to do if it is unavailable online and offline
@@ -117,12 +117,12 @@ function step-install-downloadwindowsimage {
     $USBDrive = Get-DeviceUSBVolume | Where-Object { ($_.FileSystemLabel -match "OSDCloud|USB-DATA") } | `
                 Where-Object { $_.SizeGB -ge 16 } | Where-Object { $_.SizeRemainingGB -ge 10 } | Select-Object -First 1
     
-    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] $($OperatingSystemObject.FilePath)"
-    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] FileName: $FileName"
+    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] $($OperatingSystemObject.FilePath)"
+    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] FileName: $FileName"
 
     if ($USBDrive) {
         $USBDownloadPath = "$($USBDrive.DriveLetter):\OSDCloud\OS\$($OperatingSystemObject.OperatingSystem)"
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] DownloadPath: $USBDownloadPath"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] DownloadPath: $USBDownloadPath"
 
         if (-not (Test-Path $USBDownloadPath)) {
             $null = New-Item -Path $USBDownloadPath -ItemType Directory -Force
@@ -130,14 +130,14 @@ function step-install-downloadwindowsimage {
         $SaveWebFile = Invoke-OSDCloudDownloadFile -SourceUrl $OperatingSystemObject.FilePath -DestinationDirectory "$USBDownloadPath" -DestinationName $FileName
 
         if ($SaveWebFile) {
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Copy Offline OS to $DownloadPath"
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Copy Offline OS to $DownloadPath"
             $null = Copy-Item -Path $SaveWebFile.FullName -Destination $DownloadPath -Force
             $FileInfo = Get-Item "$DownloadPath\$($SaveWebFile.Name)"
         }
     }
     else {
         # $SaveWebFile is a FileInfo Object, not a path
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] DownloadPath: $DownloadPath"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] DownloadPath: $DownloadPath"
         $SaveWebFile = Invoke-OSDCloudDownloadFile -SourceUrl $OperatingSystemObject.FilePath -DestinationDirectory $DownloadPath -ErrorAction Stop
         $FileInfo = $SaveWebFile
     }
@@ -153,13 +153,13 @@ function step-install-downloadwindowsimage {
     # Store this as a FileInfo Object
     $global:OSDCloudWorkflowInvoke.FileInfoWindowsImage = $FileInfo
     $global:OSDCloudWorkflowInvoke.WindowsImagePath = $global:OSDCloudWorkflowInvoke.FileInfoWindowsImage.FullName
-    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] WindowsImagePath:  $($global:OSDCloudWorkflowInvoke.WindowsImagePath)"
+    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] WindowsImagePath:  $($global:OSDCloudWorkflowInvoke.WindowsImagePath)"
     #=================================================
     # Check the File Hash
     if ($OperatingSystemObject.Sha1) {
         $FileHash = (Get-FileHash -Path $FileInfo.FullName -Algorithm SHA1).Hash
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Microsoft Verified ESD SHA1: $($OperatingSystemObject.Sha1)"
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Downloaded ESD SHA1: $FileHash"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Microsoft Verified ESD SHA1: $($OperatingSystemObject.Sha1)"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Downloaded ESD SHA1: $FileHash"
 
         if ($OperatingSystemObject.Sha1 -notmatch $FileHash) {
             Write-Warning "[$(Get-Date -format s)] Unable to deploy this Operating System."
@@ -173,8 +173,8 @@ function step-install-downloadwindowsimage {
     }
     if ($OperatingSystemObject.Sha256) {
         $FileHash = (Get-FileHash -Path $FileInfo.FullName -Algorithm SHA256).Hash
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Microsoft Verified ESD SHA256: $($OperatingSystemObject.Sha256)"
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Downloaded ESD SHA256: $FileHash"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Microsoft Verified ESD SHA256: $($OperatingSystemObject.Sha256)"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Downloaded ESD SHA256: $FileHash"
 
         if ($OperatingSystemObject.Sha256 -notmatch $FileHash) {
             Write-Warning "[$(Get-Date -format s)] Unable to deploy this Operating System."

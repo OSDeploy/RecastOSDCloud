@@ -9,7 +9,7 @@ function step-powershell-savemodule {
     $Step = $global:OSDCloudCurrentStep
     #=================================================
     #region Main
-    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)]"
+    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO]"
     $PowerShellSavePath = 'C:\Program Files\WindowsPowerShell'
 
     if (-not (Test-Path "$PowerShellSavePath\Configuration")) {

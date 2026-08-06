@@ -104,7 +104,7 @@ function step-Export-WindowsDriver-OemWinPE {
             #=================================================
             # Export WinPE Drivers
             if ($ExportClass -notcontains $OemDriver.ClassName) {
-                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($OemDriver.ClassName)] $ManufacturerName $($OemDriver.DeviceDescription)"
+                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] [$($OemDriver.ClassName)] $ManufacturerName $($OemDriver.DeviceDescription)"
                 continue
             }
             Write-Host -ForegroundColor DarkGreen "[$(Get-Date -format s)] [$($OemDriver.ClassName)] $ManufacturerName $($OemDriver.DeviceDescription)"

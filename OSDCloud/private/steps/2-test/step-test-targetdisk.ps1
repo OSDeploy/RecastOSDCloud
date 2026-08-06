@@ -16,7 +16,7 @@ function step-test-targetdisk {
 
 
     if ($global:OSDCloudWorkflowInvoke.GetDiskFixed) {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Fixed Disk is valid. OK."
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Fixed Disk is valid. OK."
     }
     else {
         Write-Warning "[$(Get-Date -format s)] Unable to detect a Fixed Disk."

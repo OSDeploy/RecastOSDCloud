@@ -12,7 +12,7 @@ function step-preinstall-cleartargetdisk {
     #=================================================
     #region Main
     if ($global:OSDCloudDeploy.Force -eq $true) {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Force was specified. Clear-Disk confirmation prompts are disabled"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Force was specified. Clear-Disk confirmation prompts are disabled"
         $Confirm = $false
     }
 

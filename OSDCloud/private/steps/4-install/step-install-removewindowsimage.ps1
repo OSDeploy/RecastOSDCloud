@@ -10,7 +10,7 @@ function step-install-removewindowsimage {
     if (Test-Path "C:\OSDCloud") {
         try {
             Remove-Item -Path "C:\OSDCloud" -Recurse -Force -ErrorAction Stop | Out-Null
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Removed C:\OSDCloud"
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Removed C:\OSDCloud"
         }
         catch {
             Write-Host -ForegroundColor DarkYellow "[$(Get-Date -format s)] Unable to remove C:\OSDCloud"

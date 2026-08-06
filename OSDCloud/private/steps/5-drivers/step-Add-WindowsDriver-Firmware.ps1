@@ -7,7 +7,7 @@ function step-Add-WindowsDriver-Firmware {
     $Step = $global:OSDCloudCurrentStep
     #=================================================
     if ($global:OSDCloudDeploy.SkipFirmwareUpdate -eq $true) {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Firmware update steps were disabled by -SkipFirmwareUpdate. Skip."
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Firmware update steps were disabled by -SkipFirmwareUpdate. Skip."
         return
     }
 

@@ -23,14 +23,14 @@ function step-preinstall-partitiontargetdisk {
     if ($RecoveryPartitionForce) { $RecoveryPartition = $true }
 
     if ($RecoveryPartition -eq $false) {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Recovery Partition will not be created. OK."
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Recovery Partition will not be created. OK."
         New-OSDCloudDisk -PartitionStyle GPT -NoRecoveryPartition -Force -ErrorAction Stop
         Write-Host "=========================================================================" -ForegroundColor DarkCyan
         Write-Host "| SYSTEM | MSR |                    WINDOWS                             |" -ForegroundColor DarkCyan
         Write-Host "=========================================================================" -ForegroundColor DarkCyan
     }
     else {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] 2GB Recovery Partition will be created. OK."
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] 2GB Recovery Partition will be created. OK."
         if ($DiskNumber) {
             New-OSDCloudDisk -PartitionStyle GPT -DiskNumber $DiskNumber -SizeRecovery 2000MB -Force -ErrorAction Stop
         }
@@ -46,7 +46,7 @@ function step-preinstall-partitiontargetdisk {
     # Make sure that there is a PSDrive 
     if (!(Get-PSDrive -Name 'C')) {
         Write-Warning "[$(Get-Date -format s)] Failed to create a PSDrive FileSystem at C:\."
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Press Ctrl+C to exit OSDCloud"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Press Ctrl+C to exit OSDCloud"
         Start-Sleep -Seconds 86400
         exit
     }

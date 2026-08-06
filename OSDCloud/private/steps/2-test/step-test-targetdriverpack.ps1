@@ -13,19 +13,19 @@ function step-test-targetdriverpack {
     #=================================================
     # Is DriverPackName set to None?
     if ($DriverPackName -eq 'None') {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] DriverPackName is set to None. OK."
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] DriverPackName is set to None. OK."
         return
     }
     #=================================================
     # Is DriverPackName set to Microsoft Update Catalog?
     if ($DriverPackName -eq 'Microsoft Update Catalog') {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] DriverPackName is set to Microsoft Update Catalog. OK."
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] DriverPackName is set to Microsoft Update Catalog. OK."
         return
     }
     #=================================================
     # Is there a DriverPack Object?
     if (-not ($DriverPackObject)) {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] DriverPackObject is not set. OK."
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] DriverPackObject is not set. OK."
         return
     }
     #=================================================
@@ -38,16 +38,16 @@ function step-test-targetdriverpack {
     }
     #=================================================
     # Is it reachable online?
-    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] $($DriverPackObject.Url)"
+    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] $($DriverPackObject.Url)"
     try {
         $WebRequest = Invoke-WebRequest -Uri $DriverPackObject.Url -UseBasicParsing -Method Head
         if ($WebRequest.StatusCode -eq 200) {
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] DriverPack URL returned a 200 status code. OK."
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] DriverPack URL returned a 200 status code. OK."
             return
         }
     }
     catch {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] DriverPack URL is not reachable."
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] DriverPack URL is not reachable."
     }
     #=================================================
     # Does the file exist on a Drive?
@@ -57,12 +57,12 @@ function step-test-targetdriverpack {
         Get-ChildItem "$($_.Name):\OSDCloud\DriverPacks\" -Include "$FileName" -File -Recurse -Force -ErrorAction Ignore
     }
     if ($MatchingFiles) {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] $($MatchingFiles[0].FullName)"
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] DriverPack is available offline. OK."
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] $($MatchingFiles[0].FullName)"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] DriverPack is available offline. OK."
         return
     }
     else {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] DriverPack is not available offline."
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] DriverPack is not available offline."
     }
     #=================================================
     # DriverPack does not exist

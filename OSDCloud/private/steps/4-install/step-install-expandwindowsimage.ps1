@@ -7,7 +7,7 @@ function step-install-expandwindowsimage {
     $Step = $global:OSDCloudCurrentStep
     #=================================================
     #region Main
-    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] C:\"
+    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] C:\"
     #=================================================
     #   Create ScratchDirectory
     $Params = @{

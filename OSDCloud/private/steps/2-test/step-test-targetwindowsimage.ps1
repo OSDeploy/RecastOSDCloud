@@ -13,8 +13,8 @@ function step-test-targetwindowsimage {
     if ($global:OSDCloudDeploy.LocalImageFileInfo) {
         $LocalImageFilePath = if ($global:OSDCloudDeploy.LocalImageFileInfo.FullName) { $global:OSDCloudDeploy.LocalImageFileInfo.FullName } else { [string]$global:OSDCloudDeploy.LocalImageFileInfo }
         if (Test-Path -LiteralPath $LocalImageFilePath) {
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] $LocalImageFilePath"
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OperatingSystem is available offline. OK."
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] $LocalImageFilePath"
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] OperatingSystem is available offline. OK."
             return
         }
     }
@@ -28,16 +28,16 @@ function step-test-targetwindowsimage {
     }
     #=================================================
     # Is it reachable online?
-    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] $($global:OSDCloudWorkflowInvoke.OperatingSystemObject.FilePath)"
+    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] $($global:OSDCloudWorkflowInvoke.OperatingSystemObject.FilePath)"
     try {
         $WebRequest = Invoke-WebRequest -Uri $global:OSDCloudWorkflowInvoke.OperatingSystemObject.FilePath -UseBasicParsing -Method Head
         if ($WebRequest.StatusCode -eq 200) {
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OperatingSystem URL returned a 200 status code. OK."
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] OperatingSystem URL returned a 200 status code. OK."
             return
         }
     }
     catch {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OperatingSystem URL is not reachable."
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] OperatingSystem URL is not reachable."
     }
     #=================================================
     # Does the file exist on a Drive?
@@ -47,12 +47,12 @@ function step-test-targetwindowsimage {
         Get-ChildItem "$($_.Name):\OSDCloud\OS\" -Include "$FileName" -File -Recurse -Force -ErrorAction Ignore
     }
     if ($MatchingFiles) {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] $($MatchingFiles[0].FullName)"
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OperatingSystem is available offline. OK."
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] $($MatchingFiles[0].FullName)"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] OperatingSystem is available offline. OK."
         return
     }
     else {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OperatingSystem is not available offline."
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] OperatingSystem is not available offline."
     }
     #=================================================
     # Can't access the file so need to bail

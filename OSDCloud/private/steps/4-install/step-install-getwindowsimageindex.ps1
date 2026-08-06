@@ -80,7 +80,7 @@ function step-install-getwindowsimageindex {
     $WindowsImageCount = ($WindowsImage).Count
 
     if ($WindowsImageCount -eq 1) {
-        # Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSDCloud only found a single ImageIndex to expand"
+        # Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] OSDCloud only found a single ImageIndex to expand"
         $global:OSDCloudWorkflowInvoke.WindowsImageIndex = 1
         return
     }
@@ -103,7 +103,7 @@ function step-install-getwindowsimageindex {
         if ($MatchingWindowsImage -and $MatchingWindowsImage.Count -eq 1) {
             $global:OSDCloudWorkflowInvoke.WindowsImage = $MatchingWindowsImage
             $global:OSDCloudWorkflowInvoke.WindowsImageIndex = $MatchingWindowsImage.ImageIndex
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] EditionId $EditionId found at ImageIndex $($global:OSDCloudWorkflowInvoke.WindowsImageIndex)"
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] EditionId $EditionId found at ImageIndex $($global:OSDCloudWorkflowInvoke.WindowsImageIndex)"
             return
         }
     }
