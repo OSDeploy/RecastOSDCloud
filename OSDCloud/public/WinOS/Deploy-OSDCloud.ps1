@@ -160,22 +160,35 @@ function Deploy-OSDCloud {
         if (Get-Command -Name 'ConvertTo-OSDCloudEnvParameter' -ErrorAction SilentlyContinue) {
             $envParameters = ConvertTo-OSDCloudEnvParameter -BoundParameters $PSBoundParameters
         }
-
-        # Values should be set by parameter, and fallback to $OSDCoreDevice if not provided
-        # These superscede the values in the Env file, which are used for default selection only.
-        if (-not $OSDManufacturer) {
-            $OSDManufacturer = $global:OSDCoreDevice.OSDManufacturer
+        #=================================================
+        # OSDCoreDevice Manufacturer, Model, Product overrides
+        if ($OSDManufacturer -and -not [string]::IsNullOrWhiteSpace($OSDManufacturer)) {
+            $global:OSDCoreDevice.OSDManufacturer = $OSDManufacturer
         }
-        if (-not $OSDModel) {
-            $OSDModel = $global:OSDCoreDevice.OSDModel
+        if ($OSDModel -and -not [string]::IsNullOrWhiteSpace($OSDModel)) {
+            $global:OSDCoreDevice.OSDModel = $OSDModel
         }
-        if (-not $OSDProduct) {
-            $OSDProduct = $global:OSDCoreDevice.OSDProduct
+        if ($OSDProduct -and -not [string]::IsNullOrWhiteSpace($OSDProduct)) {
+            $global:OSDCoreDevice.OSDProduct = $OSDProduct
         }
-        $reportedOSDManufacturer = if ([string]::IsNullOrWhiteSpace($OSDManufacturer)) { 'Unknown' } else { [System.String]$OSDManufacturer }
-        $reportedOSDModel = if ([string]::IsNullOrWhiteSpace($OSDModel)) { 'Unknown' } else { [System.String]$OSDModel }
-        $reportedOSDProduct = if ([string]::IsNullOrWhiteSpace($OSDProduct)) { 'Unknown' } else { [System.String]$OSDProduct }
-        Initialize-OSDCloudDeploy -WorkflowName $WorkflowName -EnvParameters $envParameters -ProfileName $ProfileName -OSArchitecture $OSArchitecture -OSDManufacturer $reportedOSDManufacturer -OSDModel $reportedOSDModel -OSDProduct $reportedOSDProduct
+        #=================================================
+        # Refactor variables for deployment workflow initialization
+        $OSDManufacturer = $global:OSDCoreDevice.OSDManufacturer
+        $OSDModel = $global:OSDCoreDevice.OSDModel
+        $OSDProduct = $global:OSDCoreDevice.OSDProduct
+        #=================================================
+        # Start Initialization of OSDCloud Deployment
+        $initializeOSDCloudDeployParameters = @{
+            EnvParameters   = $envParameters
+            OSArchitecture  = $OSArchitecture
+            OSDManufacturer = $OSDManufacturer
+            OSDModel        = $OSDModel
+            OSDProduct      = $OSDProduct
+            ProfileName     = $ProfileName
+            WorkflowName    = $WorkflowName
+        }
+        Initialize-OSDCloudDeploy @initializeOSDCloudDeployParameters
+        Break
         #=================================================
         # Start Deployment Workflow
         if ($CLI.IsPresent) {

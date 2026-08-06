@@ -38,8 +38,8 @@ function Initialize-OSDCloudDeploy {
     $ErrorActionPreference = 'Stop'
     #=================================================
     # Get module details
-    $ModuleVersion = $($MyInvocation.MyCommand.Module.Version)
-    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] $ModuleVersion"
+    # $ModuleVersion = $($MyInvocation.MyCommand.Module.Version)
+    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)]"
     #=================================================
     # OSDCloud Env override layer
     # Assemble $global:OSDCloudEnv early so initial property resolution can consume
@@ -86,26 +86,26 @@ function Initialize-OSDCloudDeploy {
     # OSDCoreCache
     Initialize-OSDCoreCache
     #=================================================
+    # OSDCoreDevice Manufacturer, Model, Product overrides
+    if ($OSDManufacturer -and -not [string]::IsNullOrWhiteSpace($OSDManufacturer)) {
+        $global:OSDCoreDevice.OSDManufacturer = $OSDManufacturer
+    }
+    if ($OSDModel -and -not [string]::IsNullOrWhiteSpace($OSDModel)) {
+        $global:OSDCoreDevice.OSDModel = $OSDModel
+    }
+    if ($OSDProduct -and -not [string]::IsNullOrWhiteSpace($OSDProduct)) {
+        $global:OSDCoreDevice.OSDProduct = $OSDProduct
+    }
+    #=================================================
+    # Refactor variables for deployment workflow initialization
+    $OSDManufacturer = $global:OSDCoreDevice.OSDManufacturer
+    $OSDModel = $global:OSDCoreDevice.OSDModel
+    $OSDProduct = $global:OSDCoreDevice.OSDProduct
+    #=================================================
     # OSDCoreDriverPacks
-    if (-not $OSDManufacturer) {
-        $OSDManufacturer = $global:OSDCoreDevice.OSDManufacturer
-        Write-Host "OSDManufacturer: $OSDManufacturer"
-    }
-    if (-not $OSDModel) {
-        $OSDModel = $global:OSDCoreDevice.OSDModel
-        Write-Host "OSDModel: $OSDModel"
-    }
-    if (-not $OSDProduct) {
-        $OSDProduct = $global:OSDCoreDevice.OSDProduct
-    }
-
-    $reportedOSDManufacturer = if ([string]::IsNullOrWhiteSpace($OSDManufacturer)) { 'Unknown' } else { [System.String]$OSDManufacturer }
-    $reportedOSDModel = if ([string]::IsNullOrWhiteSpace($OSDModel)) { 'Unknown' } else { [System.String]$OSDModel }
-    $reportedOSDProduct = if ([string]::IsNullOrWhiteSpace($OSDProduct)) { 'Unknown' } else { [System.String]$OSDProduct }
-
-    Initialize-ModuleCoreDriverPacks -OSDManufacturer $reportedOSDManufacturer
+    Initialize-ModuleCoreDriverPacks -OSDManufacturer $OSDManufacturer
     if ($global:ModuleCoreDriverPacks) {
-        $global:OSDCoreDriverPackCloudObject = $global:ModuleCoreDriverPacks | Where-Object { $_.SystemId -match $reportedOSDProduct } | Select-Object -First 1
+        $global:OSDCoreDriverPackCloudObject = $global:ModuleCoreDriverPacks | Where-Object { $_.SystemId -match $OSDProduct } | Select-Object -First 1
     }
 
     if ($global:OSDCoreDriverPackCloudObject) {
@@ -121,31 +121,80 @@ function Initialize-OSDCloudDeploy {
         Write-Host -ForegroundColor Gray "[$(Get-Date -format s)] OSDModel: $OSDModel"
         Write-Host -ForegroundColor Gray "[$(Get-Date -format s)] OSDProduct: $OSDProduct"
     }
-    Break
+
+    if ($global:OSDCoreDriverPackCloudObject) {
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Verifying OSDCoreDriverPackCloudObject."
+        $OSDCoreDriverPackCloudObjectUrlReachable = Test-OSDCoreDriverPackCloudObject -DriverPackCloudObject $global:OSDCoreDriverPackCloudObject
+        if ($OSDCoreDriverPackCloudObjectUrlReachable) {
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] DriverPack URL is reachable. OK."
+        }
+        else {
+            Write-Host -ForegroundColor DarkYellow "[$(Get-Date -format s)] DriverPack URL is not reachable."
+        }
+
+        # Driver pack catalogs use either HashMD5 or MD5Hash depending on the source.
+        $expectedDriverPackHashMD5 = $null
+        if ($global:OSDCoreDriverPackCloudObject.PSObject.Properties.Match('HashMD5').Count -gt 0) {
+            $expectedDriverPackHashMD5 = [string]$global:OSDCoreDriverPackCloudObject.HashMD5
+        }
+        elseif ($global:OSDCoreDriverPackCloudObject.PSObject.Properties.Match('MD5Hash').Count -gt 0) {
+            $expectedDriverPackHashMD5 = [string]$global:OSDCoreDriverPackCloudObject.MD5Hash
+        }
+
+        # Check whether the selected driver pack is already present in the cache inventory.
+        $OSDCoreDriverPackCacheObject = Get-OSDCoreDriverPackCacheObject -DriverPackCloudObject $global:OSDCoreDriverPackCloudObject
+        if ($OSDCoreDriverPackCacheObject) {
+            # Verify cached driver pack integrity when the catalog includes an MD5 hash.
+            if (-not [string]::IsNullOrWhiteSpace($expectedDriverPackHashMD5)) {
+                $actualDriverPackHashMD5 = (Get-FileHash -Path $OSDCoreDriverPackCacheObject.FullName -Algorithm MD5 -ErrorAction Stop).Hash
+                if ($actualDriverPackHashMD5 -ne $expectedDriverPackHashMD5.Trim()) {
+                    throw "[$(Get-Date -format s)] DriverPack MD5 hash mismatch for $($OSDCoreDriverPackCacheObject.FullName). Expected $($expectedDriverPackHashMD5.Trim()), found $actualDriverPackHashMD5."
+                }
+                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] DriverPack cached file MD5 hash verified. OK."
+            }
+            else {
+                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] DriverPack cached file hash was not verified because no MD5 hash property was available."
+
+            }
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] DriverPack is ready at $($OSDCoreDriverPackCacheObject.FullName)"
+        }
+        else {
+            Write-Host -ForegroundColor DarkYellow "[$(Get-Date -format s)] DriverPack is not available on a USB Drive."
+            $OSDCoreDriverPackCacheObject = $null
+        }
+        # Write-Host -ForegroundColor DarkCyan "[$(Get-Date -format s)] OSDCoreDriverPackCloudObject"
+        $global:OSDCoreDriverPackCloudObject | Out-Host
+    }
+    else {
+        Write-Host -ForegroundColor DarkYellow "[$(Get-Date -format s)] OSDCoreDriverPackCloudObject is not set."
+        Write-Host -ForegroundColor DarkYellow "[$(Get-Date -format s)] OSDCloud will not apply a DriverPack for this device or on this network."
+        $OSDCoreDriverPackCacheObject = $null
+    }
     #=================================================
     # ModuleCoreOperatingSystems
+    <#
     Initialize-ModuleCoreOperatingSystems
 
     if (-not ($global:ModuleCoreOperatingSystems)) {
         throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Unable to load Module Core Operating Systems."
     }
+    #>
     #=================================================
     # OSDCoreOperatingSystems
     # Select the provider that exists in the current module context.
     $ModuleName = $($MyInvocation.MyCommand.Module.Name)
     if ($ModuleName -eq 'OSD') {
         $global:OSDCoreOperatingSystems = Get-OSDCoreOperatingSystems |
-            Where-Object { $_.Architecture -match "$processorArchitecture" }
+            Where-Object { $_.Architecture -match "$OSArchitecture" }
     }
     elseif ($ModuleName -eq 'OSDCloud') {
         $global:OSDCoreOperatingSystems = Get-OSDCloudCoreOperatingSystems |
-            Where-Object { $_.OSArchitecture -match "$processorArchitecture" }
+            Where-Object { $_.OSArchitecture -match "$OSArchitecture" }
     }
     else {
         throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Unable to load core operating systems provider command."
     }
-    Break
-    $null = Set-OSDCoreOperatingSystemCloudObject -OSArchitecture $processorArchitecture
+    $null = Set-OSDCoreOperatingSystemCloudObject -OSArchitecture $OSArchitecture
     Break
     #=================================================
     # OSDCloudWorkflowTasks
@@ -165,12 +214,14 @@ function Initialize-OSDCloudDeploy {
     #=================================================
     # OSDCloud Operating Systems
     # Always resolve catalog entries for the effective architecture value.
+    <#
     $global:DeployOSDCloudOperatingSystems = Get-OSDCloudCoreOperatingSystems | Where-Object { $_.OSArchitecture -match "$processorArchitecture" }
 
     # Validate that the OS catalog was preloaded for this architecture.
     if (-not $global:DeployOSDCloudOperatingSystems) {
         throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Unable to load OSDCloud Operating Systems."
     }
+    #>
     #=================================================
     # Get-DeploymentDiskObject
     $DeploymentDiskObject = Get-DeploymentDiskObject
