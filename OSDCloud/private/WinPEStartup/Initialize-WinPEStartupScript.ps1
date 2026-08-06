@@ -110,7 +110,7 @@ function Initialize-WinPEStartupScript {
             foreach ($scriptFile in $scriptFiles) {
                 switch ($scriptFile.Extension) {
                     '.cmd' {
-                        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Script: $($scriptFile.FullName)"
+                        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Script: $($scriptFile.FullName)"
                         Write-Verbose "Executing CMD script: $($scriptFile.FullName)"
                         Invoke-CmdScript -ScriptPath $scriptFile.FullName
                     }
@@ -124,7 +124,7 @@ function Initialize-WinPEStartupScript {
                         else {
                             $action = 'Execute PowerShell script in process'
                         }
-                        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Script: $($scriptFile.FullName)"
+                        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Script: $($scriptFile.FullName)"
                         Write-Verbose "Executing PowerShell script: $($scriptFile.FullName)"
                         if ($NewProcess -and $NoExit) {
                             Start-Process -FilePath 'powershell.exe' -ArgumentList '-NoExit', '-NoLogo', '-File', $scriptFile.FullName -Wait
