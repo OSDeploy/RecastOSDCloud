@@ -67,7 +67,7 @@ function Initialize-OSDCoreDevice {
     param ()
     #=================================================
     $Error.Clear()
-    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)]"
+    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] [$($MyInvocation.MyCommand.Name)]"
     #=================================================
     try {
         Sync-OSDCoreDateTime -ThresholdMinutes 5 -Force -ErrorAction Stop
@@ -276,8 +276,8 @@ function Initialize-OSDCoreDevice {
             Write-Host -ForegroundColor Yellow "[$(Get-Date -format s)] [NOT SUPPORTED] Intune Autopilot is not supported on this device."
         }
         else {
-            Write-Host -ForegroundColor DarkGreen "[$(Get-Date -format s)] [OK] TPM 2.0 is supported on this device."
-            Write-Host -ForegroundColor DarkGreen "[$(Get-Date -format s)] [OK] Intune Autopilot is supported on this device."
+            Write-Host -ForegroundColor DarkGreen "[$(Get-Date -format s)] [INFO] TPM 2.0 is supported on this device."
+            Write-Host -ForegroundColor DarkGreen "[$(Get-Date -format s)] [INFO] Intune Autopilot is supported on this device."
             $IsAutopilotSpec = $true
             $IsTpmSpec = $true
         }
@@ -289,11 +289,11 @@ function Initialize-OSDCoreDevice {
         $SecureBootStatus = Confirm-SecureBootUEFI
     }
     catch {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [UNAVAILABLE] Unable to access UEFI Secure Boot information."
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [UNAVAILABLE] This system may not support UEFI or Secure Boot."
+        Write-Host -ForegroundColor DarkYellow "[$(Get-Date -format s)] [WARN] Unable to access UEFI Secure Boot information."
+        Write-Host -ForegroundColor DarkYellow "[$(Get-Date -format s)] [WARN] This system may not support UEFI or Secure Boot."
     }
     if ($SecureBootStatus -eq $true) {
-        Write-Host -ForegroundColor DarkGreen "[$(Get-Date -format s)] [OK] Secure Boot is enabled on this device."
+        Write-Host -ForegroundColor DarkGreen "[$(Get-Date -format s)] [INFO] Secure Boot is enabled on this device."
 
         if (Get-Command -Name Get-SecureBootUEFI -ErrorAction SilentlyContinue) {
             try {
@@ -319,14 +319,14 @@ function Initialize-OSDCoreDevice {
                     }
                     $WinUEFIca2023 = $dbText -match 'Windows UEFI CA 2023'
                     if ($WinUEFIca2023) {
-                        Write-Host -ForegroundColor DarkGreen "[$(Get-Date -format s)] [OK] Windows UEFI CA 2023 is present."
+                        Write-Host -ForegroundColor DarkGreen "[$(Get-Date -format s)] [INFO] Windows UEFI CA 2023 is present."
                     }
                     else {
                         Write-Host -ForegroundColor DarkYellow "[$(Get-Date -format s)] [WARN] Windows UEFI CA 2023 is not present."
                     }
                     $MsUEFIca2023 = $dbText -match 'Microsoft UEFI CA 2023'
                     if ($MsUEFIca2023) {
-                        Write-Host -ForegroundColor DarkGreen "[$(Get-Date -format s)] [OK] Microsoft UEFI CA 2023 is present."
+                        Write-Host -ForegroundColor DarkGreen "[$(Get-Date -format s)] [INFO] Microsoft UEFI CA 2023 is present."
                     }
                     else {
                         Write-Host -ForegroundColor DarkYellow "[$(Get-Date -format s)] [WARN] Microsoft UEFI CA 2023 is not present."
@@ -338,7 +338,7 @@ function Initialize-OSDCoreDevice {
                     }
                     $MsKEKca2023 = $kekText -match 'Microsoft Corporation KEK 2K CA 2023'
                     if ($MsKEKca2023) {
-                        Write-Host -ForegroundColor DarkGreen "[$(Get-Date -format s)] [OK] Microsoft Corporation KEK 2K CA 2023 is present."
+                        Write-Host -ForegroundColor DarkGreen "[$(Get-Date -format s)] [INFO] Microsoft Corporation KEK 2K CA 2023 is present."
                     }
                     else {
                         Write-Host -ForegroundColor DarkYellow "[$(Get-Date -format s)] [WARN] Microsoft Corporation KEK 2K CA 2023 is not present."
@@ -351,7 +351,7 @@ function Initialize-OSDCoreDevice {
         }
     }
     elseif ($SecureBootStatus -eq $false) {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [FAIL] Secure Boot is not enabled."
+        Write-Host -ForegroundColor DarkYellow "[$(Get-Date -format s)] [WARN] Secure Boot is not enabled."
     }
     #=================================================
     # Identify Serial Number with multiple fallback methods due to variability in how different manufacturers populate WMI classes

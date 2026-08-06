@@ -149,7 +149,7 @@ function Invoke-OSDCloudWorkflowTask {
     #=================================================
     # Start Workflow Task Execution
     if ($null -ne $global:OSDCloudDeploy.WorkflowTaskObject) {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)]"
+        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO]"
 
         foreach ($step in $global:OSDCloudDeploy.WorkflowTaskObject.steps) {
             # Set the current step in the global variable
@@ -157,19 +157,19 @@ function Invoke-OSDCloudWorkflowTask {
             #=================================================
             # Should we skip this step? (support both 'skip' and legacy 'disable')
             if (($step.skip -eq $true) -or ($step.disable -eq $true)) {
-                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [Skip:True] $($step.name)"
+                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] [Skip:True] $($step.name)"
                 continue
             }
             #=================================================
             # Can we test this step in full Windows OS (not WinPE)?
             if (($global:IsWinPE -ne $true) -and ($step.testinfullos -ne $true)) {
-                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [Skip:FullOS] $($step.name)"
+                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] [Skip:FullOS] $($step.name)"
                 continue
             }
             #=================================================
             # Can we pause before this step?
             if ($step.pause -eq $true) {
-                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [Pause:True] $($step.name)"
+                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] [Pause:True] $($step.name)"
                 Pause
             }
             #=================================================

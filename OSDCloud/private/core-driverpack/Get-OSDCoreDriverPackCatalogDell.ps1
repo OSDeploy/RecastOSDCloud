@@ -80,11 +80,11 @@ function Get-OSDCoreDriverPackCatalogDell {
                 Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] LocalOnly requested; skipping online catalog download"
             }
             elseif ($Force -or -not (Test-Path $tempCatalogPath)) {
-                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Downloading $OemDriverPackCatalog"
+                Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Downloading $OemDriverPackCatalog"
                 $null = Invoke-WebRequest -Uri $OemDriverPackCatalog -OutFile $tempCatalogPackagePath -ErrorAction Stop
 
                 if (Test-Path $tempCatalogPackagePath) {
-                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Extracting $tempCatalogPath"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Extracting $tempCatalogPath"
                     # expand.exe is used for CAB extraction as Expand-Archive only supports ZIP
                     $expandResult = & expand.exe $tempCatalogPackagePath $tempCatalogPath 2>&1
                     if ($LASTEXITCODE -ne 0) {
@@ -101,14 +101,14 @@ function Get-OSDCoreDriverPackCatalogDell {
 
         # Load catalog content
         if ($LocalOnly) {
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Indexing $LocalDriverPackCatalog"
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Indexing $LocalDriverPackCatalog"
             [xml]$XmlCatalogContent = Get-Content -Path $LocalDriverPackCatalog -Raw
         }
         elseif (Test-Path $tempCatalogPath) {
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Indexing $tempCatalogPath"
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Indexing $tempCatalogPath"
             [xml]$XmlCatalogContent = Get-Content -Path $tempCatalogPath -Raw
         } else {
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Indexing $LocalDriverPackCatalog"
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Indexing $LocalDriverPackCatalog"
             [xml]$XmlCatalogContent = Get-Content -Path $LocalDriverPackCatalog -Raw
         }
 

@@ -525,7 +525,7 @@ $formMainWindowControlStartButton.add_Click(
         #=================================================
         #   Invoke-OSDCloudWorkflowTask.ps1
         #=================================================
-        # Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [OSDCloud Frontend]"
+        # Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] [OSDCloud Frontend]"
         # $global:OSDCloudWorkflowFrontend | Out-Host
         # Invoke-OSDCloudWorkflowTask
         #=================================================

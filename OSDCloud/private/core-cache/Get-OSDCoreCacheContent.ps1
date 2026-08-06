@@ -87,7 +87,7 @@ function Get-OSDCoreCacheContent {
 
     $Error.Clear()
     Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Start"
-    # Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] OSDCoreCacheContent is updating"
+    # Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] OSDCoreCacheContent is updating"
 
     function Get-FileOnlySizeMB {
         param(

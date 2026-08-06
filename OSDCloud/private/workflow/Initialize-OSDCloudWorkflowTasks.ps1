@@ -70,7 +70,7 @@ function Initialize-OSDCloudWorkflowTasks {
     }
     #=================================================
     # Path that is going to be used
-    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] $($WorkflowTasksPath.Replace((Split-Path $ModuleBase -Parent) + '\', ''))"
+    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] $($WorkflowTasksPath.Replace((Split-Path $ModuleBase -Parent) + '\', ''))"
 
     $OSDCloudWorkflowTasks = foreach ($item in $WorkflowTasksFiles) {
         Get-Content $item.FullName -Raw | ConvertFrom-Json

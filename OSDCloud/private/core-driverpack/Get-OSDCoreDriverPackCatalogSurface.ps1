@@ -73,12 +73,12 @@ function Get-OSDCoreDriverPackCatalogSurface {
         # Load from temp cache if available
         $useCache = $false
         if ((-not $Force) -and (Test-Path $tempCatalogPath)) {
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Indexing $tempCatalogPath"
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Indexing $tempCatalogPath"
             $JsonCatalogContent = Get-Content -Path $tempCatalogPath -Raw -Encoding UTF8 | ConvertFrom-Json
             $useCache = $true
         }
         else {
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Indexing $LocalDriverPackCatalog"
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Indexing $LocalDriverPackCatalog"
             $JsonCatalogContent = Get-Content -Path $LocalDriverPackCatalog -Raw -Encoding UTF8 | ConvertFrom-Json
         }
 
@@ -299,7 +299,7 @@ function Get-OSDCoreDriverPackCatalogSurface {
             else {
                 Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] PowerShell < 7 detected, using sequential UpdatePage resolution"
                 foreach ($updatePage in $uniqueUpdatePages) {
-                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Downloading $updatePage"
+                    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Downloading $updatePage"
                     $networkCalls++
                     try {
                         $response = Invoke-WebRequest -Uri $updatePage -UseBasicParsing -UserAgent $userAgent -MaximumRedirection 5 -ErrorAction Stop
@@ -313,7 +313,7 @@ function Get-OSDCoreDriverPackCatalogSurface {
 
                         if ($allMsi.Count -eq 0 -and $updatePage -match '[?&]id=(\d+)') {
                             $confirmUri = "https://www.microsoft.com/en-us/download/confirmation.aspx?id=$($Matches[1])"
-                            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] Downloading $confirmUri"
+                            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Downloading $confirmUri"
                             $fallbackCalls++
                             $networkCalls++
                             $response = Invoke-WebRequest -Uri $confirmUri -UseBasicParsing -UserAgent $userAgent -MaximumRedirection 5 -ErrorAction Stop

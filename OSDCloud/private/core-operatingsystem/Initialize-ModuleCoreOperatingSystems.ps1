@@ -40,7 +40,7 @@ function Initialize-ModuleCoreOperatingSystems {
     [OutputType([pscustomobject[]])]
     param ()
     #=================================================
-    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)]"
+    Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] [$($MyInvocation.MyCommand.Name)]"
     #=================================================
     $ErrorActionPreference = 'Stop'
     $records = @()
