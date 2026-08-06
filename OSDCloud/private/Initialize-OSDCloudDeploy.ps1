@@ -492,18 +492,6 @@ function Initialize-OSDCloudDeploy {
         $tempOSDCoreOperatingSystemCloudObject = [pscustomobject]$tempOperatingSystemDisplay
         $tempOSDCoreOperatingSystemCloudObject | Format-List | Out-Host
     }
-    Break
-    #=================================================
-    # OSDCloud Operating Systems
-    # Always resolve catalog entries for the effective architecture value.
-    <#
-    $global:OSDCoreOperatingSystems = Get-OSDCloudCoreOperatingSystems | Where-Object { $_.OSArchitecture -match "$processorArchitecture" }
-
-    # Validate that the OS catalog was preloaded for this architecture.
-    if (-not $global:OSDCoreOperatingSystems) {
-        throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Unable to load OSDCloud Operating Systems."
-    }
-    #>
     #=================================================
     # OSDCloudWorkflowTasks
     # If $WorkflowName is not default, display a message that this Workflow is for Beta or Testing purposes only
