@@ -94,26 +94,26 @@ function Deploy-OSDCloudCLI {
 
         [Parameter(Mandatory = $false)]
         [ArgumentCompleter({
-            param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
+                param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
 
-            $profileNames = @('default')
-            if ($env:SystemDrive -ne 'X:' -and $env:ProgramData) {
-                $profileRoot = Join-Path -Path $env:ProgramData -ChildPath 'OSDeployCore\OSDCloud\Profiles'
-                if (Test-Path -Path $profileRoot -PathType Container) {
-                    $directoryNames = Get-ChildItem -Path $profileRoot -Directory -ErrorAction SilentlyContinue |
+                $profileNames = @('default')
+                if ($env:SystemDrive -ne 'X:' -and $env:ProgramData) {
+                    $profileRoot = Join-Path -Path $env:ProgramData -ChildPath 'OSDeployCore\OSDCloud\Profiles'
+                    if (Test-Path -Path $profileRoot -PathType Container) {
+                        $directoryNames = Get-ChildItem -Path $profileRoot -Directory -ErrorAction SilentlyContinue |
                         Select-Object -ExpandProperty Name
-                    if ($directoryNames) {
-                        $profileNames += $directoryNames
+                        if ($directoryNames) {
+                            $profileNames += $directoryNames
+                        }
                     }
                 }
-            }
 
-            foreach ($profileName in ($profileNames | Sort-Object -Unique)) {
-                if ($profileName -like "$wordToComplete*") {
-                    [System.Management.Automation.CompletionResult]::new($profileName, $profileName, 'ParameterValue', $profileName)
+                foreach ($profileName in ($profileNames | Sort-Object -Unique)) {
+                    if ($profileName -like "$wordToComplete*") {
+                        [System.Management.Automation.CompletionResult]::new($profileName, $profileName, 'ParameterValue', $profileName)
+                    }
                 }
-            }
-        })]
+            })]
         [ValidateNotNullOrEmpty()]
         [System.String]
         $ProfileName = 'default'
@@ -186,11 +186,11 @@ function Deploy-OSDCloudCLI {
 
         $workflowTaskObject = $global:OSDCloudDeploy.Flows | Where-Object { $_.Name -eq $selectedTask } | Select-Object -First 1
 
-        $operatingSystemObject = $global:DeployOSDCloudOperatingSystems |
-            Where-Object { $_.OperatingSystem -eq $selectedOperatingSystem } |
-            Where-Object { $_.OSActivation -eq $selectedOSActivation } |
-            Where-Object { $_.OSLanguageCode -eq $selectedOSLanguageCode } |
-            Select-Object -First 1
+        $operatingSystemObject = $global:OSDCoreOperatingSystems |
+        Where-Object { $_.OperatingSystem -eq $selectedOperatingSystem } |
+        Where-Object { $_.OSActivation -eq $selectedOSActivation } |
+        Where-Object { $_.OSLanguageCode -eq $selectedOSLanguageCode } |
+        Select-Object -First 1
 
         if (-not $operatingSystemObject) {
             throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] No Operating System object found for OperatingSystem '$selectedOperatingSystem' with OSActivation '$selectedOSActivation' and OSLanguageCode '$selectedOSLanguageCode'."

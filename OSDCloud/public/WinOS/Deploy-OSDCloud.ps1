@@ -233,7 +233,7 @@ function Deploy-OSDCloud {
         #=================================================
         # Start Deployment Workflow
         if ($CLI.IsPresent) {
-            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO]Invoke-OSDCloudWorkflowTask"
+            Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Invoke-OSDCloudWorkflowTask"
             $global:OSDCloudDeploy.TimeStart = Get-Date
             $global:OSDCloudDeploy | Out-Host
             Invoke-OSDCloudWorkflowTask

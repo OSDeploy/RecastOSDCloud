@@ -422,7 +422,7 @@ if ($global:OSDCloudDeploy.OperatingSystemValues) {
     $OperatingSystemValues = $global:OSDCloudDeploy.OperatingSystemValues
     Write-Verbose "[$(Get-Date -format s)] [MainWindow.ps1] OperatingSystemValues = $OperatingSystemValues"
 } else {
-    $OperatingSystemValues = $global:DeployOSDCloudOperatingSystems.OperatingSystem | Sort-Object -Unique | Sort-Object -Descending
+    $OperatingSystemValues = $global:OSDCoreOperatingSystems.OperatingSystem | Sort-Object -Unique | Sort-Object -Descending
     Write-Verbose "[$(Get-Date -format s)] [MainWindow.ps1] Catalog OperatingSystemValues = $OperatingSystemValues"
 }
 $OperatingSystemCombo            = $window.FindName("OperatingSystemCombo")
@@ -492,7 +492,7 @@ if ($global:OSDCloudDeploy.OSLanguageCodeValues) {
     $OSLanguageCodeValues = $global:OSDCloudDeploy.OSLanguageCodeValues
     Write-Verbose "[$(Get-Date -format s)] [MainWindow.ps1] OSLanguageCodeValues = $OSLanguageCodeValues"
 } else {
-    $OSLanguageCodeValues = $global:DeployOSDCloudOperatingSystems.OSLanguageCode | Sort-Object -Unique | Sort-Object -Descending
+    $OSLanguageCodeValues = $global:OSDCoreOperatingSystems.OSLanguageCode | Sort-Object -Unique | Sort-Object -Descending
     Write-Verbose "[$(Get-Date -format s)] [MainWindow.ps1] Catalog OSLanguageCodeValues = $OSLanguageCodeValues"
 }
 $OSLanguageCodeCombo            = $window.FindName("OSLanguageCodeCombo")
@@ -650,7 +650,7 @@ function Update-OsResults {
     Write-Verbose "[$(Get-Date -format s)] [MainWindow.ps1] updateOSActivation = $updateOSActivation"
     Write-Verbose "[$(Get-Date -format s)] [MainWindow.ps1] updateOSLanguageCode = $updateOSLanguageCode"
 
-    $global:OSDCloudDeploy.OperatingSystemObject = $global:DeployOSDCloudOperatingSystems | `
+    $global:OSDCloudDeploy.OperatingSystemObject = $global:OSDCoreOperatingSystems | `
         Where-Object { $_.OperatingSystem -match $updateOperatingSystem } | `
         Where-Object { $_.OSActivation -eq $updateOSActivation } | `
         Where-Object { $_.OSLanguageCode -eq $updateOSLanguageCode } | Select-Object -First 1

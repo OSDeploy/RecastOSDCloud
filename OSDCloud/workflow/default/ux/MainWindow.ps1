@@ -23,7 +23,7 @@ $getOSDCloudModuleVersion = Get-OSDCloudModuleVersion
 #================================================
 # XAML
 $xamlfile = Get-Item -Path "$PSScriptRoot\MainWindow.xaml"
-$xaml = Get-Content $xamlfile.FullName 
+$xaml = Get-Content $xamlfile.FullName
 
 $stringReader = [System.IO.StringReader]::new($xaml)
 $xmlReader = [System.Xml.XmlReader]::Create($stringReader)
@@ -54,20 +54,22 @@ $LogsMenuItem = $window.FindName("LogsMenuItem")
 $WMIMenuItem = $window.FindName("WMIMenuItem")
 
 $RunCmdPrompt.Add_Click({
-	try {
-		Start-Process -FilePath "cmd.exe"
-	} catch {
-		[System.Windows.MessageBox]::Show("Failed to open CMD Prompt: $($_.Exception.Message)", "Error", "OK", "Error") | Out-Null
-	}
-})
+		try {
+			Start-Process -FilePath "cmd.exe"
+		}
+		catch {
+			[System.Windows.MessageBox]::Show("Failed to open CMD Prompt: $($_.Exception.Message)", "Error", "OK", "Error") | Out-Null
+		}
+	})
 
 $RunPowerShell.Add_Click({
-	try {
-		Start-Process -FilePath "powershell.exe"
-	} catch {
-		[System.Windows.MessageBox]::Show("Failed to open PowerShell: $($_.Exception.Message)", "Error", "OK", "Error") | Out-Null
-	}
-})
+		try {
+			Start-Process -FilePath "powershell.exe"
+		}
+		catch {
+			[System.Windows.MessageBox]::Show("Failed to open PowerShell: $($_.Exception.Message)", "Error", "OK", "Error") | Out-Null
+		}
+	})
 
 if ($RunPwsh) {
 	$pwshCommand = Get-Command -Name 'pwsh.exe' -ErrorAction SilentlyContinue
@@ -75,19 +77,21 @@ if ($RunPwsh) {
 		$script:PwshPath = $pwshCommand.Source
 		$RunPwsh.Visibility = [System.Windows.Visibility]::Visible
 		$RunPwsh.Add_Click({
-			try {
-				Start-Process -FilePath $script:PwshPath
-			} catch {
-				[System.Windows.MessageBox]::Show("Failed to open PowerShell 7: $($_.Exception.Message)", "Error", "OK", "Error") | Out-Null
-			}
-		})
-	} else {
+				try {
+					Start-Process -FilePath $script:PwshPath
+				}
+				catch {
+					[System.Windows.MessageBox]::Show("Failed to open PowerShell 7: $($_.Exception.Message)", "Error", "OK", "Error") | Out-Null
+				}
+			})
+	}
+ else {
 		$RunPwsh.Visibility = [System.Windows.Visibility]::Collapsed
 	}
 }
 
 $PrivacyMenuItem.Add_Click({
-	$privacyMessage = @"
+		$privacyMessage = @"
 OSDCloud collects analytic data during the deployment process to help improve the product and user experience.
 No personally identifiable information (PII) is collected, and all data is anonymized to protect user privacy.
 
@@ -96,8 +100,8 @@ By using OSDCloud, you consent to the collection of analytic data as outlined in
 
 https://github.com/OSDeploy/OSDCloud/blob/main/PRIVACY.md
 "@
-	[System.Windows.MessageBox]::Show($privacyMessage, "OSDCloud Privacy Statement", "OK", "Information") | Out-Null
-})
+		[System.Windows.MessageBox]::Show($privacyMessage, "OSDCloud Privacy Statement", "OK", "Information") | Out-Null
+	})
 
 function Add-NoLogsMenuEntry {
 	param(
@@ -120,7 +124,7 @@ function Set-LogsMenuItems {
 	}
 
 	$logFiles = Get-ChildItem -LiteralPath $logsRoot -File -ErrorAction SilentlyContinue | Sort-Object -Property Name
-	$logFiles = $logFiles | Where-Object { $_.Name -NotLike "Win32_*.txt"}
+	$logFiles = $logFiles | Where-Object { $_.Name -NotLike "Win32_*.txt" }
 	if (-not $logFiles) {
 		Add-NoLogsMenuEntry -MenuItem $LogsMenuItem
 		return
@@ -133,19 +137,20 @@ function Set-LogsMenuItems {
 		$logMenuItem.Tag = $logFile.FullName
 
 		$logMenuItem.Add_Click({
-			param($sender, $args)
-			$logPath = [string]$sender.Tag
-			if (-not (Test-Path -LiteralPath $logPath)) {
-				[System.Windows.MessageBox]::Show('Log file not found.', 'Open Log', 'OK', 'Warning') | Out-Null
-				return
-			}
+				param($sender, $args)
+				$logPath = [string]$sender.Tag
+				if (-not (Test-Path -LiteralPath $logPath)) {
+					[System.Windows.MessageBox]::Show('Log file not found.', 'Open Log', 'OK', 'Warning') | Out-Null
+					return
+				}
 
-			try {
-				Start-Process -FilePath 'notepad.exe' -ArgumentList @("`"$logPath`"") -ErrorAction Stop
-			} catch {
-				[System.Windows.MessageBox]::Show("Failed to open log: $($_.Exception.Message)", 'Open Log', 'OK', 'Error') | Out-Null
-			}
-		})
+				try {
+					Start-Process -FilePath 'notepad.exe' -ArgumentList @("`"$logPath`"") -ErrorAction Stop
+				}
+				catch {
+					[System.Windows.MessageBox]::Show("Failed to open log: $($_.Exception.Message)", 'Open Log', 'OK', 'Error') | Out-Null
+				}
+			})
 
 		$LogsMenuItem.Items.Add($logMenuItem) | Out-Null
 	}
@@ -161,7 +166,7 @@ function Set-WMIMenuItems {
 	}
 
 	$logFiles = Get-ChildItem -LiteralPath $logsRoot -File -ErrorAction SilentlyContinue | Sort-Object -Property Name
-	$logFiles = $logFiles | Where-Object { $_.Name -Like "Win32_*.txt"}
+	$logFiles = $logFiles | Where-Object { $_.Name -Like "Win32_*.txt" }
 	if (-not $logFiles) {
 		Add-NoLogsMenuEntry -MenuItem $WMIMenuItem
 		return
@@ -174,19 +179,20 @@ function Set-WMIMenuItems {
 		$logMenuItem.Tag = $logFile.FullName
 
 		$logMenuItem.Add_Click({
-			param($sender, $args)
-			$logPath = [string]$sender.Tag
-			if (-not (Test-Path -LiteralPath $logPath)) {
-				[System.Windows.MessageBox]::Show('Log file not found.', 'Open Log', 'OK', 'Warning') | Out-Null
-				return
-			}
+				param($sender, $args)
+				$logPath = [string]$sender.Tag
+				if (-not (Test-Path -LiteralPath $logPath)) {
+					[System.Windows.MessageBox]::Show('Log file not found.', 'Open Log', 'OK', 'Warning') | Out-Null
+					return
+				}
 
-			try {
-				Start-Process -FilePath 'notepad.exe' -ArgumentList @("`"$logPath`"") -ErrorAction Stop
-			} catch {
-				[System.Windows.MessageBox]::Show("Failed to open log: $($_.Exception.Message)", 'Open Log', 'OK', 'Error') | Out-Null
-			}
-		})
+				try {
+					Start-Process -FilePath 'notepad.exe' -ArgumentList @("`"$logPath`"") -ErrorAction Stop
+				}
+				catch {
+					[System.Windows.MessageBox]::Show("Failed to open log: $($_.Exception.Message)", 'Open Log', 'OK', 'Error') | Out-Null
+				}
+			})
 
 		$WMIMenuItem.Items.Add($logMenuItem) | Out-Null
 	}
@@ -200,11 +206,11 @@ if ($null -eq $taskSequenceFlows) { $taskSequenceFlows = @() }
 $TaskSequenceCombo.ItemsSource = $taskSequenceFlows
 $TaskSequenceCombo.SelectedIndex = 0
 $TaskSequenceCombo.Add_SelectionChanged({
-	if ($SummaryTaskSequenceText) {
-		$value = [string]$TaskSequenceCombo.SelectedItem
-		$SummaryTaskSequenceText.Text = if (-not [string]::IsNullOrWhiteSpace($value)) { $value } else { 'Not selected' }
-	}
-})
+		if ($SummaryTaskSequenceText) {
+			$value = [string]$TaskSequenceCombo.SelectedItem
+			$SummaryTaskSequenceText.Text = if (-not [string]::IsNullOrWhiteSpace($value)) { $value } else { 'Not selected' }
+		}
+	})
 #================================================
 # GlobalVariable Configuration
 # Environment Configuration
@@ -215,7 +221,7 @@ if ($global:OSDCloudDeploy.OperatingSystemValues) {
 }
 # Catalog Configuration
 else {
-	$OperatingSystemValues = $global:DeployOSDCloudOperatingSystems.OperatingSystem | Sort-Object -Unique | Sort-Object -Descending
+	$OperatingSystemValues = $global:OSDCoreOperatingSystems.OperatingSystem | Sort-Object -Unique | Sort-Object -Descending
 	Write-Verbose "[$(Get-Date -format s)] [MainWindow.ps1] Catalog OperatingSystemValues = $OperatingSystemValues"
 }
 $OperatingSystemCombo = $window.FindName("OperatingSystemCombo")
@@ -228,9 +234,11 @@ if ($global:OSDCloudDeploy.OperatingSystem) {
 }
 if ($OperatingSystemDefault -and ($OperatingSystemValues -contains $OperatingSystemDefault)) {
 	$OperatingSystemCombo.SelectedItem = $OperatingSystemDefault
-} elseif ($OperatingSystemValues) {
+}
+elseif ($OperatingSystemValues) {
 	$OperatingSystemCombo.SelectedIndex = 0
-} else {
+}
+else {
 	$OperatingSystemCombo.SelectedIndex = -1
 }
 #================================================
@@ -255,9 +263,11 @@ if ($global:OSDCloudDeploy.OSEdition) {
 }
 if ($OSEditionDefault) {
 	$OSEditionCombo.SelectedItem = $OSEditionDefault
-} elseif ($OperatingSystemValues) {
+}
+elseif ($OperatingSystemValues) {
 	$OSEditionCombo.SelectedIndex = 0
-} else {
+}
+else {
 	$OSEditionCombo.SelectedIndex = -1
 }
 #================================================
@@ -282,9 +292,11 @@ if ($global:OSDCloudDeploy.OSActivation) {
 }
 if ($OSActivationDefault -and ($OSActivationValues -contains $OSActivationDefault)) {
 	$OSActivationCombo.SelectedItem = $OSActivationDefault
-} elseif ($OSActivationValues) {
+}
+elseif ($OSActivationValues) {
 	$OSActivationCombo.SelectedIndex = 0
-} else {
+}
+else {
 	$OSActivationCombo.SelectedIndex = -1
 }
 #================================================
@@ -298,7 +310,7 @@ if ($global:OSDCloudDeploy.OSLanguageCodeValues) {
 }
 # Catalog Configuration
 else {
-	$OSLanguageCodeValues = $global:DeployOSDCloudOperatingSystems.OSLanguageCode | Sort-Object -Unique | Sort-Object -Descending
+	$OSLanguageCodeValues = $global:OSDCoreOperatingSystems.OSLanguageCode | Sort-Object -Unique | Sort-Object -Descending
 	Write-Verbose "[$(Get-Date -format s)] [MainWindow.ps1] Catalog OSLanguageCodeValues = $OSLanguageCodeValues"
 }
 $OSLanguageCodeCombo = $window.FindName("OSLanguageCodeCombo")
@@ -311,9 +323,11 @@ if ($global:OSDCloudDeploy.OSLanguageCode) {
 }
 if ($OSLanguageCodeDefault -and ($OSLanguageCodeValues -contains $OSLanguageCodeDefault)) {
 	$OSLanguageCodeCombo.SelectedItem = $OSLanguageCodeDefault
-} elseif ($OSLanguageCodeValues) {
+}
+elseif ($OSLanguageCodeValues) {
 	$OSLanguageCodeCombo.SelectedIndex = 0
-} else {
+}
+else {
 	$OSLanguageCodeCombo.SelectedIndex = -1
 }
 #================================================
@@ -323,7 +337,7 @@ if ($OSLanguageCodeDefault -and ($OSLanguageCodeValues -contains $OSLanguageCode
 # Workflow Configuration
 #================================================
 # Import the DriverPack Catalog
-$DriverPackCatalog = @('None','Microsoft Update Catalog')
+$DriverPackCatalog = @('None', 'Microsoft Update Catalog')
 if ($global:OSDCloudDeploy.DriverPackValues) {
 	$DriverPackCatalog += $global:OSDCloudDeploy.DriverPackValues | ForEach-Object { $_.Name }
 }
@@ -356,10 +370,12 @@ function Set-ClipboardText {
 		try {
 			[System.Windows.Clipboard]::SetText($Text)
 			return
-		} catch {
+		}
+		catch {
 			if ($i -lt ($maxRetries - 1)) {
 				Start-Sleep -Milliseconds 100
-			} else {
+			}
+			else {
 				Write-Warning "Failed to copy to clipboard: $_"
 			}
 		}
@@ -369,13 +385,13 @@ function Set-ClipboardText {
 $deviceSerialNumberText = $window.FindName("deviceSerialNumberText")
 $deviceSerialNumberText.Text = $deviceSerialNumber
 $deviceSerialNumberText.Add_MouseLeftButtonUp({
-	$serialNumberValue = [string]$deviceSerialNumberText.Text
-	if ([string]::IsNullOrWhiteSpace($serialNumberValue)) {
-		return
-	}
+		$serialNumberValue = [string]$deviceSerialNumberText.Text
+		if ([string]::IsNullOrWhiteSpace($serialNumberValue)) {
+			return
+		}
 
-	Set-ClipboardText -Text $serialNumberValue
-})
+		Set-ClipboardText -Text $serialNumberValue
+	})
 $deviceIsAutopilotSpecText = $window.FindName("deviceIsAutopilotSpecText")
 $deviceIsAutopilotSpecText.Text = $deviceIsAutopilotSpec
 $deviceIsTpmSpecText = $window.FindName("deviceIsTpmSpecText")
@@ -383,13 +399,13 @@ $deviceIsTpmSpecText.Text = $deviceIsTpmSpec
 $deviceUUIDText = $window.FindName("deviceUUIDText")
 $deviceUUIDText.Text = $deviceUUID
 $deviceUUIDText.Add_MouseLeftButtonUp({
-	$uuidValue = [string]$deviceUUIDText.Text
-	if ([string]::IsNullOrWhiteSpace($uuidValue)) {
-		return
-	}
+		$uuidValue = [string]$deviceUUIDText.Text
+		if ([string]::IsNullOrWhiteSpace($uuidValue)) {
+			return
+		}
 
-	Set-ClipboardText -Text $uuidValue
-})
+		Set-ClipboardText -Text $uuidValue
+	})
 $deviceHardwareHashLabelText = $window.FindName("deviceHardwareHashLabelText")
 $deviceHardwareHashText = $window.FindName("deviceHardwareHashText")
 if (-not [string]::IsNullOrWhiteSpace([string]$deviceHardwareHash)) {
@@ -397,8 +413,8 @@ if (-not [string]::IsNullOrWhiteSpace([string]$deviceHardwareHash)) {
 	$deviceHardwareHashText.Text = 'Copy to Clipboard'
 	$deviceHardwareHashText.Visibility = [System.Windows.Visibility]::Visible
 	$deviceHardwareHashText.Add_MouseLeftButtonUp({
-		Set-ClipboardText -Text ([string]$deviceHardwareHash)
-	})
+			Set-ClipboardText -Text ([string]$deviceHardwareHash)
+		})
 }
 $SelectedOSLanguageText = $window.FindName("SelectedOSLanguageText")
 $SelectedIdText = $window.FindName("SelectedIdText")
@@ -469,14 +485,14 @@ function Update-OsResults {
 	Write-Verbose "[$(Get-Date -format s)] [MainWindow.ps1] updateOSActivation = $updateOSActivation"
 	Write-Verbose "[$(Get-Date -format s)] [MainWindow.ps1] updateOSLanguageCode = $updateOSLanguageCode"
 
-    $global:OSDCloudDeploy.OperatingSystemObject = $global:DeployOSDCloudOperatingSystems | `
+	$global:OSDCloudDeploy.OperatingSystemObject = $global:OSDCoreOperatingSystems | `
 		Where-Object { $_.OperatingSystem -match $updateOperatingSystem } | `
 		Where-Object { $_.OSActivation -eq $updateOSActivation } | `
 		Where-Object { $_.OSLanguageCode -eq $updateOSLanguageCode } | Select-Object -First 1
-	
-    if (-not $global:OSDCloudDeploy.OperatingSystemObject) {
-        throw "No Operating System found for OperatingSystem: $updateOperatingSystem, OSActivation: $updateOSActivation, OSLanguageCode: $updateOSLanguageCode. Please check your OSDCloud OperatingSystems."
-    }
+
+	if (-not $global:OSDCloudDeploy.OperatingSystemObject) {
+		throw "No Operating System found for OperatingSystem: $updateOperatingSystem, OSActivation: $updateOSActivation, OSLanguageCode: $updateOSLanguageCode. Please check your OSDCloud OperatingSystems."
+	}
 
 	$script:SelectedImage = $global:OSDCloudDeploy.OperatingSystemObject
 
@@ -514,10 +530,10 @@ $OSLanguageCodeCombo.Add_SelectionChanged({ Update-OsResults })
 $script:SelectionConfirmed = $false
 
 $StartButton.Add_Click({
-	$script:SelectionConfirmed = $true
-	$window.DialogResult = $true
-	$window.Close()
-})
+		$script:SelectionConfirmed = $true
+		$window.DialogResult = $true
+		$window.Close()
+	})
 
 Update-OsResults
 
@@ -569,9 +585,9 @@ if ($script:SelectionConfirmed) {
 	$global:OSDCloudDeploy.LocalImageFilePath = $LocalImageFilePath
 	$global:OSDCloudDeploy.LocalImageName = $LocalImageName
 
-    $LogsPath = "$env:TEMP\osdcloud-logs"
-    if (-not (Test-Path -Path $LogsPath)) {
-        New-Item -Path $LogsPath -ItemType Directory -Force | Out-Null
-    }
+	$LogsPath = "$env:TEMP\osdcloud-logs"
+	if (-not (Test-Path -Path $LogsPath)) {
+		New-Item -Path $LogsPath -ItemType Directory -Force | Out-Null
+	}
 	$global:OSDCloudDeploy | ConvertTo-Json | Out-File -FilePath "$LogsPath\OSDCloudDeploy.json" -Encoding utf8 -Width 2000 -Force -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
 }
