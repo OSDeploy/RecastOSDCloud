@@ -229,7 +229,6 @@ function Deploy-OSDCloud {
             }
         }
         Initialize-OSDCloudDeploy @initializeOSDCloudDeployParameters
-        Break
         #=================================================
         # Start Deployment Workflow
         if ($CLI.IsPresent) {
