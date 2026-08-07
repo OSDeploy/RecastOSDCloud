@@ -107,13 +107,13 @@ function Initialize-ModuleCoreOperatingSystems {
     }
 
     $mctRecords = $mctRecords |
-        Group-Object -Property FilePath, FileName, LanguageCode, Architecture |
-        ForEach-Object {
-            $_.Group |
-                Sort-Object -Property @{ Expression = { [string]::IsNullOrWhiteSpace($_.Sha256) }; Ascending = $true }, @{ Expression = { [string]::IsNullOrWhiteSpace($_.Sha1) }; Ascending = $true } |
-                Select-Object -First 1
-        } |
-        Sort-Object -Property FilePath, FileName, LanguageCode, Architecture
+    Group-Object -Property FilePath, FileName, LanguageCode, Architecture |
+    ForEach-Object {
+        $_.Group |
+        Sort-Object -Property @{ Expression = { [string]::IsNullOrWhiteSpace($_.Sha256) }; Ascending = $true }, @{ Expression = { [string]::IsNullOrWhiteSpace($_.Sha1) }; Ascending = $true } |
+        Select-Object -First 1
+    } |
+    Sort-Object -Property FilePath, FileName, LanguageCode, Architecture
 
     if (-not $mctRecords) {
         $global:ModuleCoreOperatingSystems = $records
@@ -123,4 +123,5 @@ function Initialize-ModuleCoreOperatingSystems {
         # return $mctRecords
         $global:ModuleCoreOperatingSystems = $mctRecords
     }
+    $global:ModuleCoreOperatingSystems | Export-Clixml -Path (Join-Path -Path $env:TEMP -ChildPath 'ModuleCoreOperatingSystems.xml') -Force
 }

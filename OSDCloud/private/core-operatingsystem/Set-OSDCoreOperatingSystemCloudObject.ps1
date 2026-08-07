@@ -60,12 +60,12 @@ function Set-OSDCoreOperatingSystemCloudObject {
     param (
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        [ValidateSet('Retail','Volume')]
+        [ValidateSet('Retail', 'Volume')]
         [string]$OSActivation = 'Retail',
 
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        [ValidateSet('amd64','arm64','x64')]
+        [ValidateSet('amd64', 'arm64', 'x64')]
         [string]$OSArchitecture = $env:PROCESSOR_ARCHITECTURE,
 
         [Parameter(Mandatory = $false)]
@@ -176,7 +176,7 @@ function Set-OSDCoreOperatingSystemCloudObject {
     if ($refreshOperatingSystems) {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Refreshing cached operating systems from $catalogProvider"
         $global:OSDCoreOperatingSystems = & $catalogProvider |
-            Where-Object { ($_.Architecture -eq $normalizedArchitecture) -or ($_.OSArchitecture -eq $normalizedArchitecture) }
+        Where-Object { ($_.Architecture -eq $normalizedArchitecture) -or ($_.OSArchitecture -eq $normalizedArchitecture) }
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Cached operating systems after architecture prefilter: $(@($global:OSDCoreOperatingSystems).Count)"
     }
     else {
@@ -190,24 +190,25 @@ function Set-OSDCoreOperatingSystemCloudObject {
 
     Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Applying catalog filters to cached operating systems"
     $filteredOperatingSystems = $global:OSDCoreOperatingSystems |
-        Where-Object { ($_.Activation -eq $OSActivation) -or ($_.OSActivation -eq $OSActivation) } |
-        Where-Object { ($_.Architecture -eq $normalizedArchitecture) -or ($_.OSArchitecture -eq $normalizedArchitecture) } |
-        Where-Object { ($_.Language -eq $normalizedLanguageCode) -or ($_.OSLanguageCode -eq $normalizedLanguageCode) } |
-        Where-Object { ($_.ReleaseID -eq $OSReleaseID) -or ($_.OSVersion -eq $OSReleaseID) } |
-        Where-Object { ($_.Version -eq $OSVersion) -or ($_.OSName -eq $OSVersion) }
+    Where-Object { ($_.Activation -eq $OSActivation) -or ($_.OSActivation -eq $OSActivation) } |
+    Where-Object { ($_.Architecture -eq $normalizedArchitecture) -or ($_.OSArchitecture -eq $normalizedArchitecture) } |
+    Where-Object { ($_.Language -eq $normalizedLanguageCode) -or ($_.OSLanguageCode -eq $normalizedLanguageCode) } |
+    Where-Object { ($_.ReleaseID -eq $OSReleaseID) -or ($_.OSVersion -eq $OSReleaseID) } |
+    Where-Object { ($_.Version -eq $OSVersion) -or ($_.OSName -eq $OSVersion) }
     Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Matching operating systems found: $(@($filteredOperatingSystems).Count)"
 
     $global:OSDCoreOperatingSystemCloudObject = $filteredOperatingSystems |
-        Sort-Object -Property @{ Expression = {
-                try {
-                    $buildVersion = if ($_.Build) { $_.Build } else { $_.OSBuildVersion }
-                    [version]([string]$buildVersion -replace '[^0-9\.]', '')
-                }
-                catch {
-                    [version]'0.0'
-                }
-            }; Descending = $true } |
-        Select-Object -First 1
+    Sort-Object -Property @{ Expression = {
+            try {
+                $buildVersion = if ($_.Build) { $_.Build } else { $_.OSBuildVersion }
+                [version]([string]$buildVersion -replace '[^0-9\.]', '')
+            }
+            catch {
+                [version]'0.0'
+            }
+        }; Descending                   = $true 
+    } |
+    Select-Object -First 1
 
     if (-not $global:OSDCoreOperatingSystemCloudObject) {
         Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] No matching operating system object was selected after sorting"
@@ -219,5 +220,6 @@ function Set-OSDCoreOperatingSystemCloudObject {
     Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Selected operating system object: Name='$selectedOperatingSystemName', Build='$selectedOperatingSystemBuild', FileName='$($global:OSDCoreOperatingSystemCloudObject.FileName)'"
 
     Write-Verbose "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Operating system cloud object selection completed successfully"
+    $global:OSDCoreOperatingSystemCloudObject | Export-Clixml -Path (Join-Path -Path $env:TEMP -ChildPath 'OSDCoreOperatingSystemCloudObject.xml') -Force
     return $global:OSDCoreOperatingSystemCloudObject
 }
