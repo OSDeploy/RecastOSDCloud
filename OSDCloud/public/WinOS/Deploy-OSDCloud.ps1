@@ -88,26 +88,26 @@ function Deploy-OSDCloud {
 
         [Parameter(Mandatory = $false)]
         [ArgumentCompleter({
-            param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
+                param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
 
-            $profileNames = @('default')
-            if ($env:SystemDrive -ne 'X:' -and $env:ProgramData) {
-                $profileRoot = Join-Path -Path $env:ProgramData -ChildPath 'OSDeployCore\OSDCloud\Profiles'
-                if (Test-Path -Path $profileRoot -PathType Container) {
-                    $directoryNames = Get-ChildItem -Path $profileRoot -Directory -ErrorAction SilentlyContinue |
+                $profileNames = @('default')
+                if ($env:SystemDrive -ne 'X:' -and $env:ProgramData) {
+                    $profileRoot = Join-Path -Path $env:ProgramData -ChildPath 'OSDeployCore\OSDCloud\Profiles'
+                    if (Test-Path -Path $profileRoot -PathType Container) {
+                        $directoryNames = Get-ChildItem -Path $profileRoot -Directory -ErrorAction SilentlyContinue |
                         Select-Object -ExpandProperty Name
-                    if ($directoryNames) {
-                        $profileNames += $directoryNames
+                        if ($directoryNames) {
+                            $profileNames += $directoryNames
+                        }
                     }
                 }
-            }
 
-            foreach ($profileName in ($profileNames | Sort-Object -Unique)) {
-                if ($profileName -like "$wordToComplete*") {
-                    [System.Management.Automation.CompletionResult]::new($profileName, $profileName, 'ParameterValue', $profileName)
+                foreach ($profileName in ($profileNames | Sort-Object -Unique)) {
+                    if ($profileName -like "$wordToComplete*") {
+                        [System.Management.Automation.CompletionResult]::new($profileName, $profileName, 'ParameterValue', $profileName)
+                    }
                 }
-            }
-        })]
+            })]
         [ValidateNotNullOrEmpty()]
         [System.String]
         $ProfileName = 'default',
@@ -129,7 +129,7 @@ function Deploy-OSDCloud {
 
         [Parameter(Mandatory = $false, HelpMessage = 'Operating system architecture for deployment selection.')]
         [ValidateNotNullOrEmpty()]
-        [ValidateSet('amd64','arm64')]
+        [ValidateSet('amd64', 'arm64')]
         [System.String]
         $OSArchitecture = $env:PROCESSOR_ARCHITECTURE
     )
@@ -171,6 +171,7 @@ function Deploy-OSDCloud {
         if ($OSDProduct -and -not [string]::IsNullOrWhiteSpace($OSDProduct)) {
             $global:OSDCoreDevice.OSDProduct = $OSDProduct
         }
+        $global:OSDCoreDevice | Export-Clixml -Path (Join-Path -Path $env:TEMP -ChildPath 'OSDCoreDevice.xml') -Force
         #=================================================
         # Refactor variables for deployment workflow initialization
         $OSDManufacturer = $global:OSDCoreDevice.OSDManufacturer
@@ -207,10 +208,10 @@ function Deploy-OSDCloud {
 
             $initializeEligibleParameterNames = @(
                 $initializeOSDCloudDeployCommand.Parameters.Keys |
-                    Where-Object {
-                        (-not $initializeOSDCloudDeployParameters.ContainsKey($_)) -and
-                        ($_ -notin $excludedCommonParameterNames)
-                    }
+                Where-Object {
+                    (-not $initializeOSDCloudDeployParameters.ContainsKey($_)) -and
+                    ($_ -notin $excludedCommonParameterNames)
+                }
             )
 
             foreach ($parameterName in $initializeEligibleParameterNames) {

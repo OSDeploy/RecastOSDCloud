@@ -43,6 +43,9 @@ function Initialize-OSDCoreDevice {
         - Updates global state in $global:OSDCoreDevice.
 
         Changelog:
+        - 2026-08-06 | pending | Export OSDCoreDevice CLIXML to TEMP.
+            Added Export-Clixml output to $env:TEMP\OSDCoreDevice.xml so
+            callers and support workflows can consume a typed device snapshot.
         - 2026-08-05 | pending | Report unknown values for empty identity fields.
             Normalized OSDManufacturer, OSDModel, and OSDProduct values written
             to OSDCoreDevice so null/whitespace values are emitted as Unknown.
@@ -214,7 +217,7 @@ function Initialize-OSDCoreDevice {
     if ($SystemFirmwareDevice) {
         $GuidPattern = '\{?(([0-9a-f]){8}-([0-9a-f]){4}-([0-9a-f]){4}-([0-9a-f]){4}-([0-9a-f]){12})\}?'
         $SystemFirmwareResource = ($SystemFirmwareDevice.PNPDeviceID | Select-String -Pattern $GuidPattern -AllMatches | Select-Object -ExpandProperty Matches | Select-Object -ExpandProperty Value)
-        $SystemFirmwareHardwareId = $SystemFirmwareResource -replace '[{}]',''
+        $SystemFirmwareHardwareId = $SystemFirmwareResource -replace '[{}]', ''
     }
     else {
         $SystemFirmwareDevice = $null
@@ -431,7 +434,7 @@ function Initialize-OSDCoreDevice {
     # OA3Tool for Hardware Hash (Autopilot)
     $HardwareHash = $null
     if (Get-Command 'oa3tool.exe' -ErrorAction SilentlyContinue) {
-    $oa3cfg = @"
+        $oa3cfg = @"
 <OA3>
     <FileBased>
         <InputKeyXMLFile>$env:TEMP\OA3_Input.xml</InputKeyXMLFile>
@@ -443,7 +446,7 @@ function Initialize-OSDCoreDevice {
 </OA3>
 "@
 
-    $oa3input = @"
+        $oa3input = @"
 <?xml version="1.0"?>
 <Key>
     <ProductKey>XXXXX-XXXXX-XXXXX-XXXXX-XXXXX</ProductKey>
@@ -552,13 +555,13 @@ function Initialize-OSDCoreDevice {
     # Disk Information
     # Include only USB disks that are online and available.
     $GetDisk = Get-Disk |
-        Where-Object {
-            $_.BusType -eq 'USB' -and
-            $_.IsOffline -eq $false -and
-            $_.OperationalStatus -eq 'Online'
-        } |
-        Sort-Object DiskNumber |
-        Select-Object -Property *
+    Where-Object {
+        $_.BusType -eq 'USB' -and
+        $_.IsOffline -eq $false -and
+        $_.OperationalStatus -eq 'Online'
+    } |
+    Sort-Object DiskNumber |
+    Select-Object -Property *
 
     $usbDiskNumbers = [System.Collections.Generic.HashSet[int]]::new()
     foreach ($disk in $GetDisk) {
@@ -567,29 +570,29 @@ function Initialize-OSDCoreDevice {
 
     # Partition Information
     $GetPartition = Get-Partition |
-        Sort-Object DiskNumber, PartitionNumber |
-        Select-Object -Property *, @{
-            Name       = 'IsUSB'
-            Expression = { $usbDiskNumbers.Contains([int]$_.DiskNumber) }
-        }
+    Sort-Object DiskNumber, PartitionNumber |
+    Select-Object -Property *, @{
+        Name       = 'IsUSB'
+        Expression = { $usbDiskNumbers.Contains([int]$_.DiskNumber) }
+    }
     # USB Partitions
     $USBPartitions = $GetPartition | Where-Object { $_.IsUSB -eq $true }
 
     # USBVolumes
     $usbDriveLetters = $USBPartitions |
-        ForEach-Object { $_.AccessPaths } |
-        Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
-        ForEach-Object {
-            if ($_ -match '^(?<DriveLetter>[A-Z]):\\$') {
-                $Matches.DriveLetter
-            }
-        } |
-        Sort-Object -Unique
+    ForEach-Object { $_.AccessPaths } |
+    Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
+    ForEach-Object {
+        if ($_ -match '^(?<DriveLetter>[A-Z]):\\$') {
+            $Matches.DriveLetter
+        }
+    } |
+    Sort-Object -Unique
 
     $USBVolumes = @()
     if ($usbDriveLetters) {
         $USBVolumes = Get-Volume -DriveLetter $usbDriveLetters -ErrorAction SilentlyContinue |
-            Sort-Object DriveLetter -Unique
+        Sort-Object DriveLetter -Unique
     }
     #=================================================
     #   OSDCloudEnv
@@ -625,52 +628,53 @@ function Initialize-OSDCoreDevice {
 
     $global:OSDCoreDevice = $null
     $global:OSDCoreDevice = [ordered]@{
-        OSDManufacturer           = $reportedOSDManufacturer
-        OSDModel                  = $reportedOSDModel
-        OSDProduct                = $reportedOSDProduct
-        ComputerName              = $classWin32ComputerSystem.Name
-        BaseBoardProduct          = [System.String]$BaseBoardProduct
-        BiosReleaseDate           = [System.String]$classWin32BIOS.ReleaseDate
-        BiosVersion               = [System.String]$classWin32BIOS.SMBIOSBIOSVersion
-        ComputerManufacturer      = [System.String]$ComputerManufacturer
-        ComputerModel             = [System.String]$ComputerModel
-        ComputerSystemFamily      = [System.String]$ComputerSystemFamily
-        ComputerSystemProduct     = [System.String]$ComputerSystemProduct
-        ComputerSystemSKU         = [System.String]$ComputerSystemSKU
-        ComputerSystemType        = [System.String]$ComputerSystemType
-        HardwareHash              = [System.String]$HardwareHash
-        IsAutopilotSpec           = [System.Boolean]$IsAutopilotSpec
-        IsDesktop                 = [System.Boolean]$IsDesktop
-        IsLaptop                  = [System.Boolean]$IsLaptop
-        IsOnBattery               = [System.Boolean]$IsOnBattery
-        IsServer                  = [System.Boolean]$IsServer
-        IsSFF                     = [System.Boolean]$IsSFF
-        IsTablet                  = [System.Boolean]$IsTablet
-        IsTpmSpec                 = [System.Boolean]$IsTpmSpec
-        IsVM                      = [System.Boolean]$IsVM
-        IsUEFI                    = [System.Boolean]$IsUEFI
-        KeyboardLayout            = $KeyboardLayout
-        KeyboardName              = $KeyboardName
-        NetGateways               = $NetGateways
-        NetIPAddress              = $NetIPAddress
-        NetMacAddress             = $NetMacAddress
-        OSArchitecture            = $OSArchitecture
-        OSVersion                 = $classWin32OperatingSystem.Version
-        ProcessorArchitecture     = $ProcessorArchitecture
-        SerialNumber              = $SerialNumber
-        SystemFirmwareHardwareId  = $SystemFirmwareHardwareId
-        TimeZone                  = $classWin32TimeZone.StandardName
-        TotalPhysicalMemoryGB     = $TotalPhysicalMemoryGB
-        TpmIsActivated            = $DeviceTpmIsActivated
-        TpmIsEnabled              = $DeviceTpmIsEnabled
-        TpmIsOwned                = $DeviceTpmIsOwned
-        TpmManufacturerIdTxt      = $DeviceTpmManufacturerIdTxt
-        TpmManufacturerVersion    = $DeviceTpmManufacturerVersion
-        TpmSpecVersion            = $DeviceTpmSpecVersion
-        USBPartitions             = $USBPartitions
-        USBVolumes                = $USBVolumes
-        UUID                      = $classWin32ComputerSystemProduct.UUID
+        OSDManufacturer          = $reportedOSDManufacturer
+        OSDModel                 = $reportedOSDModel
+        OSDProduct               = $reportedOSDProduct
+        ComputerName             = $classWin32ComputerSystem.Name
+        BaseBoardProduct         = [System.String]$BaseBoardProduct
+        BiosReleaseDate          = [System.String]$classWin32BIOS.ReleaseDate
+        BiosVersion              = [System.String]$classWin32BIOS.SMBIOSBIOSVersion
+        ComputerManufacturer     = [System.String]$ComputerManufacturer
+        ComputerModel            = [System.String]$ComputerModel
+        ComputerSystemFamily     = [System.String]$ComputerSystemFamily
+        ComputerSystemProduct    = [System.String]$ComputerSystemProduct
+        ComputerSystemSKU        = [System.String]$ComputerSystemSKU
+        ComputerSystemType       = [System.String]$ComputerSystemType
+        HardwareHash             = [System.String]$HardwareHash
+        IsAutopilotSpec          = [System.Boolean]$IsAutopilotSpec
+        IsDesktop                = [System.Boolean]$IsDesktop
+        IsLaptop                 = [System.Boolean]$IsLaptop
+        IsOnBattery              = [System.Boolean]$IsOnBattery
+        IsServer                 = [System.Boolean]$IsServer
+        IsSFF                    = [System.Boolean]$IsSFF
+        IsTablet                 = [System.Boolean]$IsTablet
+        IsTpmSpec                = [System.Boolean]$IsTpmSpec
+        IsVM                     = [System.Boolean]$IsVM
+        IsUEFI                   = [System.Boolean]$IsUEFI
+        KeyboardLayout           = $KeyboardLayout
+        KeyboardName             = $KeyboardName
+        NetGateways              = $NetGateways
+        NetIPAddress             = $NetIPAddress
+        NetMacAddress            = $NetMacAddress
+        OSArchitecture           = $OSArchitecture
+        OSVersion                = $classWin32OperatingSystem.Version
+        ProcessorArchitecture    = $ProcessorArchitecture
+        SerialNumber             = $SerialNumber
+        SystemFirmwareHardwareId = $SystemFirmwareHardwareId
+        TimeZone                 = $classWin32TimeZone.StandardName
+        TotalPhysicalMemoryGB    = $TotalPhysicalMemoryGB
+        TpmIsActivated           = $DeviceTpmIsActivated
+        TpmIsEnabled             = $DeviceTpmIsEnabled
+        TpmIsOwned               = $DeviceTpmIsOwned
+        TpmManufacturerIdTxt     = $DeviceTpmManufacturerIdTxt
+        TpmManufacturerVersion   = $DeviceTpmManufacturerVersion
+        TpmSpecVersion           = $DeviceTpmSpecVersion
+        USBPartitions            = $USBPartitions
+        USBVolumes               = $USBVolumes
+        UUID                     = $classWin32ComputerSystemProduct.UUID
     }
+    $global:OSDCoreDevice | Export-Clixml -Path (Join-Path -Path $env:TEMP -ChildPath 'OSDCoreDevice.xml') -Force
     $global:OSDCoreDevice | ConvertTo-Json -Depth 10 | Out-File "$LogsPath\OSDCoreDevice.json" -Force -Encoding utf8
     #=================================================
     # OSDCloudLogs

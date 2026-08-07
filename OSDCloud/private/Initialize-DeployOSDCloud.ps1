@@ -31,7 +31,7 @@ function Initialize-DeployOSDCloud {
 
         [Parameter(Mandatory = $false, HelpMessage = 'Operating system architecture for deployment selection.')]
         [ValidateNotNullOrEmpty()]
-        [ValidateSet('amd64','arm64')]
+        [ValidateSet('amd64', 'arm64')]
         [System.String]
         $OSArchitecture = $env:PROCESSOR_ARCHITECTURE,
 
@@ -53,13 +53,13 @@ function Initialize-DeployOSDCloud {
         [Parameter(Mandatory = $false, HelpMessage = 'Operating system language code for deployment selection.')]
         [ValidateNotNullOrEmpty()]
         [ValidateSet(
-            'ar-sa','bg-bg','cs-cz','da-dk','de-de','el-gr',
-            'en-gb','en-us','es-es','es-mx','et-ee','fi-fi',
-            'fr-ca','fr-fr','he-il','hr-hr','hu-hu','it-it',
-            'ja-jp','ko-kr','lt-lt','lv-lv','nb-no','nl-nl',
-            'pl-pl','pt-br','pt-pt','ro-ro','ru-ru','sk-sk',
-            'sl-si','sr-latn-rs','sv-se','th-th','tr-tr',
-            'uk-ua','zh-cn','zh-tw'
+            'ar-sa', 'bg-bg', 'cs-cz', 'da-dk', 'de-de', 'el-gr',
+            'en-gb', 'en-us', 'es-es', 'es-mx', 'et-ee', 'fi-fi',
+            'fr-ca', 'fr-fr', 'he-il', 'hr-hr', 'hu-hu', 'it-it',
+            'ja-jp', 'ko-kr', 'lt-lt', 'lv-lv', 'nb-no', 'nl-nl',
+            'pl-pl', 'pt-br', 'pt-pt', 'ro-ro', 'ru-ru', 'sk-sk',
+            'sl-si', 'sr-latn-rs', 'sv-se', 'th-th', 'tr-tr',
+            'uk-ua', 'zh-cn', 'zh-tw'
         )]
         [System.String]
         $OSLanguageCode
@@ -170,7 +170,8 @@ function Initialize-DeployOSDCloud {
         $DriverPackUrl = $global:OSDCoreDriverPackCloudObject.Url
         Write-Host -ForegroundColor Gray "[$(Get-Date -format s)] [INFO] DriverPack: $DriverPackName"
         Write-Host -ForegroundColor Gray "[$(Get-Date -format s)] [INFO] DriverPack Url: $DriverPackUrl"
-    } else {
+    }
+    else {
         Write-Host -ForegroundColor Gray "[$(Get-Date -format s)] [INFO] OSDManufacturer: $OSDManufacturer"
         Write-Host -ForegroundColor Gray "[$(Get-Date -format s)] [INFO] OSDModel: $OSDModel"
         Write-Host -ForegroundColor Gray "[$(Get-Date -format s)] [INFO] OSDProduct: $OSDProduct"
@@ -228,11 +229,11 @@ function Initialize-DeployOSDCloud {
     $ModuleName = $($MyInvocation.MyCommand.Module.Name)
     if ($ModuleName -eq 'OSD') {
         $global:OSDCoreOperatingSystems = Get-OSDCoreOperatingSystems |
-            Where-Object { $_.Architecture -match "$OSArchitecture" }
+        Where-Object { $_.Architecture -match "$OSArchitecture" }
     }
     elseif ($ModuleName -eq 'OSDCloud') {
         $global:OSDCoreOperatingSystems = Get-OSDCloudCoreOperatingSystems |
-            Where-Object { $_.OSArchitecture -match "$OSArchitecture" }
+        Where-Object { $_.OSArchitecture -match "$OSArchitecture" }
     }
     else {
         throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Unable to load core operating systems provider command."
@@ -392,11 +393,25 @@ function Initialize-DeployOSDCloud {
     }
 
     $global:OSDCoreOperatingSystemCloudObject = $global:OSDCoreOperatingSystems |
-        Where-Object {
-            ([string]$_.OperatingSystem -ieq $preferredOperatingSystem) -and
-            ([string]$_.OSActivation -ieq $preferredOSActivation) -and
-            ([string]$_.OSLanguageCode -ieq $preferredOSLanguageCode)
-        } |
+    Where-Object {
+        ([string]$_.OperatingSystem -ieq $preferredOperatingSystem) -and
+        ([string]$_.OSActivation -ieq $preferredOSActivation) -and
+        ([string]$_.OSLanguageCode -ieq $preferredOSLanguageCode)
+    } |
+    Sort-Object -Property @{ Expression = {
+            try {
+                [version]([string]$_.OSBuildVersion -replace '[^0-9\.]', '')
+            }
+            catch {
+                [version]'0.0'
+            }
+        }; Descending                   = $true
+    } |
+    Select-Object -First 1
+
+    if (-not $global:OSDCoreOperatingSystemCloudObject) {
+        Write-Warning "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] No exact operating system match was found for OperatingSystem '$preferredOperatingSystem', OSActivation '$preferredOSActivation', and OSLanguageCode '$preferredOSLanguageCode'. Falling back to the first available filtered catalog entry."
+        $global:OSDCoreOperatingSystemCloudObject = $global:OSDCoreOperatingSystems |
         Sort-Object -Property @{ Expression = {
                 try {
                     [version]([string]$_.OSBuildVersion -replace '[^0-9\.]', '')
@@ -404,21 +419,9 @@ function Initialize-DeployOSDCloud {
                 catch {
                     [version]'0.0'
                 }
-            }; Descending = $true } |
+            }; Descending                   = $true
+        } |
         Select-Object -First 1
-
-    if (-not $global:OSDCoreOperatingSystemCloudObject) {
-        Write-Warning "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] No exact operating system match was found for OperatingSystem '$preferredOperatingSystem', OSActivation '$preferredOSActivation', and OSLanguageCode '$preferredOSLanguageCode'. Falling back to the first available filtered catalog entry."
-        $global:OSDCoreOperatingSystemCloudObject = $global:OSDCoreOperatingSystems |
-            Sort-Object -Property @{ Expression = {
-                    try {
-                        [version]([string]$_.OSBuildVersion -replace '[^0-9\.]', '')
-                    }
-                    catch {
-                        [version]'0.0'
-                    }
-                }; Descending = $true } |
-            Select-Object -First 1
     }
 
     if (-not $global:OSDCoreOperatingSystemCloudObject) {
@@ -429,6 +432,7 @@ function Initialize-DeployOSDCloud {
     #=================================================
     # OSDCoreOperatingSystems Verify
     if ($global:OSDCoreOperatingSystemCloudObject) {
+        $global:OSDCoreOperatingSystemCloudObject | Export-Clixml -Path (Join-Path -Path $env:TEMP -ChildPath 'OSDCoreOperatingSystemCloudObject.xml') -Force
         Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Verifying cloud Operating System."
         # Confirm the selected operating system download URL before offering cache download work.
         $OSDCoreOperatingSystemCloudObjectUrlReachable = Test-OSDCoreOperatingSystemCloudObject -OperatingSystemCloudObject $global:OSDCoreOperatingSystemCloudObject
@@ -454,6 +458,7 @@ function Initialize-DeployOSDCloud {
         # Check whether the selected OS payload is already present in the USB cache inventory.
         $OSDCoreOperatingSystemCacheObject = Get-OSDCoreOperatingSystemCacheObject -OperatingSystemCloudObject $global:OSDCoreOperatingSystemCloudObject
         if ($OSDCoreOperatingSystemCacheObject) {
+            $OSDCoreOperatingSystemCacheObject | Export-Clixml -Path (Join-Path -Path $env:TEMP -ChildPath 'OSDCoreOperatingSystemCacheObject.xml') -Force
             Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] Verifying cache Operating System."
             # Verify the cached payload before treating it as ready.
             if (-not [string]::IsNullOrWhiteSpace($expectedOperatingSystemHash)) {
@@ -624,39 +629,39 @@ function Initialize-DeployOSDCloud {
     # Main
     $global:OSDCloudDeploy = $null
     $global:OSDCloudDeploy = [ordered]@{
-        DeploymentDiskObject      = $DeploymentDiskObject
-        DriverFolderName          = $null
-        DriverFolderNames         = @()
-        DriverFolderPath          = $null
-        DriverFolderPaths         = @()
-        DriverFolderSelections    = @()
-        DriverPackName            = $DriverPackName
-        DriverPackObject          = $global:OSDCoreDriverPackCloudObject
-        DriverPackValues          = [array]$global:ModuleCoreDriverPacks
-        Flows                     = [array]$global:OSDCloudWorkflowTasks
-        Function                  = $($MyInvocation.MyCommand.Name)
-        ImageFileName             = $ImageFileName
-        ImageFileUrl              = $ImageFileUrl
-        LaunchMethod              = 'OSDCloudWorkflow'
-        Module                    = $($MyInvocation.MyCommand.Module.Name)
-        OperatingSystem           = $OperatingSystem
-        OperatingSystemObject     = $OperatingSystemObject
-        OperatingSystemValues     = $OperatingSystemValues
-        OSActivation              = $OSActivation
-        OSActivationValues        = $OSActivationValues
-        OSArchitecture            = $OSArchitecture
-        OSBuild                   = $OSBuild
-        OSBuildVersion            = $OSBuildVersion
-        OSEdition                 = $OSEdition
-        OSEditionId               = $OSEditionId
-        OSEditionValues           = $OSEditionValues
-        OSLanguageCode            = $OSLanguageCode
-        OSLanguageCodeValues      = $OSLanguageCodeValues
-        OSVersion                 = $OSVersion
-        TimeStart                 = $null
-        WorkflowName              = $WorkflowName
-        WorkflowTaskName          = $WorkflowTaskName
-        WorkflowTaskObject        = $WorkflowTaskObject
+        DeploymentDiskObject   = $DeploymentDiskObject
+        DriverFolderName       = $null
+        DriverFolderNames      = @()
+        DriverFolderPath       = $null
+        DriverFolderPaths      = @()
+        DriverFolderSelections = @()
+        DriverPackName         = $DriverPackName
+        DriverPackObject       = $global:OSDCoreDriverPackCloudObject
+        DriverPackValues       = [array]$global:ModuleCoreDriverPacks
+        Flows                  = [array]$global:OSDCloudWorkflowTasks
+        Function               = $($MyInvocation.MyCommand.Name)
+        ImageFileName          = $ImageFileName
+        ImageFileUrl           = $ImageFileUrl
+        LaunchMethod           = 'OSDCloudWorkflow'
+        Module                 = $($MyInvocation.MyCommand.Module.Name)
+        OperatingSystem        = $OperatingSystem
+        OperatingSystemObject  = $OperatingSystemObject
+        OperatingSystemValues  = $OperatingSystemValues
+        OSActivation           = $OSActivation
+        OSActivationValues     = $OSActivationValues
+        OSArchitecture         = $OSArchitecture
+        OSBuild                = $OSBuild
+        OSBuildVersion         = $OSBuildVersion
+        OSEdition              = $OSEdition
+        OSEditionId            = $OSEditionId
+        OSEditionValues        = $OSEditionValues
+        OSLanguageCode         = $OSLanguageCode
+        OSLanguageCodeValues   = $OSLanguageCodeValues
+        OSVersion              = $OSVersion
+        TimeStart              = $null
+        WorkflowName           = $WorkflowName
+        WorkflowTaskName       = $WorkflowTaskName
+        WorkflowTaskObject     = $WorkflowTaskObject
     }
     #=================================================
     # OSDCloud Env override layer
@@ -665,5 +670,6 @@ function Initialize-DeployOSDCloud {
     if (Get-Command -Name 'Set-OSDCloudEnvOverride' -ErrorAction SilentlyContinue) {
         Set-OSDCloudEnvOverride -Target $global:OSDCloudDeploy -ResolveOperatingSystem -AddMissingKeys
     }
+    $global:OSDCloudDeploy | Export-Clixml -Path (Join-Path -Path $env:TEMP -ChildPath 'OSDCloudDeploy.xml') -Force
     #=================================================
 }
