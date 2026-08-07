@@ -66,4 +66,5 @@ function Initialize-ModuleCoreDriverPacks {
 
     #$DriverPackValues | Where-Object { $_.OSArchitecture -eq $ProcessorArchitecture }
     $global:ModuleCoreDriverPacks = $DriverPackValues | Where-Object { $_.OSArchitecture -eq $ProcessorArchitecture }
+    $global:ModuleCoreDriverPacks | Export-Clixml -Path (Join-Path -Path $env:TEMP -ChildPath 'ModuleCoreDriverPacks.xml') -Force
 }
