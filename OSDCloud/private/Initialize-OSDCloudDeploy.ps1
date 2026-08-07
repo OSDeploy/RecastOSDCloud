@@ -525,55 +525,53 @@ function Initialize-OSDCloudDeploy {
         FileName        : 26200.7462.251207-0044.25h2_ge_release_svc_refresh_CLIENTCONSUMER_RET_x64FRE_en-gb.esd
         FilePath        : http://dl.delivery.mp.microsoft.com/filestreamingservice/files/79a3f5e0-d04d-4689-a5d4-3ea35f8b189a/26200.7462.251207-0044.25h2_ge_release_svc_refresh_CLIENTCONSUMER_RET_x64FRE_en-gb.esd
     #>
-    $OperatingSystem = $global:OSDCloudWorkflowSettingsOS.OperatingSystem.default
-    $OperatingSystemValues = [array]$global:OSDCloudWorkflowSettingsOS.OperatingSystem.values
-    $OSActivation = $global:OSDCloudWorkflowSettingsOS.OSActivation.default
-    $OSActivationValues = [array]$global:OSDCloudWorkflowSettingsOS.OSActivation.values
+    $OperatingSystemValues = [array]$allowedOperatingSystems
+    $OSActivationValues = [array]$allowedOSActivations
     $OSArchitecture = $processorArchitecture
-    $OSEdition = $global:OSDCloudWorkflowSettingsOS.OSEdition.default
-    $OSEditionValues = [array]$global:OSDCloudWorkflowSettingsOS.OSEdition.values
+    $OSEdition = $preferredOSEdition
+    $OSEditionValues = [array]$allowedOSEditionObjects
     $OSEditionId = $null
-    $OSLanguageCode = $global:OSDCloudWorkflowSettingsOS.OSLanguageCode.default
-    $OSLanguageCodeValues = [array]$global:OSDCloudWorkflowSettingsOS.OSLanguageCode.values
-    $OSVersion = ($global:OSDCloudWorkflowSettingsOS.OperatingSystem.default -split ' ')[2]
+    $OSLanguageCodeValues = [array]$allowedOSLanguageCodes
     #=================================================
-    #   OSDCloudEnv
-    #=================================================
-    # Use OSDCloudEnv to override these properties:
-    #   OperatingSystem, OSEdition, OSActivation, OSLanguageCode
-    if ($global:OSDCloudEnv) {
-        if ($global:OSDCloudEnv.OperatingSystem) {
-            $OperatingSystem = $global:OSDCloudEnv.OperatingSystem
-        }
-        if ($global:OSDCloudEnv.OSEdition) {
-            $OSEdition = $global:OSDCloudEnv.OSEdition
-        }
-        if ($global:OSDCloudEnv.OSActivation) {
-            $OSActivation = $global:OSDCloudEnv.OSActivation
-        }
-        if ($global:OSDCloudEnv.OSLanguageCode) {
-            $OSLanguageCode = $global:OSDCloudEnv.OSLanguageCode
-        }
-    }
-    if (-not [string]::IsNullOrWhiteSpace($requestedOperatingSystem)) {
-        $OperatingSystem = $requestedOperatingSystem
-    }
-    if (-not [string]::IsNullOrWhiteSpace($requestedOSEdition)) {
-        $OSEdition = $requestedOSEdition
-    }
-    if (-not [string]::IsNullOrWhiteSpace($requestedOSActivation)) {
-        $OSActivation = $requestedOSActivation
-    }
-    if (-not [string]::IsNullOrWhiteSpace($requestedOSLanguageCode)) {
-        $OSLanguageCode = $requestedOSLanguageCode
-    }
-    if ($OperatingSystem -notin $OperatingSystemValues) {
-        throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] OperatingSystem '$OperatingSystem' is not valid for workflow '$WorkflowName'. Valid values: $($OperatingSystemValues -join ', ')"
-    }
-    if ($OSLanguageCode -notin $OSLanguageCodeValues) {
-        throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] OSLanguageCode '$OSLanguageCode' is not valid for workflow '$WorkflowName'. Valid values: $($OSLanguageCodeValues -join ', ')"
+    # OperatingSystemObject
+    $OperatingSystemObject = $global:OSDCoreOperatingSystemCloudObject
+    if (-not $OperatingSystemObject) {
+        throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] Unable to initialize deployment state because OSDCoreOperatingSystemCloudObject is not set."
     }
 
+    $OperatingSystem = if ($OperatingSystemObject.OperatingSystem) {
+        [string]$OperatingSystemObject.OperatingSystem
+    }
+    else {
+        $preferredOperatingSystem
+    }
+    $OSActivation = if ($OperatingSystemObject.OSActivation) {
+        [string]$OperatingSystemObject.OSActivation
+    }
+    elseif ($OperatingSystemObject.Activation) {
+        [string]$OperatingSystemObject.Activation
+    }
+    else {
+        $preferredOSActivation
+    }
+    $OSLanguageCode = if ($OperatingSystemObject.OSLanguageCode) {
+        [string]$OperatingSystemObject.OSLanguageCode
+    }
+    elseif ($OperatingSystemObject.Language) {
+        [string]$OperatingSystemObject.Language
+    }
+    else {
+        $preferredOSLanguageCode
+    }
+    $OSVersion = if ($OperatingSystemObject.OSVersion) {
+        [string]$OperatingSystemObject.OSVersion
+    }
+    elseif ($OperatingSystemObject.ReleaseID) {
+        [string]$OperatingSystemObject.ReleaseID
+    }
+    else {
+        ($OperatingSystem -split ' ')[2]
+    }
     $OSEditionObject = $OSEditionValues | Where-Object { $_.Edition -eq $OSEdition } | Select-Object -First 1
     if (-not $OSEditionObject) {
         $validOSEditions = $OSEditionValues | ForEach-Object { $_.Edition }
@@ -583,30 +581,26 @@ function Initialize-OSDCloudDeploy {
         throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] OSEdition '$OSEdition' does not have a valid EditionId in workflow '$WorkflowName'."
     }
 
-    $resolvedOSActivation = Resolve-OSDCloudWorkflowOSActivation -OSEdition $OSEdition -OSActivation $OSActivation
-    if ($resolvedOSActivation -ne $OSActivation) {
-        Write-Host -ForegroundColor DarkGray "[$(Get-Date -format s)] [INFO] OSEdition '$OSEdition' requires OSActivation '$resolvedOSActivation'."
-        $OSActivation = $resolvedOSActivation
-    }
-    if ($OSActivation -notin $OSActivationValues) {
-        throw "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] OSEdition '$OSEdition' requires OSActivation '$OSActivation', which is not valid for workflow '$WorkflowName'. Valid values: $($OSActivationValues -join ', ')"
-    }
     $OSEditionId = $OSEditionObject.EditionId
-    #=================================================
-    # OperatingSystemObject
-    $OperatingSystemObject = $global:OSDCoreOperatingSystems | Where-Object { $_.OperatingSystem -match $OperatingSystem } | Where-Object { $_.OSActivation -eq $OSActivation } | Where-Object { $_.OSLanguageCode -eq $OSLanguageCode }
-    if (-not $OperatingSystemObject -and $global:OSDCoreOperatingSystemCloudObject) {
-        Write-Warning "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] No exact runtime match was found for OperatingSystem '$OperatingSystem', OSActivation '$OSActivation', and OSLanguageCode '$OSLanguageCode'. Falling back to OSDCoreOperatingSystemCloudObject."
-        $OperatingSystemObject = $global:OSDCoreOperatingSystemCloudObject
+    $OSBuild = if ($OperatingSystemObject.OSBuild) {
+        [string]$OperatingSystemObject.OSBuild
     }
-    if (-not $OperatingSystemObject) {
-        throw "No Operating System found for OperatingSystem: $OperatingSystem, OSActivation: $OSActivation, OSLanguageCode: $OSLanguageCode. Please check your OSDCloud OperatingSystems."
+    else {
+        [string]$OperatingSystemObject.Build
     }
-    $global:OSDCoreOperatingSystemCloudObject = $OperatingSystemObject
-    $OSBuild = $OperatingSystemObject.OSBuild
-    $OSBuildVersion = $OperatingSystemObject.OSBuildVersion
-    $ImageFileName = $OperatingSystemObject.FileName
-    $ImageFileUrl = $OperatingSystemObject.FilePath
+    $OSBuildVersion = if ($OperatingSystemObject.OSBuildVersion) {
+        [string]$OperatingSystemObject.OSBuildVersion
+    }
+    else {
+        [string]$OperatingSystemObject.Build
+    }
+    $ImageFileName = [string]$OperatingSystemObject.FileName
+    $ImageFileUrl = if ($OperatingSystemObject.FilePath) {
+        [string]$OperatingSystemObject.FilePath
+    }
+    else {
+        [string]$OperatingSystemObject.Url
+    }
     #=================================================
     # Get-DeploymentDiskObject
     $DeploymentDiskObject = Get-DeploymentDiskObject
