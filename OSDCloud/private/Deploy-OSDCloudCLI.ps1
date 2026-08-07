@@ -137,13 +137,13 @@ function Deploy-OSDCloudCLI {
         # Initialize OSDCloudWorkflow
         # Override values (Parameters > ENV) are assembled into $global:OSDCloudEnv
         # and applied to $global:OSDCloudDeploy - including operating system resolution - inside
-        # Initialize-OSDCloudDeploy.
+        # Initialize-DeployOSDCloud.
         $WorkflowName = 'cli'
         $envParameters = @{}
         if (Get-Command -Name 'ConvertTo-OSDCloudEnvParameter' -ErrorAction SilentlyContinue) {
             $envParameters = ConvertTo-OSDCloudEnvParameter -BoundParameters $PSBoundParameters
         }
-        Initialize-OSDCloudDeploy -WorkflowName $WorkflowName -EnvParameters $envParameters -ProfileName $ProfileName
+        Initialize-DeployOSDCloud -WorkflowName $WorkflowName -EnvParameters $envParameters -ProfileName $ProfileName
 
         $selectedTask = if ($null -ne $Task) { $Task } else { [System.String]$global:OSDCloudDeploy.WorkflowTaskName }
         $selectedOperatingSystem = if ($null -ne $OperatingSystem) { $OperatingSystem } else { [System.String]$global:OSDCloudDeploy.OperatingSystem }

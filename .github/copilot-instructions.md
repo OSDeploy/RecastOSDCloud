@@ -115,7 +115,7 @@ Version follows `YY.M.D.revision` format – update `ModuleVersion` in `OSDCloud
 ## Common pitfalls
 
 - `public/WinPE/` functions are **not loaded outside WinPE** – do not call them in normal-environment code.
-- The module requires `curl.exe` to be present for download operations – validated in `Initialize-OSDCloudDeploy`.
+- The module requires `curl.exe` to be present for download operations – validated in `Initialize-DeployOSDCloud`.
 - `HtmlAgilityPack.dll` type is loaded once; re-importing silently skips the Add-Type call but may conflict if another version is loaded first.
 - Analytics events (PostHog) are sent during workflow execution – see [PRIVACY.md](../PRIVACY.md) for opt-out details.
 - Commit scopes: `workflow`, `driver-packs`, `pe-startup`, `deployment`, `classes`, `catalog`, `core`, `wi-fi`, `main`.

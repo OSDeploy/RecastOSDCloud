@@ -187,7 +187,7 @@ function Deploy-OSDCloud {
             ProfileName     = $ProfileName
             WorkflowName    = $WorkflowName
         }
-        $initializeOSDCloudDeployCommand = Get-Command -Name 'Initialize-OSDCloudDeploy' -ErrorAction SilentlyContinue
+        $initializeOSDCloudDeployCommand = Get-Command -Name 'Initialize-DeployOSDCloud' -ErrorAction SilentlyContinue
         if ($initializeOSDCloudDeployCommand) {
             $excludedCommonParameterNames = @(
                 'Verbose',
@@ -228,7 +228,7 @@ function Deploy-OSDCloud {
                 $initializeOSDCloudDeployParameters[$parameterName] = $parameterValue
             }
         }
-        Initialize-OSDCloudDeploy @initializeOSDCloudDeployParameters
+        Initialize-DeployOSDCloud @initializeOSDCloudDeployParameters
         #=================================================
         # Start Deployment Workflow
         if ($CLI.IsPresent) {

@@ -10,7 +10,7 @@ function Deploy-OSDCloudGUI {
     )
     #=================================================
     # Initialize OSDCloudWorkflow
-    Initialize-OSDCloudDeploy -WorkflowName $WorkflowName
+    Initialize-DeployOSDCloud -WorkflowName $WorkflowName
     #=================================================
     # Prevents the workflow from starting unless the Start button is clicked in the GUI
     $global:OSDCloudDeploy.TimeStart = $null
@@ -24,11 +24,13 @@ function Deploy-OSDCloudGUI {
         $global:OSDCloudDeploy | Out-Host
         try {
             Invoke-OSDCloudWorkflowTask
-        } catch {
+        }
+        catch {
             Write-Warning "Failed to invoke OSDCloud Workflow $WorkflowName $_"
             break
         }
-    } else {
+    }
+    else {
         Write-Host -ForegroundColor DarkCyan "[$(Get-Date -format s)] [$($MyInvocation.MyCommand.Name)] OSDCloud Workflow $WorkflowName was not started."
     }
     #=================================================
